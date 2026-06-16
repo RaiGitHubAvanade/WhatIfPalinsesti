@@ -1,0 +1,7 @@
+.pw-weekly-wrap { background: #fff; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; overflow-x: auto; -webkit-overflow-scrolling: touch; min-height: 140px; }
+.pw-weekly-wrap table { width: 100%; border-collapse: collapse; min-width: 980px; }
+.pw-weekly-wrap th { background: var(--rai); color: #fff; padding: 11px 14px; font-size: 12px; font-weight: 800; text-align: left; }
+.pw-weekly-wrap td { padding: 11px 14px; font-size: 13px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.pw-weekly-wrap tr:last-child td { border-bottom: none; }
+
+.pw-weekly-status { padding: 40px 20px; text-align: center; color: var(--muted); font-size: 14px; }

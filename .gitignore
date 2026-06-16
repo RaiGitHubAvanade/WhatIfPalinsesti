@@ -1,0 +1,71 @@
+WEBAPP/.databricks
+WEBAPP/.vscode/*
+!WEBAPP/.vscode/extensions.json
+
+
+#API
+# Python
+**/__pycache__/
+**/*.py[cod]
+**/*$py.class
+**/*.so
+**/*.egg
+**/*.egg-info/
+WEBAPP/api/build/
+WEBAPP/api/.eggs/
+
+# Virtual environment
+WEBAPP/api/.venv/
+WEBAPP/api/venv/
+WEBAPP/api/env/
+
+# Environment variables
+WEBAPP/api/.env
+WEBAPP/api/.env.*
+!WEBAPP/api/.env.example
+
+# Editor directories and files
+WEBAPP/api/.vscode/*
+!WEBAPP/api/.vscode/extensions.json
+WEBAPP/api/.vs/*
+WEBAPP/api/.idea
+WEBAPP/api/.DS_Store
+WEBAPP/api/*.suo
+WEBAPP/api/*.ntvs*
+WEBAPP/api/*.njsproj
+WEBAPP/api/*.sln
+WEBAPP/api/*.sw?
+
+# Logs
+**/*.log
+
+
+
+#FRONTEND
+# Logs
+WEBAPP/frontend/logs
+WEBAPP/frontend/*.log
+WEBAPP/frontend/npm-debug.log*
+WEBAPP/frontend/yarn-debug.log*
+WEBAPP/frontend/yarn-error.log*
+WEBAPP/frontend/pnpm-debug.log*
+WEBAPP/frontend/lerna-debug.log*
+
+WEBAPP/frontend/node_modules
+WEBAPP/frontend/dist
+WEBAPP/frontend/dist-ssr
+WEBAPP/frontend/*.local
+
+# Vite cache
+WEBAPP/frontend/.vite/
+
+# Editor directories and files
+WEBAPP/frontend/.vscode/*
+!WEBAPP/frontend/.vscode/extensions.json
+WEBAPP/frontend/.idea
+WEBAPP/frontend/.DS_Store
+WEBAPP/frontend/*.suo
+WEBAPP/frontend/*.ntvs*
+WEBAPP/frontend/*.njsproj
+WEBAPP/frontend/*.sln
+WEBAPP/frontend/*.sw?

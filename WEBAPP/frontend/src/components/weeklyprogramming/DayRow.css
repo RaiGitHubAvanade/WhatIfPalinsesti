@@ -1,0 +1,76 @@
+/* DayRow — single program row within a WeekDay group */
+
+/* Inherits row state colors from WeekTable scope */
+.pw-weekly-wrap tr.sP td { background: #EEFAF2; }
+.pw-weekly-wrap tr.sN td { background: #FFF0F0; }
+.pw-weekly-wrap tr.sZ td { background: #FFFBF0; }
+
+.pw-dr-day { font-weight: 700; vertical-align: top; }
+.pw-dr-day--hidden {
+  color: transparent;
+  user-select: none;
+}
+
+.pw-dr-time { white-space: nowrap; color: var(--muted); font-size: 13px; }
+.pw-dr-prog { font-weight: 500; }
+.pw-dr-real { font-weight: 700; }
+
+/* Shared inline-edit styles */
+.pw-prev-view { display: inline-flex; align-items: center; gap: 6px; }
+.pw-prev-value { font-weight: 700; }
+.pw-muted { color: var(--muted); }
+.pw-muted-italic { color: var(--muted); font-style: italic; }
+.pw-unit { color: var(--muted); font-size: 12px; }
+
+/* Manuale cell: fixed width so editing never shifts columns */
+.pw-dr-manual {
+  white-space: nowrap;
+  width: 130px;
+  min-width: 130px;
+  max-width: 130px;
+  position: relative;
+}
+
+/* The edit form sits absolutely over the cell so it takes zero layout space */
+.pw-prev-edit {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #fff;
+  z-index: 10;
+  padding: 0 2px;
+}
+
+.pw-edit-btn {
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.pw-ok-btn { padding: 4px 8px; font-size: 11px; }
+
+.pw-prev-input {
+  width: 72px;
+  height: 32px;
+  padding: 5px 8px;
+  border: 1.5px solid var(--border);
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: right;
+  background: #fff;
+  font-family: inherit;
+}
+.pw-prev-input:focus { border-color: var(--rai); outline: none; }
+
+/* Fonte badge */
+.pw-source-pill { display: inline-block; padding: 3px 8px; border-radius: 999px; font-size: 11px; font-weight: 800; }
+.source-whatif { background: #E8EFFE; color: var(--rai); border: 1px solid #ADC3FF; }
+.source-manual { background: #FFF3E0; color: var(--amber); border: 1px solid #FFD3A0; }
+.source-other { background: var(--bg); color: var(--muted); border: 1px solid var(--border); }
