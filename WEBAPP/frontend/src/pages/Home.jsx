@@ -5,7 +5,6 @@ export default function Home() {
 
   return (
     <div className="home-wrap">
-      <div className="home-greeting">RAI WhatIF Palinsesti v3.0</div>
       <h1 className="home-title">Benvenuto nel sistema di simulazione</h1>
       <p className="home-subtitle">
         Analizza l'impatto di cambiamenti nel palinsesto RAI prima di metterli in onda.
@@ -24,6 +23,18 @@ export default function Home() {
           </div>
         </div>
 
+        <div className="home-nav-card" onClick={() => navigate('/scenari')}>
+          <div className="home-nav-ico">📋</div>
+          <div className="home-nav-title">Scenari Salvati</div>
+          <div className="home-sub-row">
+            <span className="home-sub-tag">4 scenari</span>
+            <span className="home-sub-tag">Confronto</span>
+          </div>
+          <div className="home-nav-desc">
+            Gestisci fino a 4 scenari di simulazione salvati, con stampa e condivisione.
+          </div>
+        </div>
+
         <div className="home-nav-card" onClick={() => navigate('/programmazione')}>
           <div className="home-nav-ico">📅</div>
           <div className="home-nav-title">Programmazione Settimanale</div>
@@ -37,28 +48,6 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="home-nav-card" onClick={() => navigate('/scenari')}>
-          <div className="home-nav-ico">📋</div>
-          <div className="home-nav-title">Scenari Salvati</div>
-          <div className="home-sub-row">
-            <span className="home-sub-tag">4 scenari</span>
-            <span className="home-sub-tag">Confronto</span>
-          </div>
-          <div className="home-nav-desc">
-            Gestisci fino a 4 scenari di simulazione salvati, con stampa e condivisione.
-          </div>
-        </div>
-
-        <div className="home-nav-card" style={{ opacity: .7, cursor: 'default' }}>
-          <div className="home-nav-ico">📊</div>
-          <div className="home-nav-title">Analytics (Coming Soon)</div>
-          <div className="home-sub-row">
-            <span className="home-sub-tag">In sviluppo</span>
-          </div>
-          <div className="home-nav-desc">
-            Report avanzati e analisi di tendenza del palinsesto RAI.
-          </div>
-        </div>
       </div>
     </div>
   )
