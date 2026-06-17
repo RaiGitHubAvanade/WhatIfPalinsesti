@@ -3,7 +3,7 @@
  * @typedef {import('../models/weeklyTableViewModel').WeeklyTableViewModel} WeeklyTableViewModel
  */
 
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+const BASE_URL = import.meta.env.VITE_API_URL || ''
 
 async function apiFetch(path, options = {}) {
   const res = await fetch(`${BASE_URL}${path}`, options)
@@ -46,20 +46,20 @@ export function getCompetitors(slot, forceExternal = false) {
 /** @returns {Promise<WeeklyTableViewModel>} */
 export async function getWeeklyTable(channel, day) {
   const params = new URLSearchParams({ channel, day })
-  const result = await apiFetch(`/api/weekly/getWeeklyTable?${params}`)
+  const result = await apiFetch(`/api/weekly/getWeeklyTableDatabricks?${params}`)
   if (!result.success) throw new Error(result.message || 'Errore caricamento palinsesto')
   return result.data
 }
 
 export async function getCompetitorPrograms({ channel, day, from_time, to_time, program_name = '' }) {
   const params = new URLSearchParams({ channel, day, from_time, to_time, program_name })
-  const result = await apiFetch(`/api/weekly/getCompetitorPrograms?${params}`)
+  const result = await apiFetch(`/api/weekly/getCompetitorProgramsDatabricks?${params}`)
   if (!result.success) throw new Error(result.message || 'Errore caricamento concorrenti')
   return result.data
 }
 
 export async function editManualShare({ channel, program_name, from_time, to_time, day, value }) {
-  const result = await apiFetch('/api/weekly/editManualShare', {
+  const result = await apiFetch('/api/weekly/editManualShareDatabricks', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ channel, program_name, from_time, to_time, day, value }),

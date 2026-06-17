@@ -3,3 +3,13 @@ command: ['python', 'serve.py']
 env:
   - name: "DATABRICKS_WAREHOUSE_ID"
     valueFrom: "sql-warehouse"
+  - name: "CORS_ORIGINS"
+    value: "https://rai-whatif-webapp-2148885194133801.1.azure.databricksapps.com"
+  - name: "WEEK_TABLE_START"
+    value: "12:30"
+  - name: "WEEK_TABLE_END"
+    value: "23:30"
+  - name: "WEEK_TABLE_START_OFFSET"
+    value: "15"
+  - name: "WEEK_TABLE_END_OFFSET"
+    value: "15"
