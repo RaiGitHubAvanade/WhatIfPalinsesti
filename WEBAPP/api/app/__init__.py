@@ -1,10 +1,10 @@
 import os
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request, send_file
 from flask_cors import CORS
 from .config import Config
 from .container import teardown_databricks_service
 
-_DIST_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "frontend", "dist")
+_DIST_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "frontend", "dist"))
 
 
 def create_app(config_class=Config):
@@ -28,7 +28,13 @@ def create_app(config_class=Config):
 
     @app.errorhandler(404)
     def not_found(e):
-        return jsonify({"success": False, "message": "Not found"}), 404
+        # Return JSON only for API routes; for everything else serve the SPA
+        if request.path.startswith("/api/"):
+            return jsonify({"success": False, "message": "Not found"}), 404
+        index_path = os.path.join(app.static_folder, "index.html")
+        if os.path.exists(index_path):
+            return send_file(index_path)
+        return jsonify({"success": False, "message": "Frontend not built"}), 503
 
     @app.errorhandler(500)
     def server_error(e):
@@ -39,6 +45,9 @@ def create_app(config_class=Config):
     def serve_frontend(path):
         if path and os.path.exists(os.path.join(app.static_folder, path)):
             return app.send_static_file(path)
-        return app.send_static_file("index.html")
+        index_path = os.path.join(app.static_folder, "index.html")
+        if os.path.exists(index_path):
+            return send_file(index_path)
+        return jsonify({"success": False, "message": "Frontend not built"}), 503
 
     return app

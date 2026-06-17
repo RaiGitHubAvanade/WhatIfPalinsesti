@@ -1,4 +1,5 @@
 WEBAPP/.databricks
+WEBAPP/.gitignore
 WEBAPP/.vscode/*
 !WEBAPP/.vscode/extensions.json
 

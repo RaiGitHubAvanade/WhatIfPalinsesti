@@ -5,6 +5,7 @@ sync:
   include:
     - frontend/dist/**
   exclude:
+    - .databricks/**
     - frontend/src/**
     - frontend/public/**
     - frontend/node_modules/**
