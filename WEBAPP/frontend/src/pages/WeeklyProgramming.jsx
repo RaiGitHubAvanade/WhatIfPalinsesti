@@ -20,7 +20,7 @@ function getMondayISO(dayISO) {
 
 export default function WeeklyProgramming() {
   const { state, set, clearWeeklyOverrides, toast } = useApp()
-  const { wCh, wOverrides } = state
+  const { wCh } = state
 
   const [selectedDay, setSelectedDay] = useState('')
   /** @type {[PalinsestoViewModel[], React.Dispatch<React.SetStateAction<PalinsestoViewModel[]>>]} */
@@ -108,7 +108,6 @@ export default function WeeklyProgramming() {
         weekStart={weekStart}
         weekLabel={weekLabel}
         wCh={loadedChannel}
-        wOverrides={wOverrides}
       />
     </div>
   )

@@ -1,3 +1,4 @@
+import logging
 import os
 from flask import Flask, jsonify, request, send_file
 from flask_cors import CORS
@@ -12,7 +13,8 @@ def create_app(config_class=Config):
     app.config.from_object(config_class)
 
     CORS(app, origins=app.config["CORS_ORIGINS"])
-
+    logging.basicConfig()
+    logging.getLogger("app").setLevel(logging.INFO)
     app.teardown_appcontext(teardown_databricks_service)
 
     from .routes.programs import bp as programs_bp

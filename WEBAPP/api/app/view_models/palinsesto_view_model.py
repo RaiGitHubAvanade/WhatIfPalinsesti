@@ -4,8 +4,7 @@ from dataclasses import dataclass
 from datetime import date
 
 from app.models.palinsesto import Palinsesto
-
-_DAY_NAMES = ["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"]
+from app.utils.number_utils import NumberUtils
 
 
 @dataclass
@@ -21,13 +20,13 @@ class PalinsestoViewModel:
     @classmethod
     def MapPalinsestoViewModelFromPalinsesto(cls, row: Palinsesto) -> "PalinsestoViewModel":
         d = row.data
-        day_label = _DAY_NAMES[d.weekday()] + " " + d.strftime("%d/%m") if isinstance(d, date) else str(d)
+        day_iso = d.isoformat() if isinstance(d, date) else str(d)
         return cls(
-            day=day_label,
+            day=day_iso,
             from_time=row.orario_inizio or None,
             to_time=row.orario_fine or None,
             program_name=row.programma,
-            share_expected=row.share_predetto,
-            share_manual=row.share_manuale,
-            share_real=row.share_reale,
+            share_expected=NumberUtils.float_to_percent(row.share_predetto),
+            share_manual=NumberUtils.float_to_percent(row.share_manuale),
+            share_real=NumberUtils.float_to_percent(row.share_reale),
         )

@@ -5,6 +5,17 @@ import './WeekTable.css'
 /** @typedef {import('../../models/palinsestoViewModel').PalinsestoViewModel} PalinsestoViewModel */
 /** @typedef {import('../../models/weeklyTableViewModel').WeeklyTableViewModel} WeeklyTableViewModel */
 
+const _DAY_NAMES = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom']
+
+/** Returns display label "Mer 17/06" from an ISO date string "2026-06-18". */
+function isoToDayLabel(iso) {
+  if (!iso) return ''
+  const d = new Date(iso + 'T00:00:00')
+  const dow = d.getDay()
+  const offset = dow === 0 ? 6 : dow - 1  // Mon=0 … Sun=6
+  return _DAY_NAMES[offset] + ' ' + String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0')
+}
+
 /** Group a flat rows array into [{day, rows, baseIdx}] preserving order. */
 function groupByDay(rows) {
   const groups = []
@@ -31,9 +42,9 @@ function getCurrentWeekMondayISO() {
 }
 
 /**
- * @param {{ rows: PalinsestoViewModel[], loading: boolean, weekStart: string|null, weekLabel: string, wCh: string|null, wOverrides: Object }} props
+ * @param {{ rows: PalinsestoViewModel[], loading: boolean, weekStart: string|null, weekLabel: string, wCh: string|null }} props
  */
-export default function WeekTable({ rows, loading, weekStart, weekLabel, wCh, wOverrides }) {
+export default function WeekTable({ rows, loading, weekStart, weekLabel, wCh }) {
   const groups = groupByDay(rows)
   const isCurrentWeek = Boolean(weekStart) && weekStart === getCurrentWeekMondayISO()
 
@@ -73,12 +84,13 @@ export default function WeekTable({ rows, loading, weekStart, weekLabel, wCh, wO
             </tr>
           </thead>
           <tbody>
-            {groups.map((g, gIdx) => (
+            {groups.map((g) => (
               <WeekDay
                 key={g.day}
                 rows={g.rows}
                 baseIdx={g.baseIdx}
-                gIdx={gIdx}
+                dayIso={g.day}
+                dayLabel={isoToDayLabel(g.day)}
                 weekStart={weekStart}
                 wCh={wCh}
                 isCurrentWeek={isCurrentWeek}

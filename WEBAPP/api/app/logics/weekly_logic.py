@@ -1,5 +1,6 @@
 """Business logic for the weekly programming feature."""
 
+import logging
 from datetime import date, timedelta
 
 from app.services.databricks_service import DatabricksService
@@ -8,20 +9,22 @@ from app.view_models.competitor_programs_view_model import CompetitorProgramsVie
 from app.view_models.palinsesto_view_model import PalinsestoViewModel
 from app.utils.date_time_utils import DateTimeUtils
 from app.config import Config
+from app.utils.number_utils import NumberUtils
 
 
 class WeeklyLogic:
     def __init__(self, databricks_service: DatabricksService) -> None:
         self._databricks_service = databricks_service
+        self._logger = logging.getLogger(__name__)
 
     def _in_prime_window(self, orario_inizio: str | None, orario_fine: str | None) -> bool:
         """Return True when the program falls within the configured prime-time window."""
         if not orario_inizio or not orario_fine:
             return False
-        start = DateTimeUtils.to_minutes(orario_inizio.strip()[:5])
-        end = DateTimeUtils.to_minutes(orario_fine.strip()[:5])
-        window_start = DateTimeUtils.to_minutes(Config.WEEK_TABLE_START)
-        window_end = DateTimeUtils.to_minutes(Config.WEEK_TABLE_END)
+        start = DateTimeUtils.hhmm_to_minutes(orario_inizio.strip()[:5])
+        end = DateTimeUtils.hhmm_to_minutes(orario_fine.strip()[:5])
+        window_start = DateTimeUtils.hhmm_to_minutes(Config.WEEK_TABLE_START)
+        window_end = DateTimeUtils.hhmm_to_minutes(Config.WEEK_TABLE_END)
         return (
             (window_start <= start <= window_end)
             or end > window_start + Config.WEEK_TABLE_START_OFFSET_MINUTES
@@ -73,12 +76,14 @@ class WeeklyLogic:
     ) -> CompetitorProgramsViewModel:
         """Return a CompetitorProgramsViewModel with all channels overlapping [from_time, to_time]."""
         
+        channel_order = [c for c in Config.CHANNEL_ORDER if c != channel]
+        
         all_rows = []
         try:
             if not DateTimeUtils.is_current_week(day):
-                all_rows = self._databricks_service.get_vw_output_palinsesto_futuro(channel, day, from_time, to_time)
+                all_rows = self._databricks_service.get_vw_output_palinsesto_futuro(channel_order, day, from_time, to_time)
             else:
-                all_rows = self._databricks_service.get_storico_programmi(channel, day, from_time, to_time)
+                all_rows = self._databricks_service.get_storico_programmi(channel_order, day, from_time, to_time)
         except Exception as e:
             raise RuntimeError(
                 f"Errore durante il recupero dei programmi concorrenti per il canale '{channel}' "
@@ -86,14 +91,13 @@ class WeeklyLogic:
             ) from e
 
         # Sorting rows by canale and orario_inizio
-        _CHANNEL_ORDER = ["Rai 1", "Rai 2", "Rai 3", "Rete 4", "Canale 5", "Italia 1", "La7", "Tv8", "Nove"]
         def _sort_key(row) -> tuple:
             canale = row.canale  # sorting uses the model field (OtherChannel.canale)
             try:
-                priority = (0, _CHANNEL_ORDER.index(canale))
+                priority = (0, channel_order.index(canale))
             except ValueError:
                 priority = (1, canale)
-            return (*priority, DateTimeUtils.to_minutes(row.orario_inizio))
+            return (*priority, DateTimeUtils.hhmm_to_minutes(row.orario_inizio))
         all_rows.sort(key=_sort_key)
 
         return CompetitorProgramsViewModel.MapFromOtherChannels(
@@ -120,9 +124,8 @@ class WeeklyLogic:
         """
         
         try:
-            self._databricks_service.edit_manual_share_predict(
-                channel, program_name, from_time, to_time, day, value
-            )
+            db_value = NumberUtils.percent_to_float(value)
+            self._databricks_service.edit_manual_share_predict(channel, program_name, from_time, to_time, day, db_value)
         except Exception as e:
             raise RuntimeError(
                 f"Errore durante l'aggiornamento del palinsesto per '{program_name}' "

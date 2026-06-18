@@ -13,3 +13,5 @@ env:
     value: "15"
   - name: "WEEK_TABLE_END_OFFSET"
     value: "15"
+  - name: "CHANNEL_ORDER"
+    value: "Rai 1,Rai 2,Rai 3,Rete 4,Canale 5,Italia 1,La7,Tv8,Nove"
