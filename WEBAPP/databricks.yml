@@ -30,6 +30,11 @@ resources:
       name: rai-whatif-webapp
       source_code_path: .
       description: RAI What-If Web App
+      resources:
+        - name: "sql-warehouse"
+          sql_warehouse:
+            id: "738aa0db2c1d3421"
+            permission: "CAN_USE"
       permissions:
         - level: CAN_MANAGE
           group_name: users
