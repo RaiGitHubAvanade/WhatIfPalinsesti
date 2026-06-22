@@ -1,0 +1,9 @@
+/* StepCandidates-specific styles.
+   Reuses .prow, .psel-* etc. from StepProgram.css via the shared import in Simulation.jsx */
+
+.psel-loading {
+  padding: 32px 20px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 14px;
+}

@@ -3,7 +3,7 @@ import os
 from flask import Flask, jsonify, request, send_file
 from flask_cors import CORS
 from .config import Config
-from .container import teardown_databricks_service
+from .container import teardown_databricks_service, teardown_simulation_service
 
 _DIST_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "frontend", "dist"))
 
@@ -16,14 +16,15 @@ def create_app(config_class=Config):
     logging.basicConfig()
     logging.getLogger("app").setLevel(logging.INFO)
     app.teardown_appcontext(teardown_databricks_service)
+    app.teardown_appcontext(teardown_simulation_service)
 
     from .routes.route_weekly_programming import bp as weekly_bp
-    # from .routes.route_simulation import bp as simulation_bp
+    from .routes.route_simulation import bp as simulation_bp
     # from .routes.route_scenarios import bp as scenarios_bp
 
     api = "/api"
     app.register_blueprint(weekly_bp, url_prefix=api)
-    # app.register_blueprint(simulation_bp, url_prefix=api)
+    app.register_blueprint(simulation_bp, url_prefix=api)
     # app.register_blueprint(scenarios_bp, url_prefix=api)
 
     @app.errorhandler(404)

@@ -1,3 +1,0 @@
-.pw-date-input { height: 32px; padding: 0 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; color: var(--text); background: #fff; cursor: pointer; }
-.pw-date-input:focus { outline: 2px solid var(--rai); outline-offset: 1px; }
-.pw-date-formatted { font-size: 11px; color: var(--muted); margin-top: 2px; }

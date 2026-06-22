@@ -14,33 +14,6 @@ async function apiFetch(path, options = {}) {
   return res.json()
 }
 
-// Programs
-export function getPrograms(filters = {}) {
-  const params = new URLSearchParams()
-  Object.entries(filters).forEach(([k, v]) => { if (v) params.set(k, v) })
-  const qs = params.toString()
-  return apiFetch(`/api/programs${qs ? '?' + qs : ''}`)
-}
-
-export function getCandidates() {
-  return apiFetch('/api/candidates')
-}
-
-// Simulation
-export function simulate(orig, cand) {
-  return apiFetch('/api/simulate', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ orig, cand }),
-  })
-}
-
-export function getCompetitors(slot, forceExternal = false) {
-  const params = new URLSearchParams()
-  if (slot) params.set('slot', slot)
-  if (forceExternal) params.set('force_external', 'true')
-  return apiFetch(`/api/competitors?${params}`)
-}
 
 // Weekly
 /** @returns {Promise<WeeklyTableViewModel>} */
@@ -65,6 +38,65 @@ export async function editManualShare({ channel, program_name, from_time, to_tim
     body: JSON.stringify({ channel, program_name, from_time, to_time, day, value }),
   })
   if (!result.success) throw new Error(result.message || 'Errore aggiornamento share manuale')
+  return result.data
+}
+
+// ─── Simulation-specific endpoints ────────────────────────────────────────────
+
+/**
+ * @typedef {import('../models/simulationViewModel').ProgramListViewModel} ProgramListViewModel
+ * @typedef {import('../models/simulationViewModel').CompetitorListViewModel} CompetitorListViewModel
+ * @typedef {import('../models/simulationViewModel').SimResultSost} SimResultSost
+ * @typedef {import('../models/simulationViewModel').SimResultSposta} SimResultSposta
+ * @typedef {import('../models/simulationViewModel').ChannelScheduleViewModel} ChannelScheduleViewModel
+ */
+
+/** @returns {Promise<ProgramListViewModel>} */
+export async function getSimulationPrograms(filters = {}) {
+  const params = new URLSearchParams()
+  Object.entries(filters).forEach(([k, v]) => { if (v !== null && v !== undefined && v !== '') params.set(k, v) })
+  const qs = params.toString()
+  const result = await apiFetch(`/api/simulation/programs${qs ? '?' + qs : ''}`)
+  if (!result.success) throw new Error(result.message || 'Errore caricamento programmi')
+  return result.data
+}
+
+/** @returns {Promise<ProgramListViewModel>} */
+export async function getSimulationCandidates(filters = {}) {
+  const params = new URLSearchParams()
+  Object.entries(filters).forEach(([k, v]) => { if (v !== null && v !== undefined && v !== '') params.set(k, v) })
+  const qs = params.toString()
+  const result = await apiFetch(`/api/simulation/candidates${qs ? '?' + qs : ''}`)
+  if (!result.success) throw new Error(result.message || 'Errore caricamento candidati')
+  return result.data
+}
+
+/** @returns {Promise<SimResultSost|SimResultSposta>} */
+export async function runSimulation(payload) {
+  const result = await apiFetch('/api/simulation/simulate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+  if (!result.success) throw new Error(result.message || 'Errore simulazione')
+  return result.data
+}
+
+/** @returns {Promise<CompetitorListViewModel>} */
+export async function getSimulationCompetitors(slot = null) {
+  const params = new URLSearchParams()
+  if (slot) params.set('slot', slot)
+  const qs = params.toString()
+  const result = await apiFetch(`/api/simulation/competitors${qs ? '?' + qs : ''}`)
+  if (!result.success) throw new Error(result.message || 'Errore caricamento competitor')
+  return result.data
+}
+
+/** @returns {Promise<ChannelScheduleViewModel>} */
+export async function getSimulationSchedule(ch, dest_time) {
+  const params = new URLSearchParams({ ch, dest_time })
+  const result = await apiFetch(`/api/simulation/schedule?${params}`)
+  if (!result.success) throw new Error(result.message || 'Errore caricamento palinsesto')
   return result.data
 }
 

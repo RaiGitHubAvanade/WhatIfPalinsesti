@@ -18,10 +18,12 @@ const INITIAL_STATE = {
   spDestDay: '',
   spSrcDay: '',
   spDestTime: null,
+  spDestCh: null,
 
   // simulation result overlay
   _viewSim: false,
   _simResult: null,
+  _simSaved: false,
 
   // scenarios
   activeScen: 1,
@@ -70,8 +72,10 @@ function reducer(state, action) {
         spDestDay: '',
         spSrcDay: '',
         spDestTime: null,
+        spDestCh: null,
         _viewSim: false,
         _simResult: null,
+        _simSaved: false,
         showComp: false,
       }
 
