@@ -17,16 +17,14 @@ def create_app(config_class=Config):
     logging.getLogger("app").setLevel(logging.INFO)
     app.teardown_appcontext(teardown_databricks_service)
 
-    from .routes.programs import bp as programs_bp
-    from .routes.simulation import bp as simulation_bp
     from .routes.route_weekly_programming import bp as weekly_bp
-    from .routes.channels import bp as channels_bp
+    # from .routes.route_simulation import bp as simulation_bp
+    # from .routes.route_scenarios import bp as scenarios_bp
 
     api = "/api"
-    app.register_blueprint(programs_bp, url_prefix=api)
-    app.register_blueprint(simulation_bp, url_prefix=api)
     app.register_blueprint(weekly_bp, url_prefix=api)
-    app.register_blueprint(channels_bp, url_prefix=api)
+    # app.register_blueprint(simulation_bp, url_prefix=api)
+    # app.register_blueprint(scenarios_bp, url_prefix=api)
 
     @app.errorhandler(404)
     def not_found(e):
