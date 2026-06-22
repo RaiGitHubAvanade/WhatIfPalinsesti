@@ -4,7 +4,7 @@ flask-cors==6.0.2
 
 # SQL Connector for Python
 databricks-sdk==0.33.0
-databricks-sql-connector==4.2.7
+databricks-sql-connector==4.3.0
 pyarrow==24.0.0
 
 # Deployment servers
