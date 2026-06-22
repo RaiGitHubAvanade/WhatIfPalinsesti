@@ -1,0 +1,116 @@
+﻿/* Modal for "Altri Canali" */
+.modal-backdrop{position:fixed;left:0;top:0;right:0;bottom:0;background:rgba(10,20,40,0.45);z-index:1200;display:none}
+.modal{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:720px;max-width:96vw;background:#fff;border-radius:12px;box-shadow:0 18px 48px rgba(10,20,40,0.32);z-index:1300;display:none}
+.modal .modal-content{padding:16px}
+.modal .modal-header{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);padding-bottom:10px;margin-bottom:10px}
+.modal .modal-header h3{font-size:15px;font-weight:900;margin:0}
+.modal .modal-body{max-height:60vh;overflow:auto;padding-right:8px}
+.modal .ch-row{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-bottom:1px dashed var(--border)}
+.modal .ch-left{display:flex;gap:12px;align-items:center}
+.badge-competitor{background:#FFF3F3;color:var(--danger);font-weight:900;padding:4px 8px;border-radius:999px;font-size:12px}
+.modal .ch-meta{font-size:13px;color:var(--muted)}
+.modal .modal-close{background:transparent;border:0;font-size:18px;cursor:pointer;color:var(--muted)}
+
+/* Tab 4 – Confronto canali panel (mockup parity) */
+.t4ChannelPanel{
+  background: linear-gradient(180deg,#F3F7FF 0%,#FAFBFF 100%);
+  border: 1.5px solid #BBD2FF;
+  border-radius: 14px;
+  padding: 14px 16px;
+  animation: slideDown .18s ease;
+}
+@keyframes slideDown{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.t4ChannelPanel h4{
+  margin: 0 0 10px;
+  font-size: 13px;
+  font-weight: 950;
+  color: var(--rai);
+  display:flex;align-items:center;gap:8px;
+}
+.t4ChannelGrid{
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 8px;
+}
+.t4ChannelCard{
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:10px 12px;
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+.t4ChannelCard.isRai{ border-color:#BBD2FF; background:#EDF3FF; }
+.t4ChName{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
+.t4ChTitle{font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.t4ChPrograms{display:flex;flex-direction:column;gap:3px;margin-top:3px}
+.t4ChProgram{font-size:12px;font-weight:600;display:flex;align-items:baseline;gap:5px;overflow:hidden;text-overflow:ellipsis}
+.t4ChTime{font-size:11px;font-weight:600;color:var(--muted);white-space:nowrap;flex-shrink:0}
+.t4ChMeta{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:4px}
+.t4SharePill{
+  padding:4px 8px;border-radius:999px;font-size:12px;font-weight:600;
+  border:1px solid var(--border);background:#fff;
+}
+.t4SharePill.hasData{background:#EEFAF1;border-color:#BFE8C8;color:var(--success)}
+.t4SharePill.noData{background:#F9F9F9;border-color:#E5EAF3;color:var(--muted);font-style:italic}
+.t4SharePill.predicted{background:#FFF7E6;border-color:#F0C36D;color:#A36A00}
+.t4SharePill.historical{background:#F0F8FF;border-color:#BFDFFF;color:#0B5FD7}
+.t4InlineShare{margin-left:auto;padding:1px 5px;font-size:11px;font-weight:600;color:#A36A00;background:#FFF7E6;border:1px solid #F0C36D;border-radius:4px;white-space:nowrap;flex-shrink:0;}
+.t4CloseBtn{
+  margin-left:auto;border:0;background:transparent;cursor:pointer;
+  font-size:20px;line-height:1;color:var(--muted);padding:0 4px;
+}
+.t4CloseBtn:hover{color:var(--text)}
+.btnChannels{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:5px 9px;border-radius:8px;
+  border:1px solid #BBD2FF;background:#EDF3FF;color:var(--rai);
+  font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;
+  transition:.1s ease;
+}
+.btnChannels:hover{background:#D8E9FF}
+.btnChannels.active{background:var(--rai);color:#fff;border-color:var(--rai)}
+/* ensure existing 'Altri Canali' button matches mockup button styles */
+.btn-altri{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:8px;border:1px solid #BBD2FF;background:#EDF3FF;color:var(--rai);font-size:12px;font-weight:900;cursor:pointer;white-space:nowrap}
+.btn-altri:hover{background:#D8E9FF}
+.btn-altri.active{background:var(--rai);color:#fff;border-color:var(--rai)}
+
+.r-panel{background:#fff;border:1.5px solid var(--border);border-radius:16px;padding:20px;position:sticky;top:78px;}
+
+
+/* ===== Right panel (step 3 only) ===== */
+.split.has-panel{grid-template-columns:1fr 360px;}
+.r-panel.hidden{display:none;}
+
+/* screenshot-like blocks */
+.rp-h2{font-size:11px;font-weight:900;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin:14px 0 10px;}
+.rp-kv{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;background:#F2F6FD;border-radius:10px;margin-bottom:10px;}
+.rp-kv .k{font-size:12px;font-weight:900;color:var(--muted);} 
+.rp-kv .v{font-size:13px;font-weight:900;color:var(--text);} 
+.rp-prog{background:#F2F6FD;border-radius:12px;padding:14px 14px 12px;margin-bottom:10px;}
+.rp-prog .t{font-size:14px;font-weight:900;margin-bottom:3px;}
+.rp-prog .m{font-size:11.5px;color:var(--muted);font-weight:700;margin-bottom:10px;}
+.rp-prog .s{font-size:28px;font-weight:900;color:var(--rai);line-height:1;}
+.rp-comp{background:#F7FAFF;border:1px solid #E6EEFF;border-radius:12px;overflow:hidden;margin-bottom:10px;}
+.rp-comp-item{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-top:1px solid #E6EEFF;}
+.rp-comp-item:first-child{border-top:none;}
+.rp-comp-item .nm{font-size:13px;font-weight:900;}
+.rp-comp-item .ch{font-size:11.5px;color:var(--muted);font-weight:700;}
+.rp-comp-item .sh{font-size:12.5px;font-weight:900;color:var(--muted);}
+.rp-bolt{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:999px;background:#FFE7E7;color:#C62828;font-size:12px;margin-left:8px;}
+.rp-risk{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;font-size:13px;font-weight:900;margin:10px 0 12px;}
+.rp-risk.high{background:#FDECEA;color:var(--danger);} 
+.rp-risk.low{background:#E6F4EA;color:var(--success);} 
+.rp-risk .dot{width:10px;height:10px;border-radius:999px;background:currentColor;opacity:.85;}
+.rp-compare{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px;}
+.rp-mini{border:1.5px solid var(--border);border-radius:12px;padding:12px;text-align:center;background:#fff;}
+.rp-mini .lbl{font-size:10px;font-weight:900;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
+.rp-mini .nm{font-size:13px;font-weight:900;margin-bottom:6px;}
+.rp-mini .val{font-size:26px;font-weight:900;}
+.rp-impact{margin-top:10px;border-radius:12px;padding:12px;text-align:center;border:1.5px solid #FFE082;background:#FFF8E1;color:var(--warn);}
+.rp-impact .d{font-size:22px;font-weight:900;margin-bottom:4px;}
+.rp-impact .t{font-size:13px;font-weight:900;}
+
+/* Pannello nascosto per default */
+.r-panel.hidden{display:none !important;}

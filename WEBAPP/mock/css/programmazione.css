@@ -1,0 +1,79 @@
+﻿/* ===== PROGRAMMAZIONE SETTIMANALE – UX OVERHAUL ===== */
+/* Controls card */
+#pw-controls{margin-bottom:0;padding:0;border:none;box-shadow:none;background:transparent;}
+.pw-controls-inner{display:flex;align-items:center;gap:0;flex-wrap:wrap;}
+.pw-ctrl-group{display:flex;flex-direction:column;gap:4px;padding:0 16px;}
+.pw-ctrl-group:first-child{padding-left:0;}
+.pw-ctrl-sep{width:1px;background:var(--border);height:36px;align-self:center;margin:0 4px;flex-shrink:0;}
+.pw-ctrl-label{font-size:10.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+.pw-ctrl-cta{display:flex;flex-direction:column;gap:4px;margin-left:auto;padding-left:16px;}
+.pw-week-nav{display:flex;align-items:center;gap:4px;}
+.pw-week-nav .btn-inline{padding:7px 10px;font-size:13px;font-weight:700;}
+#pw-week-display{min-width:160px;padding:7px 12px;font-size:13px;font-weight:700;}
+#pw-week-ref{font-size:12px;color:var(--muted);font-weight:600;white-space:nowrap;}
+#pw-channel,#pw-fascia{height:36px;padding:6px 10px;font-size:13px;font-weight:700;border:1.5px solid var(--border);border-radius:8px;background:#fff;cursor:pointer;appearance:none;-webkit-appearance:none;}
+#pw-channel:focus,#pw-fascia:focus{border-color:var(--rai);outline:none;}
+#pw-week-date{position:absolute;opacity:0;pointer-events:none;width:0;height:0;}
+.pw-ctrl-btn-row{display:flex;align-items:center;gap:8px;}
+
+/* Legend row */
+.pw-legend{display:flex;align-items:center;gap:14px;padding:8px 14px;background:#F7F9FF;border:1px solid rgba(11,61,145,.06);border-radius:8px;margin-bottom:12px;font-size:12px;color:var(--muted);flex-wrap:wrap;}
+.pw-legend strong{color:var(--rai);}
+
+/* Table reset & base */
+#pw-table{width:100%;border-collapse:collapse;table-layout:auto;margin-top:0;}
+#pw-table th,#pw-table td{vertical-align:middle;box-sizing:border-box;}
+#pw-table th{background:var(--rai);color:#fff;padding:10px 14px;font-size:12px;font-weight:700;text-align:left;white-space:nowrap;}
+#pw-table td{padding:10px 14px;border-bottom:1px solid #EEF2FA;font-size:13px;}
+#pw-table tbody tr:hover td{background:#F1F6FF;}
+
+/* Day grouping: first row of each day gets a thicker top border */
+#pw-table tr[data-first-prog="1"] td{border-top:2px solid #DDE6F7;}
+#pw-table tr[data-first-prog="1"]:first-child td{border-top:none;}
+/* Sub-rows of same day: no day label, lighter border */
+#pw-table td.day-cell.sub-row{border-bottom-color:transparent;}
+#pw-table tr:not([data-first-prog]) td{border-top:1px dashed #EEF2FA;}
+
+/* Day cell */
+#pw-table td.day-cell{white-space:nowrap;min-width:90px;}
+.day-label{font-size:11.5px;font-weight:600;color:var(--rai-dark);text-transform:capitalize;}
+.day-date{display:inline-block;background:#EEF2FA;color:var(--muted);padding:2px 7px;border-radius:6px;font-size:11px;font-weight:500;margin-top:3px;}
+
+/* Time cell */
+#pw-table td.time-cell{white-space:nowrap;font-size:12px;font-weight:500;color:var(--rai);min-width:90px;}
+
+/* Program title */
+#pw-table td .p-title{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px;display:block;}
+.p-badge-prima{display:inline-block;background:#FFF3E0;color:#E65100;border-radius:6px;padding:1px 6px;font-size:10px;font-weight:700;margin-left:6px;vertical-align:middle;}
+
+/* Previsto cell – fix display:flex on td */
+#pw-table td.prev-cell{display:table-cell !important;white-space:nowrap;min-width:140px;padding-left:4px;}
+#pw-table th.col-prev{padding-left:4px;}
+#pw-table .prev-edit{display:inline-flex;align-items:center;gap:6px;}
+#pw-table .prev-val{font-weight:700;font-size:13px;color:var(--text);display:inline-block;}
+#pw-table .prev-val.prev-placeholder{color:var(--muted);font-weight:600;font-size:12px;}
+#pw-table .prev-input{width:72px;height:32px;padding:5px 8px;border:1.5px solid var(--border);border-radius:7px;font-size:13px;font-weight:700;text-align:right;background:#fff;}
+#pw-table .prev-input:focus{border-color:var(--rai);outline:none;}
+#pw-table .prev-suffix{color:var(--muted);font-size:12px;font-weight:500;}
+#pw-table .btn-edit-prev{background:transparent;border:0;cursor:pointer;color:var(--muted);width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;border-radius:6px;padding:0;flex-shrink:0;}
+#pw-table .btn-edit-prev:hover{background:rgba(11,61,145,.06);color:var(--rai);}
+
+/* Fonte badge */
+.badge-fonte{display:inline-flex;align-items:center;border-radius:999px;padding:3px 10px;font-size:11px;font-weight:600;white-space:nowrap;}
+.badge-fonte.whatif{background:#E8EFFE;color:var(--rai);}
+.badge-fonte.manual{background:#FFF8E1;color:var(--warn);}
+.badge-fonte.manual-ok{background:#E6F4EA;color:var(--success);}
+
+/* Reale / Scostamento */
+#pw-table td.real-cell,#pw-table td.scost-cell{text-align:center;white-space:nowrap;min-width:70px;font-weight:600;}
+
+/* Actions */
+#pw-table td.actions-cell{text-align:center;white-space:nowrap;min-width:80px;}
+.btn-altri{padding:5px 10px;font-size:11.5px;font-weight:600;border-radius:8px;border:1.5px solid var(--border);background:#fff;color:var(--rai);cursor:pointer;transition:.15s;white-space:nowrap;}
+.btn-altri:hover{background:#EDF2FF;border-color:var(--rai);}
+
+#pw-table thead th{position:sticky;top:0;z-index:5;background:var(--rai);}
+/* Zebra striping on day groups */
+#pw-table tbody tr:nth-of-type(odd) td{background:#fff;}
+#pw-table tbody tr:nth-of-type(even) td{background:#FBFDFF;}
+#pw-table tbody tr:hover td{background:#EDF2FF !important;}

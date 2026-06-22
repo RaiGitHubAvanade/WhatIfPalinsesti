@@ -1,0 +1,69 @@
+﻿/* HEADINGS */
+.page-title{font-size:20px;font-weight:800;margin-bottom:6px;letter-spacing:-0.2px;color:var(--rai-dark)}
+.page-sub{font-size:13.5px;color:var(--muted);margin-bottom:18px;line-height:1.4}
+
+/* Global polish for Programmazione tab */
+.card{transition:box-shadow .18s ease, transform .12s ease}
+.card:hover{box-shadow:0 12px 36px rgba(11,61,145,0.08);transform:translateY(-4px)}
+.page-title{font-size:20px;color:var(--rai-dark)}
+.page-sub{color:var(--muted);font-size:14px}
+
+/* Controls card refinement */
+#pw-controls{background:linear-gradient(180deg,#ffffff,#fbfdff);border-radius:10px;padding:10px 12px;border:1px solid rgba(11,61,145,0.06);display:flex;align-items:center;flex-wrap:wrap;}
+#pw-controls .f-row{width:100%;align-items:center;gap:8px;justify-content:space-between;flex-wrap:wrap}
+#pw-controls .f-row > div:first-child{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+#pw-controls select{min-width:100px}
+#pw-controls .f-label{color:var(--muted);font-weight:700;font-size:13px;text-transform:none}
+
+/* Mobile-first responsive fix */
+@media (max-width: 480px) {
+  #pw-controls {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 10px;
+  }
+  #pw-controls .f-row {
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+  }
+  #pw-controls .f-row > div:first-child {
+    flex-direction: column;
+    width: 100%;
+    gap: 8px;
+  }
+  #pw-controls select,
+  #pw-controls input[type="date"],
+  #pw-week-display,
+  #pw-fascia {
+    width: 100%;
+    min-height: 36px;
+  }
+  #pw-controls .f-label {
+    font-size: 12px;
+    min-width: none;
+  }
+}
+
+/* CTA group fixed area */
+.pw-cta-wrap{display:flex;gap:8px;align-items:center;min-width:260px;justify-content:flex-start;margin-top:6px}
+.pw-cta-wrap .btn-inline{box-shadow:0 4px 12px rgba(11,61,145,0.06)}
+
+/* Button hover states */
+.btn-inline:hover{box-shadow:0 8px 20px rgba(11,61,145,0.06)}
+.btn-inline.primary:hover{background:#0a2f77}
+
+/* Focus states */
+.btn-inline:focus{outline:3px solid rgba(10,83,204,0.12);outline-offset:2px}
+.prev-input:focus{box-shadow:0 0 0 3px rgba(11,61,145,0.06);border-color:var(--rai)}
+
+/* Loading state for inline buttons */
+.btn-inline.loading{position:relative;color:transparent}
+.btn-inline.loading:after{content:'';position:absolute;left:50%;top:50%;width:16px;height:16px;margin:-8px 0 0 -8px;border-radius:50%;border:2px solid rgba(255,255,255,0.2);border-top-color:#fff;animation:spin 0.9s linear infinite}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+
+/* Table responsive tweaks */
+#pw-table{border-radius:10px;overflow:hidden}
+#pw-table td .p-title{font-weight:800}
+#pw-table tbody tr:hover{background:#F1F6FF}
+

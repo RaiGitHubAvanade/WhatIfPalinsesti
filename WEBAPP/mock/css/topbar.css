@@ -1,0 +1,20 @@
+﻿.main{margin-left:230px;flex:1;display:flex;flex-direction:column;min-height:100vh;}
+
+/* TOPBAR */
+.topbar{background:#fff;border-bottom:1px solid var(--border);padding:0 28px;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.tb-title{font-size:17px;font-weight:800;}
+
+/* Responsive topbar */
+@media (max-width: 768px) {
+  .topbar { padding: 0 14px; height: 52px; }
+  .tb-title { font-size: 15px; }
+}
+
+@media (max-width: 480px) {
+  .topbar { padding: 0 10px; height: 48px; }
+  .tb-title { font-size: 13px; }
+}
+
+/* CONTENT */
+.content{padding:28px;flex:1;}
+.section{display:none;}.section.active{display:block;}

@@ -1,0 +1,220 @@
+﻿<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RAI WhatIF Palinsesti v3.0</title>
+  <!-- flatpickr for stable week selection -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/sidebar.css">
+  <link rel="stylesheet" href="css/topbar.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/simulation.css">
+  <link rel="stylesheet" href="css/scenarios.css">
+  <link rel="stylesheet" href="css/spostamento.css">
+  <link rel="stylesheet" href="css/weeklytable.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <link rel="stylesheet" href="css/modal.css">
+  <link rel="stylesheet" href="css/resultview.css">
+  <link rel="stylesheet" href="css/programmazione.css">
+  <link rel="stylesheet" href="css/home.css">
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sb-logo">
+    <div class="sb-badge" title="RAI - Radiotelevisione Italiana">
+      <img src="https://seeklogo.com/images/R/rai-logo-3C5466B041-seeklogo.com.png" alt="Rai logo" />
+    </div>
+    <div><div class="sb-name">WhatIF</div>
+<div class="sb-sub">Palinsesti</div></div>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-item" id="nav-home" onclick="showHome()">
+      <span class="ico">🏠</span>Home
+    </div>
+    <div class="sb-item" id="nav-sim" onclick="navSim()">
+      <span class="ico">⚙️</span>Simulazione
+    </div>
+    <div class="sb-sub-nav">
+      <div class="sb-item" id="nav-scen" onclick="navScen()">
+        <span class="ico">📂</span>Scenari
+      </div>
+    </div>
+    <div class="sb-item" id="nav-prog" onclick="showWeekly()">
+      <span class="ico">📋</span>Programmazione settimanale
+    </div>
+  </nav>
+  <div class="sb-footer">
+    <div class="sb-item" onclick="showHelp()"><span class="ico">❓</span>Guida</div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <span class="tb-title" id="tb-title">Home</span>
+  </div>
+
+  <div class="content">
+
+    <!-- HOME -->
+    <section class="section active" id="sec-home">
+      <div class="home-wrap">
+        <div class="home-greeting">WhatIF · Palinsesti RAI</div>
+        <div class="home-title">Seleziona Area di Lavoro</div>
+        <div class="home-subtitle">Seleziona un'opzione per cominciare a lavorare</div>
+        <div class="home-nav-grid">
+          <div class="home-nav-card" onclick="navSim()">
+            <div class="home-nav-ico">⚙️</div>
+            <div class="home-nav-title">Simulazione</div>
+            <div class="home-sub-row">
+              <span class="home-sub-tag home-sub-tag--action" onclick="event.stopPropagation();navScen()">📂 Scenari</span>
+            </div>
+            <div class="home-nav-desc">Simula sostituzioni e spostamenti di programma, confronta scenari alternativi e salva i risultati.</div>
+          </div>
+          <div class="home-nav-card" onclick="showWeekly()">
+            <div class="home-nav-ico">📋</div>
+            <div class="home-nav-title">Programmazione Settimanale</div>
+            <div class="home-nav-desc">Visualizza e gestisci il palinsesto settimanale per canale e fascia oraria.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SIMULAZIONE -->
+    <section class="section" id="sec-sim">
+      <div id="sim-landing">
+        
+        <p class="page-sub">Scegli il tipo di simulazione da effettuare sul palinsesto</p>
+        <div class="mode-grid">
+          <div class="mode-card mode-card-sost" onclick="launchMode('sostituzione')">
+            <div class="mode-ico">🔄</div>
+            <div class="mode-title">Sostituzione Programmi</div>
+            <div class="mode-desc">Sostituisci un programma con un'alternativa editoriale nello stesso slot. Analizza l'impatto sullo share e confronta scenari alternativi.</div>
+            <button class="btn-launch">Avvia simulazione →</button>
+          </div>
+          <div class="mode-card mode-card-sposta" onclick="launchMode('spostamento')">
+            <div class="mode-ico">🕐</div>
+            <div class="mode-title">Spostamento Programma</div>
+            <div class="mode-desc">Sposta un programma in un altro giorno o orario. Il sistema calcola l'impatto sullo slot di origine e su quello di destinazione.</div>
+            <button class="btn-launch">Avvia simulazione →</button>
+          </div>
+        </div>
+      </div>
+
+      
+      <div id="sim-flow">
+        <div class="sim-flow-header">
+          <h2 class="page-title" id="flow-title"></h2>
+        </div>
+        <div class="prog-bar" id="prog-bar"></div>
+
+        <!-- ✅ FIX: split layout completo e DOM valido -->
+        <div class="split">
+          <div class="step-area" id="step-area"></div>
+
+          <!-- ✅ FIX: pannello destro necessario per renderRightPanel() -->
+          <div class="r-panel hidden">
+            <div id="r-panel-body">
+              <div class="rp-empty">Inizia selezionando canale e data per avviare la simulazione.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROGRAMMAZIONE -->
+    <section class="section" id="sec-prog">
+
+      <div id="prog-weekly">
+        <p class="page-sub">Seleziona il canale e la settimana di interesse</p>
+
+        <div class="card" id="pw-controls">
+          <div class="pw-controls-inner">
+            <div class="pw-ctrl-group">
+              <span class="pw-ctrl-label">Canale</span>
+              <select id="pw-channel">
+                <option value="" disabled selected>Seleziona canale</option>
+                <option>Rai 1</option>
+                <option>Rai 2</option>
+                <option>Rai 3</option>
+              </select>
+            </div>
+            <div class="pw-ctrl-sep"></div>
+            <div class="pw-ctrl-group">
+              <span class="pw-ctrl-label">Settimana</span>
+              <div class="pw-week-nav">
+                <button type="button" class="btn-inline" id="pw-prev">‹</button>
+                <input type="date" id="pw-week-date" />
+                <button type="button" class="btn-inline" id="pw-week-display" title="Apri calendario">Settimana —</button>
+                <button type="button" class="btn-inline" id="pw-next">›</button>
+              </div>
+            </div>
+            <div class="pw-ctrl-sep"></div>
+            <div class="pw-ctrl-group">
+              <span class="pw-ctrl-label">Fascia oraria</span>
+              <select id="pw-fascia">
+                <option>20:30–23:30</option>
+              </select>
+            </div>
+            <div class="pw-ctrl-cta">
+              <span class="pw-ctrl-label">&nbsp;</span>
+              <div class="pw-ctrl-btn-row">
+                <button type="button" class="btn-inline primary" id="pw-load-pal">Carica Palinsesto</button>
+                <button type="button" class="btn-inline" id="pw-reset">Reset</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="weekly-wrap" id="weekly-wrap"></div>
+      </div>
+
+    </section>
+
+    <!-- SCENARI SALVATI -->
+    <section class="section" id="sec-scen">
+      <div class="card" id="scen-list-wrap">
+        <div class="scen-empty">Nessuno scenario salvato.</div>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- Modal: Altri Canali -->
+<div class="modal-backdrop" id="modal-backdrop"></div>
+<div class="modal" id="modal-altri" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 id="modal-title">📺 Programmazione Altri Canali</h3>
+      <button id="modal-close" class="modal-close" aria-label="Chiudi">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body">
+      <!-- content populated dynamically -->
+    </div>
+  </div>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/state.js"></script>
+<script src="js/simulation.js"></script>
+<script src="js/nav.js?v=20260611c"></script>
+<script src="js/rightpanel.js"></script>
+<script src="js/scenarios.js"></script>
+<script src="js/topbar.js"></script>
+<script src="js/weeklyprogramming.js"></script>
+<script src="js/scenariosview.js"></script>
+<script src="js/toast.js"></script>
+<script src="js/channels.js"></script>
+<script src="js/init.js"></script>
+
+</body>
+</html>

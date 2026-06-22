@@ -1,0 +1,21 @@
+﻿:root{
+  --rai:#0B3D91;--rai-dark:#071D45;--rai-light:#3A6BD6;
+  --success:#1E8E3E;--danger:#C62828;--warn:#B06000;
+  --bg:#F0F4FA;--card:#FFFFFF;--border:#DDE3EE;
+  --text:#1A202C;--muted:#6B7A99;--amber:#E65100;--amber-bg:#FFF3E0;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+/* modernized UI font stack and smoothing */
+body{font-family:Inter, 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial; background:var(--bg);color:var(--text);display:flex;min-height:100vh;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+
+/* Ensure flatpickr calendar floats above content and doesn't get hidden/overlap awkwardly */
+.flatpickr-calendar{z-index:99999 !important}
+
+/* Disabled/unclickable visual for week nav controls */
+.pw-nav .disabled, .pw-nav button[disabled], .pw-nav .disabled-btn { opacity: 0.45; cursor: not-allowed; pointer-events: none; }
+
+/* Labels used in Auditel columns */
+.label-muted{color:var(--muted);font-weight:700}
+.label-warn{color:var(--warn);font-weight:800}
+.label-unavailable{color:var(--muted);font-weight:700}
