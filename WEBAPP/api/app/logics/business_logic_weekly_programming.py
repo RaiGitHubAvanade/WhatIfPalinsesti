@@ -3,7 +3,7 @@
 import logging
 from datetime import date, timedelta
 
-from app.services.databricks_service import DatabricksService
+from app.services.databricks_service_weekly_programming import DatabricksServiceWeeklyProgramming
 from app.view_models.weekly_table_view_model import WeeklyTableViewModel
 from app.view_models.competitor_programs_view_model import CompetitorProgramsViewModel
 from app.view_models.palinsesto_view_model import PalinsestoViewModel
@@ -12,8 +12,8 @@ from app.config import Config
 from app.utils.number_utils import NumberUtils
 
 
-class WeeklyLogic:
-    def __init__(self, databricks_service: DatabricksService) -> None:
+class BusinessLogicWeeklyProgramming:
+    def __init__(self, databricks_service: DatabricksServiceWeeklyProgramming) -> None:
         self._databricks_service = databricks_service
         self._logger = logging.getLogger(__name__)
 
@@ -33,7 +33,7 @@ class WeeklyLogic:
             or start < window_end - Config.WEEK_TABLE_END_OFFSET_MINUTES
         )
 
-    def get_weekly_table_databricks(self, channel: str, day: date) -> WeeklyTableViewModel:
+    def get_weekly_table(self, channel: str, day: date) -> WeeklyTableViewModel:
         """Return a WeeklyTableViewModel for the given channel and day.
 
         Source selection:
@@ -66,7 +66,7 @@ class WeeklyLogic:
             rows=filtered,
         )
 
-    def get_competitor_programs_databricks(
+    def get_competitor_programs(
         self,
         channel: str,
         day: date,
@@ -109,7 +109,7 @@ class WeeklyLogic:
             rows=all_rows,
         )
 
-    def edit_manual_share_databricks(
+    def edit_manual_share(
         self,
         channel: str,
         program_name: str,

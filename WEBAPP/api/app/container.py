@@ -5,22 +5,22 @@ automatically at the end of the request via teardown_appcontext.
 
 Usage in a route:
     from app.container import get_databricks_service
-    logic = WeeklyLogic(get_databricks_service())
+    logic = BusinessLogicWeeklyProgramming(get_databricks_service())
 """
 
 from flask import g
 
-from app.services.databricks_service import DatabricksService
+from app.services.databricks_service_weekly_programming import DatabricksServiceWeeklyProgramming
 
 
-def get_databricks_service() -> DatabricksService:
-    """Return the DatabricksService for the current request context.
+def get_databricks_service() -> DatabricksServiceWeeklyProgramming:
+    """Return the DatabricksServiceWeeklyProgramming for the current request context.
 
     A new instance is created on first call and reused for the lifetime
     of the request. The connection is closed by teardown_databricks_service.
     """
     if "databricks_service" not in g:
-        g.databricks_service = DatabricksService()
+        g.databricks_service = DatabricksServiceWeeklyProgramming()
     return g.databricks_service
 
 

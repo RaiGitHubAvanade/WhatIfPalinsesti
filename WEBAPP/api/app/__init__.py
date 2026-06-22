@@ -19,7 +19,7 @@ def create_app(config_class=Config):
 
     from .routes.programs import bp as programs_bp
     from .routes.simulation import bp as simulation_bp
-    from .routes.weekly import bp as weekly_bp
+    from .routes.route_weekly_programming import bp as weekly_bp
     from .routes.channels import bp as channels_bp
 
     api = "/api"

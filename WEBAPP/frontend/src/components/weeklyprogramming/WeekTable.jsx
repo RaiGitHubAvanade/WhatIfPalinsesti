@@ -20,11 +20,11 @@ function isoToDayLabel(iso) {
 function groupByDay(rows) {
   const groups = []
   const seen = new Map()
-  rows.forEach((row, idx) => {
+  rows.forEach((row) => {
     const key = row.day || ''
     if (!seen.has(key)) {
       seen.set(key, groups.length)
-      groups.push({ day: key, rows: [], baseIdx: idx })
+      groups.push({ day: key, rows: [] })
     }
     groups[seen.get(key)].rows.push(row)
   })
@@ -88,7 +88,6 @@ export default function WeekTable({ rows, loading, weekStart, weekLabel, wCh }) 
               <WeekDay
                 key={g.day}
                 rows={g.rows}
-                baseIdx={g.baseIdx}
                 dayIso={g.day}
                 dayLabel={isoToDayLabel(g.day)}
                 weekStart={weekStart}

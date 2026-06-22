@@ -9,9 +9,10 @@ import './DayRow.css'
 /**
  * @param {{ row: PalinsestoViewModel, idx: number, showDay: boolean, dayIso: string|null, wCh: string|null, isCurrentWeek: boolean }} props
  */
-export default function DayRow({ row, idx, showDay, dayIso, wCh, isCurrentWeek }) {
+export default function DayRow({ row, showDay, dayIso, wCh, isCurrentWeek }) {
   const { state, applyWeeklyOverride, toast } = useApp()
-  const override = state.wOverrides[idx]
+  const overrideKey = `${dayIso}|${row.from_time}|${row.to_time}`
+  const override = state.wOverrides[overrideKey]
   const [editingManuale, setEditingManuale] = useState(false)
   const [editManualeVal, setEditManualeVal] = useState('')
   const [showAltriCanali, setShowAltriCanali] = useState(false)
@@ -37,8 +38,11 @@ export default function DayRow({ row, idx, showDay, dayIso, wCh, isCurrentWeek }
       newValue = num
     }
 
+    // Skip if nothing changed
+    if (newValue === manualeVal) { setEditingManuale(false); return }
+
     // Optimistically update local state — always store manual explicitly (null = cleared)
-    applyWeeklyOverride(idx, { ...(override || {}), manual: newValue })
+    applyWeeklyOverride(overrideKey, { ...(override || {}), manual: newValue })
     setEditingManuale(false)
 
     // Persist to backend
