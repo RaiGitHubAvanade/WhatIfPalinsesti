@@ -1,0 +1,3 @@
+.toast-container { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%); z-index: 9999; }
+.toast { background: #1A202C; color: #fff; border-radius: 12px; padding: 14px 24px; font-size: 13px; font-weight: 700; box-shadow: 0 4px 20px rgba(0,0,0,.25); animation: toastIn .25s ease; white-space: nowrap; }
+@keyframes toastIn { from { transform: translateY(14px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }

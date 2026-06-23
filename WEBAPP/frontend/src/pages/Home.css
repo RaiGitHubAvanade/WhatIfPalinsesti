@@ -1,0 +1,16 @@
+/* ─── HOME PAGE ─── */
+.home-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 62vh; padding: 40px 20px; text-align: center; }
+.home-title { font-size: 26px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+.home-subtitle { font-size: 14px; color: var(--muted); font-weight: 400; margin-bottom: 36px; }
+.home-nav-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; max-width: 1020px; width: 100%; }
+.home-nav-card { background: #fff; border: 1.5px solid var(--border); border-radius: 16px; padding: 36px 28px 32px; cursor: pointer; transition: .18s; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 12px; min-height: 200px; }
+.home-nav-card:hover { border-color: var(--rai); box-shadow: 0 8px 28px rgba(11,61,145,.11); transform: translateY(-2px); }
+.home-nav-ico { font-size: 42px; line-height: 1; }
+.home-nav-title { font-size: 17px; font-weight: 600; color: var(--text); }
+.home-sub-row { display: flex; gap: 6px; justify-content: center; margin-top: -4px; }
+.home-sub-tag { font-size: 12px; font-weight: 500; color: var(--muted); background: var(--bg); border: 1px solid var(--border); border-radius: 999px; padding: 3px 12px; }
+.home-nav-desc { font-size: 13px; color: var(--muted); line-height: 1.55; font-weight: 400; }
+
+@media (max-width: 768px) {
+  .home-nav-grid { grid-template-columns: 1fr; }
+}

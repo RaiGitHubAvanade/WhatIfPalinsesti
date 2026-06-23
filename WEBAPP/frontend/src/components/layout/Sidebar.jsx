@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom'
 import { useApp } from '../../context/useApp'
+import './Sidebar.css'
 
 const NAV_ITEMS = [
   { to: '/', label: 'Home', ico: '🏠', exact: true },

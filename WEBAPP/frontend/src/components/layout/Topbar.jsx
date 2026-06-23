@@ -1,4 +1,5 @@
 import { useApp } from '../../context/useApp'
+import './Topbar.css'
 
 const PAGE_TITLES = {
   '/': 'Dashboard',

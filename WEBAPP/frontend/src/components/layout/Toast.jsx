@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { useApp } from '../../context/useApp'
+import './Toast.css'
 
 export default function Toast() {
   const { state, clearToast } = useApp()

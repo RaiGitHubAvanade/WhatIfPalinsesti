@@ -7,8 +7,7 @@ import StepCandidates from '../components/simulation/StepCandidates'
 import StepDestination from '../components/simulation/StepDestination'
 import StepResult from '../components/simulation/StepResult'
 
-// Shared simulation CSS (used by all steps)
-import '../components/simulation/StepProgram.css'
+import './Simulation.css'
 
 export default function Simulation() {
   const { state, resetSim } = useApp()

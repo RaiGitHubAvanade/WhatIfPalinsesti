@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import { useApp } from '../context/useApp'
 import ScenTabStrip from '../components/scenarios/ScenTabStrip'
 import ScenItemCard from '../components/scenarios/ScenItemCard'
-import '../styles/Scenarios.css'
+import './Scenarios.css'
 
 /**
  * @typedef {import('../models/simulationViewModel').SimResultSost} SimResultSost
