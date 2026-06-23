@@ -1,0 +1,211 @@
+.sic-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 16px;
+  background: #fff;
+  box-shadow: 0 4px 16px rgba(11, 61, 145, 0.05);
+  transition: 0.15s;
+}
+
+.sic-card:hover {
+  border-color: #8fb0ff;
+  box-shadow: 0 8px 24px rgba(11, 61, 145, 0.1);
+}
+
+.sic-card.sostituzione {
+  background: linear-gradient(180deg, #f5f5f5, #ffffff);
+  border-color: #d7ccc8;
+}
+
+.sic-card.spostamento {
+  background: linear-gradient(180deg, #e8eaf6, #ffffff);
+  border-color: #c5cae9;
+}
+
+.sic-card.is-anchor {
+  border-color: var(--rai) !important;
+  box-shadow: 0 0 0 2px rgba(11, 61, 145, 0.12), 0 6px 20px rgba(11, 61, 145, 0.1);
+}
+
+/* ── Head ──────────────────────────────────────────────────────── */
+.sic-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+}
+
+.sic-mode-ico {
+  font-size: 16px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.sic-titles {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sic-title {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sic-sub {
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sic-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.sic-anchor-btn,
+.sic-remove-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 15px;
+  padding: 4px;
+  border-radius: 7px;
+  transition: 0.15s;
+  line-height: 1;
+}
+
+.sic-anchor-btn:hover {
+  background: #eef3ff;
+}
+
+.sic-anchor-btn.active {
+  background: #e8effe;
+}
+
+.sic-remove-btn:hover {
+  background: #fdecea;
+}
+
+/* ── Meta ──────────────────────────────────────────────────────── */
+.sic-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sic-badge-ch {
+  font-size: 11px;
+  font-weight: 700;
+  background: var(--bg);
+  color: var(--rai);
+  border: 1px solid #adc3ff;
+  border-radius: 6px;
+  padding: 2px 7px;
+}
+
+.sic-date {
+  font-size: 11.5px;
+  color: var(--muted);
+  font-weight: 400;
+}
+
+/* ── Shares ────────────────────────────────────────────────────── */
+.sic-shares {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: #f8faff;
+  border-radius: 9px;
+  padding: 9px 11px;
+  border: 1px solid rgba(11, 61, 145, 0.05);
+}
+
+.sic-share-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.sic-share-lbl {
+  font-size: 11.5px;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.sic-share-val {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* ── Footer / Deltas ───────────────────────────────────────────── */
+.sic-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 4px;
+  border-top: 1px solid var(--border);
+}
+
+.sic-deltas {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.sic-delta {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 12.5px;
+  font-weight: 700;
+  border-radius: 8px;
+  padding: 3px 9px;
+}
+
+.sic-delta small {
+  font-size: 10.5px;
+  font-weight: 400;
+}
+
+.sic-delta.pos {
+  color: var(--success);
+  background: #e6f4ea;
+}
+
+.sic-delta.neg {
+  color: var(--danger);
+  background: #fdecea;
+}
+
+.sic-delta.neu {
+  color: var(--muted);
+  background: var(--bg);
+}
+
+.sic-anchor-lbl {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--rai);
+  background: #e8effe;
+  border-radius: 6px;
+  padding: 3px 8px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
