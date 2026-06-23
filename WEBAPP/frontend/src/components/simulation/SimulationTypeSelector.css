@@ -1,0 +1,34 @@
+.sim-ts {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sim-ts__lbl {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .6px;
+  color: var(--muted);
+}
+
+.sim-ts__grp {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.sim-ts__pill {
+  padding: 7px 16px;
+  border-radius: 20px;
+  border: 1.5px solid var(--border);
+  background: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  transition: border-color .15s, background .15s, color .15s;
+  font-family: inherit;
+}
+.sim-ts__pill:hover { border-color: var(--rai); color: var(--rai); }
+.sim-ts__pill.on    { background: var(--rai); border-color: var(--rai); color: #fff; }
