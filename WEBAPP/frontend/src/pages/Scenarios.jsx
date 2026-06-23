@@ -4,6 +4,7 @@ import { useApp } from '../context/useApp'
 import ScenCard from '../components/scenarios/ScenCard'
 import DaySelector from '../components/shared/DaySelector'
 import SimulationTypeSelector from '../components/simulation/SimulationTypeSelector'
+import TextInputFilter from '../components/shared/TextInputFilter'
 import './Scenarios.css'
 
 const SCEN_PER_PAGE = 3
@@ -80,16 +81,12 @@ export default function Scenarios() {
 
         {/* ── Filter bar ── */}
         <div className="scen-filter-bar">
-          <div className="scen-filter-search">
-            <span className="scen-filter-ico">🔍</span>
-            <input
-              type="text"
-              className="scen-search-inp"
-              placeholder="Cerca scenario..."
-              value={search}
-              onChange={e => { setSearch(e.target.value); setPage(1) }}
-            />
-          </div>
+          <TextInputFilter
+            label="Cerca"
+            value={search}
+            placeholder="Cerca scenario..."
+            onChange={v => { setSearch(v); setPage(1) }}
+          />
 
           <div className="scen-filter-sep" />
 

@@ -16,29 +16,6 @@
   background: #f5f8ff;
   border-bottom: 1.5px solid #d8e4ff;
 }
-.scen-filter-search {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: #fff;
-  border: 1.5px solid var(--border);
-  border-radius: 9px;
-  padding: 7px 12px;
-  min-width: 160px;
-  max-width: 260px;
-}
-.scen-filter-ico { font-size: 14px; color: var(--muted); flex-shrink: 0; }
-.scen-search-inp {
-  border: none;
-  outline: none;
-  font-size: 13px;
-  color: var(--text);
-  background: transparent;
-  width: 100%;
-  font-family: inherit;
-}
-.scen-search-inp::placeholder { color: var(--muted); }
-
 .scen-filter-sep { width: 1px; background: var(--border); height: 36px; align-self: center; margin: 0 2px; flex-shrink: 0; }
 .scen-filter-reset { background: none; border: 1.5px solid var(--danger); color: var(--danger); border-radius: 9px; padding: 7px 12px; font-size: 12px; font-weight: 600; cursor: pointer; transition: .15s; font-family: inherit; }
 .scen-filter-reset:hover { background: var(--danger); color: #fff; }

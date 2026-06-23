@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useApp } from '../../context/useApp'
 import { getSimulationCandidates, runSimulation } from '../../services/apiService'
 import './StepCandidates.css'
+import TextInputFilter from '../shared/TextInputFilter'
 
 /** @typedef {import('../../models/simulationViewModel').ProgramItem} ProgramItem */
 
@@ -103,23 +104,13 @@ export default function StepCandidates() {
 
       {/* Filter bar */}
       <div className="psel-filter-bar">
-        {/* Search */}
-        <div className="psel-fg psel-fg-search">
-          <span className="psel-fg-lbl">Cerca</span>
-          <div className="psel-search-filter">
-            <span className="psel-ico">🔍</span>
-            <input
-              type="search"
-              autoComplete="off"
-              value={search}
-              placeholder="Titolo…"
-              onChange={(e) => { setSearch(e.target.value); setPage(1) }}
-            />
-            {search && (
-              <button className="psel-clear-x" onClick={() => { setSearch(''); setPage(1) }}>×</button>
-            )}
-          </div>
-        </div>
+        <TextInputFilter
+          label="Cerca"
+          value={search}
+          placeholder="Titolo…"
+          onChange={v => { setSearch(v); setPage(1) }}
+          className="psel-fg-search"
+        />
 
         {/* Channel */}
         <div className="psel-fg">

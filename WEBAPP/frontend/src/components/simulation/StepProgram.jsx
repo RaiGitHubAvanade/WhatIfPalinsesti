@@ -4,6 +4,7 @@ import { getSimulationPrograms } from '../../services/apiService'
 import ChannelSelector from '../shared/ChannelSelector'
 import DaySelector from '../shared/DaySelector'
 import TimeSelector from './TimeSelector'
+import TextInputFilter from '../shared/TextInputFilter'
 import './StepProgram.css'
 
 /** @typedef {import('../../models/simulationViewModel').ProgramItem} ProgramItem */
@@ -96,22 +97,13 @@ export default function StepProgram() {
   return (
     <div className="card psel-card">
       <div className="psel-filter-bar">
-        <div className="psel-fg psel-fg-search">
-          <span className="psel-fg-lbl">Cerca</span>
-          <div className="psel-search-filter">
-            <span className="psel-ico">🔍</span>
-            <input
-              type="search"
-              autoComplete="off"
-              value={_search || ''}
-              placeholder="Titolo…"
-              onChange={(e) => set({ _search: e.target.value })}
-            />
-            {_search && (
-              <button className="psel-clear-x" onClick={() => set({ _search: '' })}>×</button>
-            )}
-          </div>
-        </div>
+        <TextInputFilter
+          label="Cerca"
+          value={_search || ''}
+          placeholder="Titolo…"
+          onChange={v => set({ _search: v })}
+          className="psel-fg-search"
+        />
         <ChannelSelector
           selected={ch}
           onChange={c => set({ ch: ch === c ? null : c, prog: null, cand: null })}

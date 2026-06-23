@@ -33,44 +33,6 @@
   color: var(--muted);
 }
 
-/* Search input */
-.psel-search-filter {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: #fff;
-  border: 1.5px solid var(--border);
-  border-radius: 10px;
-  padding: 8px 10px;
-  transition: border-color .15s, box-shadow .15s;
-}
-.psel-search-filter:focus-within {
-  border-color: var(--rai);
-  box-shadow: 0 0 0 3px rgba(11, 61, 145, .08);
-}
-.psel-search-filter input {
-  border: none;
-  outline: none;
-  font-size: 13px;
-  color: var(--text);
-  background: transparent;
-  flex: 1;
-  min-width: 0;
-  font-family: inherit;
-}
-.psel-search-filter input::placeholder { color: var(--muted); }
-.psel-ico   { font-size: 16px; color: var(--muted); flex-shrink: 0; }
-.psel-clear-x {
-  background: none;
-  border: none;
-  font-size: 16px;
-  color: var(--muted);
-  cursor: pointer;
-  padding: 0 2px;
-  line-height: 1;
-}
-.psel-clear-x:hover { color: var(--danger); }
-
 /* Channel pills */
 .psel-ch-grp { display: flex; gap: 6px; flex-wrap: wrap; }
 .psel-ch-pill {
