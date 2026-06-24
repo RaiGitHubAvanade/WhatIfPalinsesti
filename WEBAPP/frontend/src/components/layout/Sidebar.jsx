@@ -44,13 +44,6 @@ export default function Sidebar() {
           </NavLink>
         ))}
       </div>
-
-      <div className="sb-footer">
-        <div className="sb-help">
-          <span className="ico">❓</span>
-          <span>Aiuto</span>
-        </div>
-      </div>
     </nav>
   )
 }
