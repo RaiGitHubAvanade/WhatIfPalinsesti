@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useApp } from '../../context/useApp'
 import { getSimulationSchedule, runSimulation } from '../../services/apiService'
 import ChannelSelector from '../shared/ChannelSelector'
@@ -23,7 +24,8 @@ function fmtDate(iso) {
 }
 
 export default function StepDestination() {
-  const { state, set, toast } = useApp()
+  const navigate = useNavigate()
+  const { state, set, toast, addToScenarioWithResult, resetSim } = useApp()
   const { prog, spDestCh, spDestDay, spDestTime } = state
 
   const [schedule, setSchedule] = useState(/** @type {ScheduleItem[]} */ ([]))
@@ -66,7 +68,9 @@ export default function StepDestination() {
         dest_day: spDestDay,
         dest_time: spDestTime,
       })
-      set({ _simResult: result, _spSimulated: true, _simSaved: false, step: 3 })
+      addToScenarioWithResult(result)
+      resetSim()
+      navigate('/scenari')
     } catch (e) {
       toast('Errore simulazione: ' + e.message)
     } finally {
@@ -214,7 +218,7 @@ export default function StepDestination() {
           disabled={!ready || simLoading}
           onClick={handleNext}
         >
-          {simLoading ? 'Calcolo…' : 'Risultato Simulazione →'}
+          {simLoading ? 'Avvio…' : 'Avvia Simulazione'}
         </button>
       </div>
     </div>

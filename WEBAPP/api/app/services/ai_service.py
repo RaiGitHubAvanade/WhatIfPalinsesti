@@ -5,8 +5,11 @@ fixed result. Replace the mock body with a real HTTP call to the
 Serving Endpoint once credentials are available.
 """
 
+import random
 import time
 import logging
+
+from app.utils.number_utils import NumberUtils
 
 
 class AiService:
@@ -27,4 +30,5 @@ class AiService:
         """
         self._logger.info("AiService.call_spostamento | payload=%s", payload)
         time.sleep(30)
-        return {"result": 5.00}
+        raw = random.uniform(0, 10)
+        return {"predicted_share_pct": NumberUtils.round_share(raw)}

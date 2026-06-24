@@ -216,13 +216,42 @@ def get_channel_schedule():
 def start_spostamento():
     body = request.get_json(silent=True) or {}
 
+    program_name              = body.get("program_name")
+    program_channel           = body.get("program_channel")
+    program_share_predict     = body.get("program_share_predict")
+    program_date              = body.get("program_date")
+    program_from_time         = body.get("program_from_time")
+    scenario_type             = body.get("scenario_type")
+    new_program_name          = body.get("new_program_name")
+    new_program_share_storico = body.get("new_program_share_storico")
+
+    missing = [
+        name for name, val in {
+            "program_name":              program_name,
+            "program_channel":           program_channel,
+            "program_share_predict":     program_share_predict,
+            "program_date":              program_date,
+            "program_from_time":         program_from_time,
+            "scenario_type":             scenario_type,
+            "new_program_name":          new_program_name,
+            "new_program_share_storico": new_program_share_storico,
+        }.items()
+        if val is None
+    ]
+    if missing:
+        return error(
+            message=f"Parametri obbligatori mancanti: {', '.join(missing)}",
+            errors=["missing_params"],
+        ), 400
+
     logger.info(
-        "startSpostamento | program=%s channel=%s date=%s from=%s new_program=%s",
-        body.get("program_name"),
-        body.get("program_channel"),
-        body.get("program_date"),
-        body.get("program_from_time"),
-        body.get("new_program_name"),
+        "startSpostamento | scenario_type=%s program=%s channel=%s date=%s from=%s new_program=%s",
+        scenario_type,
+        program_name,
+        program_channel,
+        program_date,
+        program_from_time,
+        new_program_name,
     )
 
     try:

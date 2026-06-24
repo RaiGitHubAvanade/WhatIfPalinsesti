@@ -5,7 +5,6 @@ import StepProgram from '../components/simulation/StepProgram'
 import StepMode from '../components/simulation/StepMode'
 import StepCandidates from '../components/simulation/StepCandidates'
 import StepDestination from '../components/simulation/StepDestination'
-import StepResult from '../components/simulation/StepResult'
 
 import './Simulation.css'
 
@@ -19,8 +18,7 @@ export default function Simulation() {
   const stepLabels = [
     'Seleziona Programma',
     'Tipo di Simulazione',
-    mode === 'sostituzione' ? 'Programmi Sostitutivi' : mode === 'spostamento' ? 'Destinazione' : 'Configura',
-    'Risultato Simulazione',
+    'Finalizza Simulazione',
   ]
 
   return (
@@ -32,7 +30,6 @@ export default function Simulation() {
         {step === 1 && <StepMode />}
         {step === 2 && mode === 'sostituzione' && <StepCandidates />}
         {step === 2 && mode === 'spostamento' && <StepDestination />}
-        {step === 3 && <StepResult />}
       </div>
     </div>
   )

@@ -22,7 +22,7 @@ function fmtDateShort(iso) {
  *   onAddSim: () => void,
  * }} props
  */
-export default function ScenCard({ scenId, sc, onRemoveItem, onDelete, onRename, onAddSim }) {
+export default function ScenCard({ scenId, sc, onRemoveItem, onDelete, onRename, onAddSim, onViewDetail }) {
   const [editing, setEditing] = useState(false)
   const [titleInput, setTitleInput] = useState('')
 
@@ -157,6 +157,13 @@ export default function ScenCard({ scenId, sc, onRemoveItem, onDelete, onRename,
                   </span>
                 ) : <span />}
                 <div className="scen-item-actions">
+                  {item.result && onViewDetail && (
+                    <button
+                      className="scen-icon-btn"
+                      onClick={() => onViewDetail(item)}
+                      title="Vedi dettaglio simulazione"
+                    >🔍</button>
+                  )}
                   <button
                     className="scen-icon-btn"
                     onClick={() => onRemoveItem(idx)}

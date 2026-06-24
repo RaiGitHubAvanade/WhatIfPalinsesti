@@ -15,3 +15,10 @@ class NumberUtils:
         if value is None:
             return None
         return round(value / 100, 10)
+
+    @staticmethod
+    def round_share(value: float | None) -> float | None:
+        """Round a share percentage to 2 decimal places (e.g. 8.413568 → 8.41)."""
+        if value is None:
+            return None
+        return round(value, 2)

@@ -75,7 +75,8 @@ function reducer(state, action) {
 
     // Save a simulation result — auto-picks or creates a scenario slot
     case 'SCEN_ADD': {
-      if (!state._simResult) return state
+      const incomingResult = action.payload?.result ?? state._simResult
+      if (!incomingResult) return state
       const scenarios = state.scenarios
       const allKeys = Object.keys(scenarios).map(Number).filter(n => !isNaN(n) && n >= 1).sort((a, b) => a - b)
 
@@ -108,7 +109,7 @@ function reducer(state, action) {
         prog: state.prog,
         cand: state.cand,
         mode: state.mode,
-        result: state._simResult,
+        result: incomingResult,
         date: state.date,
         ch: state.ch,
         spDestDay: state.spDestDay,
@@ -209,6 +210,7 @@ export function AppProvider({ children }) {
   const resetSim = useCallback(() => dispatch({ type: 'SIM_RESET' }), [])
 
   const addToScenario = useCallback(() => dispatch({ type: 'SCEN_ADD' }), [])
+  const addToScenarioWithResult = useCallback((result) => dispatch({ type: 'SCEN_ADD', payload: { result } }), [])
   const removeFromScenario = useCallback((scenId, idx) =>
     dispatch({ type: 'SCEN_REMOVE', payload: { scenId, idx } }), [])
   const deleteScenario = useCallback((scenId) =>
@@ -231,6 +233,7 @@ export function AppProvider({ children }) {
     clearToast,
     resetSim,
     addToScenario,
+    addToScenarioWithResult,
     removeFromScenario,
     deleteScenario,
     setScenarioTitle,

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useApp } from '../context/useApp'
 import ScenCard from '../components/scenarios/ScenCard'
+import SimulationDetail from '../components/scenarios/SimulationDetail'
 import DaySelector from '../components/shared/DaySelector'
 import SimulationTypeSelector from '../components/simulation/SimulationTypeSelector'
 import TextInputFilter from '../components/shared/TextInputFilter'
@@ -16,6 +17,7 @@ export default function Scenarios() {
   const [typeFilter, setTypeFilter] = useState('')   // '' | 'sostituzione' | 'spostamento'
   const [dateFilter, setDateFilter] = useState('')
   const [page, setPage] = useState(1)
+  const [selectedItem, setSelectedItem] = useState(null)
 
   // All non-empty scenarios sorted by createdAt descending
   const allScenarios = Object.entries(state.scenarios)
@@ -75,6 +77,11 @@ export default function Scenarios() {
 
   return (
     <div>
+      {selectedItem && (
+        <SimulationDetail item={selectedItem} onClose={() => setSelectedItem(null)} />
+      )}
+      {!selectedItem && (
+      <>
       <div className="page-sub">Visualizza e confronta le simulazioni salvate per ogni scenario. Ogni scenario può contenere fino a 3 simulazioni.</div>
 
       <div className="card scen-page-card">
@@ -134,6 +141,7 @@ export default function Scenarios() {
                   onDelete={() => deleteScenario(id)}
                   onRename={title => setScenarioTitle(id, title)}
                   onAddSim={() => navigate('/simulazione')}
+                  onViewDetail={item => setSelectedItem(item)}
                 />
               ))}
             </div>
@@ -170,6 +178,8 @@ export default function Scenarios() {
         )}
 
       </div>
+      </>
+      )}
     </div>
   )
 }

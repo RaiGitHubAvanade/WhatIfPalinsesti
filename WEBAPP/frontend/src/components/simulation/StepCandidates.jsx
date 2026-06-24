@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useApp } from '../../context/useApp'
 import { getSimulationCandidates, runSimulation } from '../../services/apiService'
 import './StepCandidates.css'
@@ -18,7 +19,8 @@ function mapEtaToRange(eta) {
 }
 
 export default function StepCandidates() {
-  const { state, set, toast } = useApp()
+  const navigate = useNavigate()
+  const { state, set, toast, addToScenarioWithResult, resetSim } = useApp()
   const { prog, cand } = state
 
   const [search, setSearch] = useState('')
@@ -75,7 +77,9 @@ export default function StepCandidates() {
         orig_id: prog.id,
         cand_id: cand.id,
       })
-      set({ _simResult: result, _simSaved: false, step: 3 })
+      addToScenarioWithResult(result)
+      resetSim()
+      navigate('/scenari')
     } catch (e) {
       toast('Errore simulazione: ' + e.message)
     } finally {
@@ -271,7 +275,7 @@ export default function StepCandidates() {
           disabled={!cand || simLoading}
           onClick={handleNext}
         >
-          {simLoading ? 'Calcolo…' : 'Risultato →'}
+          {simLoading ? 'Avvio…' : 'Avvia Simulazione'}
         </button>
       </div>
     </div>

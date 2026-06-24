@@ -36,11 +36,11 @@ def _run_simulation_async(simulation_id: str, payload: dict) -> None:
         result = ai.call_spostamento(payload)
         svc.update_simulation(
             simulation_id,
-            share_result=result["result"],
+            share_result=result["predicted_share_pct"],
             status="Completed",
             modified_date=datetime.now(timezone.utc),
         )
-        logger.info("_run_simulation_async | simulation_id=%s COMPLETED result=%s", simulation_id, result["result"])
+        logger.info("_run_simulation_async | simulation_id=%s COMPLETED result=%s", simulation_id, result["predicted_share_pct"])
     except Exception as exc:
         logger.exception("_run_simulation_async | simulation_id=%s FAILED: %s", simulation_id, exc)
         svc.update_simulation(
@@ -264,23 +264,23 @@ class BusinessLogicSimulation:
 
         Returns a (message, http_status) tuple.
         """
-        scenario_type    = body.get("scenario_type")
         program_name     = body.get("program_name")
         program_channel  = body.get("program_channel")
         program_share_predict = body.get("program_share_predict")
         program_date     = body.get("program_date")
         program_from_time = body.get("program_from_time")
+        scenario_type    = body.get("scenario_type")
         new_program_name = body.get("new_program_name")
         new_program_share_storico = body.get("new_program_share_storico")
 
         missing = [
             k for k, v in {
-                "scenario_type": scenario_type,
                 "program_name": program_name,
                 "program_channel": program_channel,
                 "program_share_predict": program_share_predict,
                 "program_date": program_date,
                 "program_from_time": program_from_time,
+                "scenario_type": scenario_type,
                 "new_program_name": new_program_name,
                 "new_program_share_storico": new_program_share_storico,
             }.items() if v is None
