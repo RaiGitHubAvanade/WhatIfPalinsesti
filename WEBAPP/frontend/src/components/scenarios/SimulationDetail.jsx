@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { getSimulationCompetitors } from '../../services/apiService'
-import '../simulation/StepResult.css'
+import './SimulationDetail.css'
 
 function fmtDate(iso) {
   if (!iso) return '—'

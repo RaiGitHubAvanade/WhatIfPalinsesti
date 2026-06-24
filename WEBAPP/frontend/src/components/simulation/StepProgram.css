@@ -24,7 +24,7 @@
   flex-shrink: 0;
 }
 .psel-fg        { display: flex; flex-direction: column; gap: 4px; }
-.psel-fg-search { flex: 1; min-width: 180px; }
+.psel-fg-search { flex: 1; min-width: 100px; max-width: 200px; }
 .psel-fg-lbl {
   font-size: 10px;
   font-weight: 800;

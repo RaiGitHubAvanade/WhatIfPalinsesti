@@ -16,6 +16,8 @@
   background: #f5f8ff;
   border-bottom: 1.5px solid #d8e4ff;
 }
+
+.scen-txt-filter { max-width: 200px; }
 .scen-filter-sep { width: 1px; background: var(--border); height: 36px; align-self: center; margin: 0 2px; flex-shrink: 0; }
 .scen-filter-reset { background: none; border: 1.5px solid var(--danger); color: var(--danger); border-radius: 9px; padding: 7px 12px; font-size: 12px; font-weight: 600; cursor: pointer; transition: .15s; font-family: inherit; }
 .scen-filter-reset:hover { background: var(--danger); color: #fff; }

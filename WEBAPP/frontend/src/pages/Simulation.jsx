@@ -5,6 +5,8 @@ import StepProgram from '../components/simulation/StepProgram'
 import StepMode from '../components/simulation/StepMode'
 import StepCandidates from '../components/simulation/StepCandidates'
 import StepDestination from '../components/simulation/StepDestination'
+import SimRecap from '../components/simulation/SimRecap'
+import SimNav from '../components/simulation/SimNav'
 
 import './Simulation.css'
 
@@ -25,11 +27,19 @@ export default function Simulation() {
     <div>
       <ProgBar step={step} labels={stepLabels} />
 
-      <div style={{ marginTop: 20 }}>
-        {step === 0 && <StepProgram />}
-        {step === 1 && <StepMode />}
-        {step === 2 && mode === 'sostituzione' && <StepCandidates />}
-        {step === 2 && mode === 'spostamento' && <StepDestination />}
+      <div className="split" style={{ marginTop: 20 }}>
+        <div>
+          {step === 0 && <StepProgram />}
+          {step === 1 && <StepMode />}
+          {step === 2 && mode === 'sostituzione' && <StepCandidates />}
+          {step === 2 && mode === 'spostamento' && <StepDestination />}
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <SimRecap />
+          <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
+            <SimNav />
+          </div>
+        </div>
       </div>
     </div>
   )

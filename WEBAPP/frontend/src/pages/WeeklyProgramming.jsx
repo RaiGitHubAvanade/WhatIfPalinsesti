@@ -73,7 +73,7 @@ export default function WeeklyProgramming() {
 
   return (
     <div>
-      <div className="page-sub">Visualizza e modifica il palinsesto settimanale. Puoi inserire manualmente le previsioni share.</div>
+      <div className="page-sub">Visualizza e modifica il palinsesto settimanale dalle 20:30 alle 23:30. Puoi inserire manualmente le previsioni share.</div>
 
       {/* Controls */}
       <div className="pw-controls">

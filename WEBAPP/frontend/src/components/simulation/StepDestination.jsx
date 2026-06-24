@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useApp } from '../../context/useApp'
-import { getSimulationSchedule, runSimulation } from '../../services/apiService'
+import { getSimulationSchedule } from '../../services/apiService'
 import ChannelSelector from '../shared/ChannelSelector'
 import DaySelector from '../shared/DaySelector'
 import './StepDestination.css'
@@ -24,16 +23,12 @@ function fmtDate(iso) {
 }
 
 export default function StepDestination() {
-  const navigate = useNavigate()
-  const { state, set, toast, addToScenarioWithResult, resetSim } = useApp()
-  const { prog, spDestCh, spDestDay, spDestTime } = state
+  const { state, set, toast } = useApp()
+  const { spDestCh, spDestDay, spDestTime } = state
 
   const [schedule, setSchedule] = useState(/** @type {ScheduleItem[]} */ ([]))
   const [loading, setLoading] = useState(false)
-  const [simLoading, setSimLoading] = useState(false)
   const [page, setPage] = useState(1)
-
-  const ready = !!(spDestCh && spDestDay && spDestTime)
 
   const fetchSchedule = useCallback(async () => {
     if (!spDestCh || !spDestTime) { setPage(1); setSchedule([]); return }
@@ -57,45 +52,10 @@ export default function StepDestination() {
   const totalPages = Math.max(1, Math.ceil(schedule.length / PAGE_SIZE))
   const pageItems = schedule.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
-  const handleNext = async () => {
-    if (!prog || !ready) return
-    setSimLoading(true)
-    try {
-      const result = await runSimulation({
-        mode: 'spostamento',
-        prog_id: prog.id,
-        dest_ch: spDestCh,
-        dest_day: spDestDay,
-        dest_time: spDestTime,
-      })
-      addToScenarioWithResult(result)
-      resetSim()
-      navigate('/scenari')
-    } catch (e) {
-      toast('Errore simulazione: ' + e.message)
-    } finally {
-      setSimLoading(false)
-    }
-  }
-
-  const metaPills = [prog?.ch, prog?.time && `${prog.time}${prog.end ? '–' + prog.end : ''}`, prog?.genre]
-    .filter(Boolean)
-  const progShare = typeof prog?.share === 'number' ? prog.share.toFixed(1) + '%' : null
-
   const CH_CLS = { 'Rai 1': 'prow-r1', 'Rai 2': 'prow-r2', 'Rai 3': 'prow-r3' }
 
   return (
     <div className="card psel-card">
-      {/* Recap bar */}
-      <div className="psel-recap-bar">
-        <span className="psel-recap-lbl">Programma da spostare</span>
-        <div className="psel-recap-info">
-          <span className="psel-recap-tick">📌</span>
-          <span className="psel-recap-name">{prog?.title || '—'}</span>
-          {progShare && <span className="psel-recap-share">{progShare}</span>}
-        </div>
-        <div className="psel-recap-meta">{metaPills.join(' · ')}</div>
-      </div>
 
       <div className="sect-label" style={{ marginTop: 20 }}>Configura contesto di destinazione</div>
 
@@ -207,20 +167,6 @@ export default function StepDestination() {
           )}
         </>
       )}
-
-      {/* Action bar */}
-      <div className="psel-action-bar psel-simple-bar">
-        <button className="btn-back" onClick={() => set({ step: 1 })}>
-          ← Tipo di Simulazione
-        </button>
-        <button
-          className="btn-next"
-          disabled={!ready || simLoading}
-          onClick={handleNext}
-        >
-          {simLoading ? 'Avvio…' : 'Avvia Simulazione'}
-        </button>
-      </div>
     </div>
   )
 }

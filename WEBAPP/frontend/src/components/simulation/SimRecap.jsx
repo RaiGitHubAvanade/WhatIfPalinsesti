@@ -1,0 +1,144 @@
+import { useApp } from '../../context/useApp'
+import './SimRecap.css'
+
+function fmtDate(iso) {
+  if (!iso) return null
+  const d = new Date(iso + 'T00:00:00')
+  const days = ['dom', 'lun', 'mar', 'mer', 'gio', 'ven', 'sab']
+  return `${days[d.getDay()]} ${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`
+}
+
+export default function SimRecap() {
+  const { state } = useApp()
+  const { prog, date, mode, cand, spDestCh, spDestDay, spDestTime } = state
+
+  const hasProg = !!prog
+  const hasMode = !!mode
+  const hasCand = mode === 'sostituzione' && !!cand
+  const hasDestCh = mode === 'spostamento' && !!spDestCh
+  const hasDestDay = mode === 'spostamento' && !!spDestDay
+  const hasDestTime = mode === 'spostamento' && !!spDestTime
+  const hasDest = hasDestCh || hasDestDay || hasDestTime
+
+  return (
+    <aside className="r-panel">
+      {/* ── Programma ── */}
+      <div className="rp-section-label">Programma</div>
+      {hasProg ? (
+        <div className="rp-prog-block">
+          <div className="rp-prog-name">{prog.title}</div>
+
+          <div className="rp-pills">
+            {prog.ch && <span className="rp-pill rp-pill-ch">{prog.ch}</span>}
+            {date && <span className="rp-pill rp-pill-date">📅 {fmtDate(date)}</span>}
+            {prog.time && (
+              <span className="rp-pill rp-pill-time">
+                🕐 {prog.time}{prog.end ? `–${prog.end}` : ''}
+              </span>
+            )}
+          </div>
+
+          {(prog.tipo || prog.genre) && (
+            <div className="rp-pills">
+              {prog.tipo && <span className="rp-pill">{prog.tipo}</span>}
+              {prog.genre && prog.genre !== prog.tipo && (
+                <span className="rp-pill">{prog.genre}</span>
+              )}
+            </div>
+          )}
+
+          {typeof prog.share === 'number' && (
+            <div className="rp-share-row">
+              <span className="rp-share-lbl">Share attuale</span>
+              <span className="rp-share-val">{prog.share.toFixed(1)}%</span>
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="rp-empty-state">
+          <div className="rp-empty-ico">📺</div>
+          <div className="rp-empty-msg">
+            Seleziona un programma<br />per iniziare
+          </div>
+        </div>
+      )}
+
+      {/* ── Modalità ── */}
+      {hasProg && (
+        <>
+          <div className="rp-divider" />
+          <div className="rp-section-label">Modalità</div>
+          {hasMode ? (
+            <div className={`rp-mode-pill ${mode}`}>
+              <span className="rp-mode-ico">
+                {mode === 'sostituzione' ? '🔄' : '🕐'}
+              </span>
+              {mode === 'sostituzione' ? 'Sostituzione' : 'Spostamento'}
+            </div>
+          ) : (
+            <div className="rp-pending">Nessuna modalità selezionata</div>
+          )}
+        </>
+      )}
+
+      {/* ── Candidato (sostituzione) ── */}
+      {hasMode && mode === 'sostituzione' && (
+        <>
+          <div className="rp-divider" />
+          <div className="rp-section-label">Candidato</div>
+          {hasCand ? (
+            <div className="rp-prog-block">
+              <div className="rp-prog-name">{cand.title}</div>
+              {cand.ch && (
+                <div className="rp-pills">
+                  <span className="rp-pill rp-pill-ch">{cand.ch}</span>
+                  {cand.tipo && <span className="rp-pill">{cand.tipo}</span>}
+                </div>
+              )}
+              {typeof cand.share === 'number' && (
+                <div className="rp-share-row">
+                  <span className="rp-share-lbl">Share storico</span>
+                  <span className="rp-share-val">{cand.share.toFixed(1)}%</span>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="rp-pending">Nessun candidato selezionato</div>
+          )}
+        </>
+      )}
+
+      {/* ── Destinazione (spostamento) ── */}
+      {hasMode && mode === 'spostamento' && (
+        <>
+          <div className="rp-divider" />
+          <div className="rp-section-label">Destinazione</div>
+          {hasDest ? (
+            <div className="rp-dest-rows">
+              {hasDestCh && (
+                <div className="rp-dest-row">
+                  <span className="rp-dest-key">Canale</span>
+                  <span className="rp-dest-val">{spDestCh}</span>
+                </div>
+              )}
+              {hasDestDay && (
+                <div className="rp-dest-row">
+                  <span className="rp-dest-key">Data</span>
+                  <span className="rp-dest-val">{fmtDate(spDestDay)}</span>
+                </div>
+              )}
+              {hasDestTime && (
+                <div className="rp-dest-row">
+                  <span className="rp-dest-key">Orario</span>
+                  <span className="rp-dest-val">{spDestTime}</span>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="rp-pending">Nessuna destinazione configurata</div>
+          )}
+        </>
+      )}
+    </aside>
+  )
+}

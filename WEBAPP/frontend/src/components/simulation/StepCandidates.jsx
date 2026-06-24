@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useApp } from '../../context/useApp'
-import { getSimulationCandidates, runSimulation } from '../../services/apiService'
+import { getSimulationCandidates } from '../../services/apiService'
 import './StepCandidates.css'
 import TextInputFilter from '../shared/TextInputFilter'
 
@@ -19,8 +18,7 @@ function mapEtaToRange(eta) {
 }
 
 export default function StepCandidates() {
-  const navigate = useNavigate()
-  const { state, set, toast, addToScenarioWithResult, resetSim } = useApp()
+  const { state, set, toast } = useApp()
   const { prog, cand } = state
 
   const [search, setSearch] = useState('')
@@ -31,7 +29,6 @@ export default function StepCandidates() {
 
   const [candidates, setCandidates] = useState(/** @type {ProgramItem[]} */ ([]))
   const [loading, setLoading] = useState(false)
-  const [simLoading, setSimLoading] = useState(false)
   const [page, setPage] = useState(1)
 
   const hasFilters = !!(ch || search || genere || eta || shareMin)
@@ -68,44 +65,10 @@ export default function StepCandidates() {
   const totalPages = Math.max(1, Math.ceil(candidates.length / PAGE_SIZE))
   const pageItems = candidates.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
-  const handleNext = async () => {
-    if (!prog || !cand) return
-    setSimLoading(true)
-    try {
-      const result = await runSimulation({
-        mode: 'sostituzione',
-        orig_id: prog.id,
-        cand_id: cand.id,
-      })
-      addToScenarioWithResult(result)
-      resetSim()
-      navigate('/scenari')
-    } catch (e) {
-      toast('Errore simulazione: ' + e.message)
-    } finally {
-      setSimLoading(false)
-    }
-  }
-
-  const metaPills = []
-  if (prog?.ch) metaPills.push(prog.ch)
-  metaPills.push(`Genere: ${prog?.sesso || 'Tutti'}`)
-  metaPills.push(`Età: ${mapEtaToRange(prog?.eta)}`)
-
   const CH_CLS = { 'Rai 1': 'prow-r1', 'Rai 2': 'prow-r2', 'Rai 3': 'prow-r3' }
 
   return (
     <div className="card psel-card">
-      {/* Recap bar */}
-      <div className="psel-recap-bar">
-        <span className="psel-recap-lbl">Programma da sostituire</span>
-        <div className="psel-recap-info">
-          <span className="psel-recap-tick">📌</span>
-          <span className="psel-recap-name">{prog?.title || '—'}</span>
-        </div>
-        <div className="psel-recap-meta">{metaPills.join(' · ')}</div>
-      </div>
-
       {/* Filter bar */}
       <div className="psel-filter-bar">
         <TextInputFilter
@@ -264,20 +227,6 @@ export default function StepCandidates() {
           )}
         </>
       )}
-
-      {/* Action bar */}
-      <div className="psel-action-bar psel-simple-bar">
-        <button className="btn-back" onClick={() => set({ step: 1, cand: null })}>
-          ← Tipo di Simulazione
-        </button>
-        <button
-          className="btn-next"
-          disabled={!cand || simLoading}
-          onClick={handleNext}
-        >
-          {simLoading ? 'Avvio…' : 'Avvia Simulazione'}
-        </button>
-      </div>
     </div>
   )
 }

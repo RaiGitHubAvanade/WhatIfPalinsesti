@@ -1,0 +1,166 @@
+/* ─── SIM RECAP PANEL ─── */
+
+.rp-section-label {
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .7px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+  margin-top: 2px;
+}
+
+.rp-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 14px 0;
+}
+
+/* ── Empty / placeholder ── */
+.rp-empty-state {
+  text-align: center;
+  padding: 20px 8px 8px;
+}
+.rp-empty-ico {
+  font-size: 32px;
+  margin-bottom: 8px;
+  opacity: .45;
+}
+.rp-empty-msg {
+  font-size: 12.5px;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+/* ── Program block ── */
+.rp-prog-block {
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 11px 13px;
+}
+.rp-prog-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.35;
+  margin-bottom: 7px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Pill row ── */
+.rp-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 4px;
+}
+.rp-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #fff;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  white-space: nowrap;
+}
+.rp-pill-ch {
+  background: #E8EFFE;
+  color: var(--rai);
+  border-color: rgba(11,61,145,.18);
+}
+.rp-pill-time {
+  background: #EDF2FF;
+  color: #3b5bdb;
+  border-color: rgba(59,91,219,.18);
+}
+.rp-pill-date {
+  background: #F0FBF3;
+  color: var(--success);
+  border-color: rgba(30,142,62,.18);
+}
+
+/* ── Share display ── */
+.rp-share-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+.rp-share-lbl {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 500;
+}
+.rp-share-val {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--rai);
+  letter-spacing: -.3px;
+}
+
+/* ── Mode pill ── */
+.rp-mode-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 8px 14px;
+  border-radius: 10px;
+  width: 100%;
+  box-sizing: border-box;
+}
+.rp-mode-pill.sostituzione {
+  background: #EDF2FF;
+  color: var(--rai);
+  border: 1.5px solid rgba(11,61,145,.2);
+}
+.rp-mode-pill.spostamento {
+  background: #F0FBF3;
+  color: var(--success);
+  border: 1.5px solid rgba(30,142,62,.2);
+}
+.rp-mode-ico {
+  font-size: 17px;
+}
+
+/* ── Destination block ── */
+.rp-dest-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.rp-dest-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12.5px;
+  padding: 6px 10px;
+  background: var(--bg);
+  border-radius: 7px;
+}
+.rp-dest-key {
+  color: var(--muted);
+  font-weight: 500;
+}
+.rp-dest-val {
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* ── Pending step ── */
+.rp-pending {
+  font-size: 12px;
+  color: var(--muted);
+  font-style: italic;
+  padding: 4px 2px;
+}

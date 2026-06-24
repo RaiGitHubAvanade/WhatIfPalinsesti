@@ -36,15 +36,6 @@ function buildSlot(from, to) {
   return null
 }
 
-function mapEtaToRange(eta) {
-  if (!eta || eta === 'Tutti' || eta === 'All') return 'Tutti'
-  if (eta.startsWith('15') || eta === '18-24' || eta === '15-34') return '15-24'
-  if (eta.startsWith('25') || eta === '18-44' || eta === '25-54' || eta === '35-54') return '25-44'
-  if (eta.startsWith('45') || eta === '35-64' || eta === '45-64') return '45-64'
-  if (eta.startsWith('55') || eta.startsWith('65')) return '65+'
-  return 'Tutti'
-}
-
 export default function StepProgram() {
   const { state, set, toast } = useApp()
   const { ch, date, slot, _search, prog } = state
@@ -91,7 +82,6 @@ export default function StepProgram() {
     }
   }
 
-  const canNext = !!prog
   const CH_CLS = { 'Rai 1': 'prow-r1', 'Rai 2': 'prow-r2', 'Rai 3': 'prow-r3' }
 
   return (
@@ -185,29 +175,6 @@ export default function StepProgram() {
           <span className="psel-pager-info">{(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, programs.length)} di {programs.length}</span>
         </div>
       )}
-
-      <div className="psel-action-bar">
-        {prog ? (
-          <div className="psel-sel-info psel-sel-active">
-            <span className="psel-sel-tick">✓</span>
-            <div className="psel-sel-prog-details">
-              <span className="psel-sel-prog-name">{prog.title}</span>
-              <span className="psel-sel-prog-tags">
-                {[prog.ch, `Genere: ${prog.sesso || 'Tutti'}`, `Età: ${mapEtaToRange(prog.eta)}`].join(' · ')}
-              </span>
-            </div>
-            {typeof prog.share === 'number' && (
-              <span className="psel-sel-prog-share">{prog.share.toFixed(1)}%</span>
-            )}
-            <button className="psel-deselect-btn" title="Deseleziona" onClick={() => set({ prog: null, cand: null })}>×</button>
-          </div>
-        ) : (
-          <div className="psel-sel-info psel-sel-empty">Nessun programma selezionato</div>
-        )}
-        <button className="btn-next" disabled={!canNext} onClick={() => canNext && set({ step: 1 })}>
-          Tipo di Simulazione →
-        </button>
-      </div>
     </div>
   )
 }

@@ -93,6 +93,7 @@ export default function Scenarios() {
             value={search}
             placeholder="Cerca scenario..."
             onChange={v => { setSearch(v); setPage(1) }}
+            className="scen-txt-filter"
           />
 
           <div className="scen-filter-sep" />
