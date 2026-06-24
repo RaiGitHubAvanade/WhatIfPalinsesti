@@ -1,8 +1,11 @@
 """Business logic for the simulation feature."""
 
 import logging
+import threading
+import uuid
+from datetime import datetime, timezone
 
-from app.services.databricks_service_simulation import DatabricksServiceSimulation
+from app.services.databricks_service_simulation_mock import DatabricksServiceSimulationMock
 from app.view_models.simulation_view_models import (
     ProgramItemViewModel,
     ProgramListViewModel,
@@ -15,8 +18,42 @@ from app.view_models.simulation_view_models import (
 )
 
 
+# ------------------------------------------------------------------ #
+# Async simulation runner (module-level to avoid circular imports)
+# ------------------------------------------------------------------ #
+
+def _run_simulation_async(simulation_id: str, payload: dict) -> None:
+    """Background thread: calls the AI service and updates the simulation record."""
+    from app.services.databricks_service_simulation_mock import DatabricksServiceSimulationMock  # noqa: PLC0415
+    from app.services.ai_service import AiService  # noqa: PLC0415
+
+    logger = logging.getLogger(__name__)
+    svc = DatabricksServiceSimulationMock()
+    ai = AiService()
+
+    try:
+        logger.info("_run_simulation_async | simulation_id=%s START", simulation_id)
+        result = ai.call_spostamento(payload)
+        svc.update_simulation(
+            simulation_id,
+            share_result=result["result"],
+            status="Completed",
+            modified_date=datetime.now(timezone.utc),
+        )
+        logger.info("_run_simulation_async | simulation_id=%s COMPLETED result=%s", simulation_id, result["result"])
+    except Exception as exc:
+        logger.exception("_run_simulation_async | simulation_id=%s FAILED: %s", simulation_id, exc)
+        svc.update_simulation(
+            simulation_id,
+            status="Failed",
+            modified_date=datetime.now(timezone.utc),
+            last_error=str(exc),
+            is_retry=True,
+        )
+
+
 class BusinessLogicSimulation:
-    def __init__(self, service: DatabricksServiceSimulation) -> None:
+    def __init__(self, service: DatabricksServiceSimulationMock) -> None:
         self._service = service
         self._logger = logging.getLogger(__name__)
 
@@ -217,3 +254,147 @@ class BusinessLogicSimulation:
         return ChannelScheduleViewModel(
             ch=ch, date="", dest_time=dest_time, programs=items
         )
+
+    # ------------------------------------------------------------------ #
+    # Spostamento — scenario/simulation tracking
+    # ------------------------------------------------------------------ #
+
+    def start_spostamento(self, body: dict) -> tuple[str, int]:
+        """Apply the decision logic for a new Spostamento simulation request.
+
+        Returns a (message, http_status) tuple.
+        """
+        scenario_type    = body.get("scenario_type")
+        program_name     = body.get("program_name")
+        program_channel  = body.get("program_channel")
+        program_share_predict = body.get("program_share_predict")
+        program_date     = body.get("program_date")
+        program_from_time = body.get("program_from_time")
+        new_program_name = body.get("new_program_name")
+        new_program_share_storico = body.get("new_program_share_storico")
+
+        missing = [
+            k for k, v in {
+                "scenario_type": scenario_type,
+                "program_name": program_name,
+                "program_channel": program_channel,
+                "program_share_predict": program_share_predict,
+                "program_date": program_date,
+                "program_from_time": program_from_time,
+                "new_program_name": new_program_name,
+                "new_program_share_storico": new_program_share_storico,
+            }.items() if v is None
+        ]
+        if missing:
+            raise ValueError(f"Campi obbligatori mancanti: {', '.join(missing)}")
+
+        now = datetime.now(timezone.utc)
+
+        rows = self._service.get_scenario_simulations(
+            program_name=program_name,
+            program_channel=program_channel,
+            program_date=program_date,
+            program_from_time=program_from_time,
+            scenario_type=scenario_type,
+        )
+
+        # ── Step 1: existing scenario? ────────────────────────────────
+        if rows:
+            scenario_id = rows[0]["sce_id"]
+
+            # ── Step 2: existing simulation for same new_program_name? ─
+            sim_rows = [
+                r for r in rows
+                if r.get("sim_id") is not None
+                and r.get("new_program_name") == new_program_name
+            ]
+
+            if sim_rows:
+                sim = sim_rows[0]
+                simulation_id = sim["sim_id"]
+
+                # ── Step 3: is_retry? ──────────────────────────────────
+                if sim["is_retry"]:
+                    # 3.Y — reset and restart
+                    self._service.update_simulation(
+                        simulation_id,
+                        status="Running",
+                        modified_date=now,
+                        last_error=None,
+                        is_retry=False,
+                    )
+                    self._launch_thread(simulation_id, body)
+                    return "Simulazione avviata. Lo stato può essere verificato nella pagina Scenari.", 202
+
+                else:
+                    # 3.N — check current status for a precise message
+                    status = sim["status"]
+                    if status == "Running":
+                        return "Simulazione già in corso.", 409
+                    else:  # Completed
+                        return "Non è possibile ripetere una simulazione già completata.", 409
+
+            else:
+                # ── Step 5: fewer than 3 simulations on this scenario? ─
+                sim_count = len([r for r in rows if r.get("sim_id") is not None])
+                if sim_count < 3:
+                    simulation_id = str(uuid.uuid4())
+                    self._service.insert_simulation({
+                        "id": simulation_id,
+                        "id_scenario": scenario_id,
+                        "new_program_name": new_program_name,
+                        "new_program_share_storico": new_program_share_storico,
+                        "share_result": None,
+                        "status": "Running",
+                        "creation_date": now,
+                        "modified_date": now,
+                        "last_error": None,
+                        "is_retry": False,
+                    })
+                    self._launch_thread(simulation_id, body)
+                    return "Simulazione avviata. Lo stato può essere verificato nella pagina Scenari.", 202
+                else:
+                    return (
+                        "Impossibile avviare la simulazione: "
+                        "numero massimo di simulazioni raggiunto per questo scenario.",
+                        409,
+                    )
+
+        else:
+            # ── Step 1.N: create scenario + simulation ─────────────────
+            scenario_id = str(uuid.uuid4())
+            self._service.insert_scenario({
+                "id": scenario_id,
+                "scenario_type": scenario_type,
+                "program_name": program_name,
+                "program_channel": program_channel,
+                "program_share_predict": program_share_predict,
+                "program_date": program_date,
+                "program_from_time": program_from_time,
+                "creation_date": now,
+            })
+
+            simulation_id = str(uuid.uuid4())
+            self._service.insert_simulation({
+                "id": simulation_id,
+                "id_scenario": scenario_id,
+                "new_program_name": new_program_name,
+                "new_program_share_storico": new_program_share_storico,
+                "share_result": None,
+                "status": "Running",
+                "creation_date": now,
+                "modified_date": now,
+                "last_error": None,
+                "is_retry": False,
+            })
+            self._launch_thread(simulation_id, body)
+            return "Simulazione avviata. Lo stato può essere verificato nella pagina Scenari.", 202
+
+    def _launch_thread(self, simulation_id: str, body: dict) -> None:
+        thread = threading.Thread(
+            target=_run_simulation_async,
+            args=(simulation_id, body),
+            daemon=True,
+        )
+        thread.start()
+        self._logger.info("_launch_thread | simulation_id=%s thread started", simulation_id)

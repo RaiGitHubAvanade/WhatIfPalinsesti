@@ -206,3 +206,37 @@ def get_channel_schedule():
         return error(message=f"Errore imprevisto: {e}", errors=["internal_error"]), 500
 
     return success(data=asdict(result), message="Palinsesto ottenuto con successo")
+
+
+# ------------------------------------------------------------------ #
+# Spostamento — start scenario/simulation
+# ------------------------------------------------------------------ #
+
+@bp.route("/simulation/spostamento/start", methods=["POST"])
+def start_spostamento():
+    body = request.get_json(silent=True) or {}
+
+    logger.info(
+        "startSpostamento | program=%s channel=%s date=%s from=%s new_program=%s",
+        body.get("program_name"),
+        body.get("program_channel"),
+        body.get("program_date"),
+        body.get("program_from_time"),
+        body.get("new_program_name"),
+    )
+
+    try:
+        logic = BusinessLogicSimulation(get_simulation_service())
+        message, status_code = logic.start_spostamento(body)
+    except ValueError as e:
+        return error(message=str(e), errors=["missing_params"]), 400
+    except RuntimeError as e:
+        logger.error("startSpostamento RuntimeError: %s", e)
+        return error(message=str(e), errors=["databricks_error"]), 502
+    except Exception as e:
+        logger.exception("startSpostamento unexpected: %s", e)
+        return error(message=f"Errore imprevisto: {e}", errors=["internal_error"]), 500
+
+    if status_code == 202:
+        return success(message=message), 202
+    return error(message=message, errors=["simulation_conflict"]), status_code

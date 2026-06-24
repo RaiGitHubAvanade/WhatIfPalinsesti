@@ -1,30 +1,17 @@
-"""Databricks simulation service — uses mocked data during development.
+﻿"""Databricks simulation service — production implementation.
 
-Replace each method body with real Databricks SQL queries once the
-ta_coll.whatif.* simulation tables are ready. The base-class pattern
-is kept so the container and teardown machinery is identical to the
-weekly-programming service.
+Queries ta_coll.whatif.* tables via the Databricks SQL Connector.
+Authentication is handled by DatabricksService (SDK Config picks up
+DATABRICKS_HOST, DATABRICKS_CLIENT_ID, DATABRICKS_CLIENT_SECRET).
 """
 
 import logging
 
 from app.services.databricks_service import DatabricksService
-from app.data.mocked_data import PROGS, COMPS
 
 
 class DatabricksServiceSimulation(DatabricksService):
-    """Simulation service backed by mock data.
-
-    Overrides __init__ so no real Databricks connection is opened; close()
-    is a no-op. All data is served from the in-memory PROGS / COMPS lists.
-    """
-
-    def __init__(self) -> None:  # do NOT call super().__init__()
-        self._logger = logging.getLogger(__name__)
-        self._connection = None  # not used in mock mode
-
-    def close(self) -> None:
-        pass  # nothing to close
+    """Production simulation service backed by real Databricks SQL."""
 
     # ------------------------------------------------------------------ #
     # Programs
@@ -38,39 +25,39 @@ class DatabricksServiceSimulation(DatabricksService):
         to_time: str | None = None,
         search: str | None = None,
     ) -> list[dict]:
-        """Return programs filtered by optional criteria."""
-        results = list(PROGS)
+        # TODO: replace with actual table and column names
+        conditions = ["1=1"]
+        params: dict = {}
 
         if ch:
-            results = [p for p in results if p.get("ch") == ch]
-
-        if search:
-            q = search.lower()
-            results = [
-                p for p in results
-                if q in (
-                    (p.get("title") or "")
-                    + " " + (p.get("genre") or "")
-                    + " " + (p.get("tipo") or "")
-                ).lower()
-            ]
-
+            conditions.append("channel = :ch")
+            params["ch"] = ch
+        if date:
+            conditions.append("program_date = :date")
+            params["date"] = date
         if from_time:
-            # keep programs whose end time is after from_time
-            results = [
-                p for p in results
-                if (p.get("end") or "99:99") >= from_time
-            ]
-
+            conditions.append("end_time >= :from_time")
+            params["from_time"] = from_time
         if to_time:
-            # keep programs whose start time is before to_time
-            results = [
-                p for p in results
-                if (p.get("time") or "00:00") <= to_time
-            ]
+            conditions.append("start_time <= :to_time")
+            params["to_time"] = to_time
+        if search:
+            conditions.append("(LOWER(title) LIKE :search OR LOWER(genre) LIKE :search)")
+            params["search"] = f"%{search.lower()}%"
 
-        results.sort(key=lambda p: p.get("time") or "00:00")
-        return results
+        query = f"""
+            SELECT id, title, genre, start_time, end_time, duration_min,
+                   channel, share, eta, sesso, tipo, slot
+            FROM ta_coll.whatif.programs
+            WHERE {' AND '.join(conditions)}
+            ORDER BY start_time
+        """
+        self._logger.info("get_programs | params=%s", params)
+
+        with self._connection.cursor() as cursor:
+            cursor.execute(query, parameters=params)
+            columns = [col[0] for col in cursor.description]
+            return [dict(zip(columns, row)) for row in cursor.fetchall()]
 
     # ------------------------------------------------------------------ #
     # Candidates
@@ -86,61 +73,63 @@ class DatabricksServiceSimulation(DatabricksService):
         share_min: float | None = None,
         target_dur: int | None = None,
     ) -> list[dict]:
-        """Return programs eligible as candidates for substitution."""
-        results = [p for p in PROGS if p.get("id") != exclude_id]
+        # TODO: replace with actual table and column names
+        conditions = ["1=1"]
+        params: dict = {}
 
+        if exclude_id:
+            conditions.append("id != :exclude_id")
+            params["exclude_id"] = exclude_id
         if ch:
-            results = [p for p in results if p.get("ch") == ch]
-
+            conditions.append("channel = :ch")
+            params["ch"] = ch
         if search:
-            q = search.lower()
-            results = [
-                p for p in results
-                if q in (
-                    (p.get("title") or "")
-                    + " " + (p.get("genre") or "")
-                    + " " + (p.get("tipo") or "")
-                ).lower()
-            ]
-
+            conditions.append("(LOWER(title) LIKE :search OR LOWER(genre) LIKE :search)")
+            params["search"] = f"%{search.lower()}%"
         if genere and genere not in ("Tutti", "All"):
-            results = [
-                p for p in results
-                if p.get("sesso") in (genere, "All", "Tutti")
-            ]
-
-        if eta and eta not in ("Tutti", "All"):
-            results = [
-                p for p in results
-                if self._eta_matches(p.get("eta"), eta)
-            ]
-
+            conditions.append("sesso IN (:genere, 'All', 'Tutti')")
+            params["genere"] = genere
         if share_min is not None:
-            results = [
-                p for p in results
-                if (p.get("share") or 0) >= share_min
-            ]
-
+            conditions.append("share >= :share_min")
+            params["share_min"] = share_min
         if target_dur is not None:
-            results = [
-                p for p in results
-                if abs((p.get("dur") or 0) - target_dur) <= 60
-            ]
+            conditions.append("ABS(duration_min - :target_dur) <= 60")
+            params["target_dur"] = target_dur
 
-        results.sort(key=lambda p: -(p.get("share") or 0))
-        return results
+        query = f"""
+            SELECT id, title, genre, start_time, end_time, duration_min,
+                   channel, share, eta, sesso, tipo, slot
+            FROM ta_coll.whatif.programs
+            WHERE {' AND '.join(conditions)}
+            ORDER BY share DESC
+        """
+        self._logger.info("get_candidates | params=%s", params)
+
+        with self._connection.cursor() as cursor:
+            cursor.execute(query, parameters=params)
+            columns = [col[0] for col in cursor.description]
+            return [dict(zip(columns, row)) for row in cursor.fetchall()]
 
     # ------------------------------------------------------------------ #
     # Competitors
     # ------------------------------------------------------------------ #
 
     def get_competitors(self, slot: str | None = None) -> list[dict]:
-        """Return competitor programs for the given slot."""
-        slot_key = slot or "prime"
-        results = [c for c in COMPS if c.get("slot") == slot_key]
-        if not results:
-            results = [c for c in COMPS if c.get("slot") == "prime"]
-        return results[:6]
+        # TODO: replace with actual table and column names
+        params: dict = {"slot": slot or "prime"}
+        query = """
+            SELECT title, channel, tipo, share, is_event
+            FROM ta_coll.whatif.competitors
+            WHERE slot = :slot
+            ORDER BY share DESC
+            LIMIT 6
+        """
+        self._logger.info("get_competitors | slot=%s", params["slot"])
+
+        with self._connection.cursor() as cursor:
+            cursor.execute(query, parameters=params)
+            columns = [col[0] for col in cursor.description]
+            return [dict(zip(columns, row)) for row in cursor.fetchall()]
 
     # ------------------------------------------------------------------ #
     # Channel schedule (for spostamento destination)
@@ -151,131 +140,155 @@ class DatabricksServiceSimulation(DatabricksService):
         ch: str,
         dest_time: str,
     ) -> list[dict]:
-        """Return programs for *ch* within ±2 hours of *dest_time*."""
-        def to_min(t: str | None) -> int:
-            if not t:
-                return 0
-            h, m = int(t[:2]), int(t[3:5])
-            return h * 60 + m
+        # TODO: replace with actual table and column names
+        query = """
+            SELECT id, title, start_time, end_time, duration_min, share, tipo, genre
+            FROM ta_coll.whatif.programs
+            WHERE channel = :ch
+              AND start_time <= :range_end
+              AND end_time   >= :range_start
+            ORDER BY start_time
+        """
+        h, m = int(dest_time[:2]), int(dest_time[3:5])
+        dest_min = h * 60 + m
+        range_start = f"{(dest_min - 120) // 60:02d}:{(dest_min - 120) % 60:02d}"
+        range_end   = f"{(dest_min + 120) // 60:02d}:{(dest_min + 120) % 60:02d}"
+        params = {"ch": ch, "range_start": range_start, "range_end": range_end}
 
-        sel_min = to_min(dest_time)
-        range_start = sel_min - 120
-        range_end = sel_min + 120
+        self._logger.info("get_channel_schedule | ch=%s dest_time=%s", ch, dest_time)
 
-        channel_progs = [p for p in PROGS if p.get("ch") == ch]
-        filtered: list[dict] = []
-        for p in channel_progs:
-            start = to_min(p.get("time"))
-            end_t = p.get("end")
-            end = to_min(end_t) if end_t else start + (p.get("dur") or 0)
-            if end < start:
-                end += 1440  # crosses midnight
-            if start < range_end and end > range_start:
-                filtered.append(p)
-
-        filtered.sort(key=lambda p: to_min(p.get("time")))
-
-        # Remove overlapping programs: keep the first non-overlapping sequence
-        clean: list[dict] = []
-        last_end = -1
-        for p in filtered:
-            start = to_min(p.get("time"))
-            end_t = p.get("end")
-            end = to_min(end_t) if end_t else start + (p.get("dur") or 0)
-            if end < start:
-                end += 1440
-            if start >= last_end:
-                clean.append(p)
-                last_end = end
-
-        return clean
+        with self._connection.cursor() as cursor:
+            cursor.execute(query, parameters=params)
+            columns = [col[0] for col in cursor.description]
+            return [dict(zip(columns, row)) for row in cursor.fetchall()]
 
     # ------------------------------------------------------------------ #
-    # Predictions
+    # Predictions (legacy — consider migrating to AiService)
     # ------------------------------------------------------------------ #
 
     def predict_sostituzione(self, orig_id: str, cand_id: str) -> dict:
-        """Predict share for replacing orig with cand in the same slot."""
-        orig = next((p for p in PROGS if p["id"] == orig_id), None)
-        cand = next((p for p in PROGS if p["id"] == cand_id), None)
+        # TODO: call Databricks Serving Endpoint or delegate to AiService
+        raise NotImplementedError("predict_sostituzione: migrate to AiService")
 
-        if not orig or not cand:
-            return {"pred": None, "delta": None}
+    def predict_spostamento(self, prog_id: str, dest_ch: str, dest_time: str) -> dict:
+        # TODO: call Databricks Serving Endpoint or delegate to AiService
+        raise NotImplementedError("predict_spostamento: migrate to AiService")
 
-        orig_share = float(orig.get("share") or 0)
-        cand_share = float(cand.get("share") or 0)
+    # ------------------------------------------------------------------ #
+    # Scenarios & Simulations
+    # ------------------------------------------------------------------ #
 
-        # Blend: candidate's historical share, scaled by the context factor of
-        # the original program relative to the average Italian prime-time share.
-        avg_slot_share = 14.0
-        context_factor = orig_share / avg_slot_share if avg_slot_share > 0 else 1.0
-        pred = round(min(40.0, max(2.0, cand_share * context_factor)), 1)
-        delta = round(pred - orig_share, 1)
-        return {"pred": pred, "delta": delta}
-
-    def predict_spostamento(
+    def get_scenario_simulations(
         self,
-        prog_id: str,
-        dest_ch: str,
-        dest_time: str,
-    ) -> dict:
-        """Compute original vs destination slot share averages."""
-        prog = next((p for p in PROGS if p["id"] == prog_id), None)
-        if not prog:
-            return {"orig_slot_share": None, "dest_slot_share": None, "delta": None}
-
-        orig_share = float(prog.get("share") or 0)
-
-        def to_min(t: str | None) -> int:
-            if not t:
-                return 0
-            h, m = int(t[:2]), int(t[3:5])
-            return h * 60 + m
-
-        dest_min = to_min(dest_time)
-        dest_progs = [
-            p for p in PROGS
-            if p.get("ch") == dest_ch
-            and p.get("share") is not None
-            and abs(to_min(p.get("time")) - dest_min) <= 90
-        ]
-
-        if dest_progs:
-            dest_slot_share = round(
-                sum(float(p["share"]) for p in dest_progs) / len(dest_progs), 1
-            )
-        else:
-            dest_slot_share = round(orig_share, 1)
-
-        delta = round(dest_slot_share - orig_share, 1)
-        return {
-            "orig_slot_share": round(orig_share, 1),
-            "dest_slot_share": dest_slot_share,
-            "delta": delta,
+        program_name: str,
+        program_channel: str,
+        program_date: str,
+        program_from_time: str,
+        scenario_type: str,
+    ) -> list[dict]:
+        """LEFT JOIN webapp_scenarios + webapp_simulations on matching keys."""
+        query = """
+            SELECT
+                sce.id               AS sce_id,
+                sce.scenario_type,
+                sce.program_name,
+                sce.program_channel,
+                sce.program_date,
+                sce.program_from_time,
+                sce.program_share_predict,
+                sce.creation_date    AS sce_creation_date,
+                sim.id               AS sim_id,
+                sim.id_scenario,
+                sim.new_program_name,
+                sim.new_program_share_storico,
+                sim.share_result,
+                sim.status,
+                sim.creation_date    AS sim_creation_date,
+                sim.modified_date,
+                sim.last_error,
+                sim.is_retry
+            FROM ta_coll.whatif.webapp_scenarios sce
+            LEFT JOIN ta_coll.whatif.webapp_simulations sim
+                   ON sce.id = sim.id_scenario
+            WHERE sce.program_name      = :program_name
+              AND sce.program_channel   = :program_channel
+              AND sce.program_date      = :program_date
+              AND sce.program_from_time = :program_from_time
+              AND sce.scenario_type     = :scenario_type
+        """
+        params = {
+            "program_name": program_name,
+            "program_channel": program_channel,
+            "program_date": program_date,
+            "program_from_time": program_from_time,
+            "scenario_type": scenario_type,
         }
+        self._logger.info("get_scenario_simulations | params=%s", params)
 
-    # ------------------------------------------------------------------ #
-    # Helpers
-    # ------------------------------------------------------------------ #
+        with self._connection.cursor() as cursor:
+            cursor.execute(query, parameters=params)
+            columns = [col[0] for col in cursor.description]
+            return [dict(zip(columns, row)) for row in cursor.fetchall()]
 
-    @staticmethod
-    def _eta_matches(prog_eta: str | None, filter_eta: str) -> bool:
-        """Check whether a program's eta field falls within filter_eta range."""
-        if not prog_eta or prog_eta in ("All", "Tutti"):
-            return True
+    def insert_scenario(self, scenario: dict) -> None:
+        """Insert a new row into webapp_scenarios."""
+        query = """
+            INSERT INTO ta_coll.whatif.webapp_scenarios
+                (id, scenario_type, program_name, program_channel,
+                 program_share_predict, program_date, program_from_time,
+                 creation_date)
+            VALUES
+                (:id, :scenario_type, :program_name, :program_channel,
+                 :program_share_predict, :program_date, :program_from_time,
+                 :creation_date)
+        """
+        self._logger.info("insert_scenario | id=%s", scenario.get("id"))
 
-        def to_range(eta: str) -> str:
-            if not eta or eta in ("All", "Tutti"):
-                return "Tutti"
-            for prefix, rng in [
-                ("15", "15-24"), ("18", "15-24"),
-                ("25", "25-44"), ("35", "25-44"),
-                ("45", "45-64"),
-                ("55", "65+"), ("65", "65+"),
-            ]:
-                if str(eta).startswith(prefix):
-                    return rng
-            return "Tutti"
+        with self._connection.cursor() as cursor:
+            cursor.execute(query, parameters=scenario)
 
-        prog_range = to_range(prog_eta)
-        return prog_range == filter_eta or prog_range == "Tutti"
+    def insert_simulation(self, simulation: dict) -> None:
+        """Insert a new row into webapp_simulations."""
+        query = """
+            INSERT INTO ta_coll.whatif.webapp_simulations
+                (id, id_scenario, new_program_name, new_program_share_storico,
+                 share_result, status, creation_date, modified_date,
+                 last_error, is_retry)
+            VALUES
+                (:id, :id_scenario, :new_program_name, :new_program_share_storico,
+                 :share_result, :status, :creation_date, :modified_date,
+                 :last_error, :is_retry)
+        """
+        self._logger.info("insert_simulation | id=%s id_scenario=%s", simulation.get("id"), simulation.get("id_scenario"))
+
+        with self._connection.cursor() as cursor:
+            cursor.execute(query, parameters=simulation)
+
+    def update_simulation(self, simulation_id: str, **fields) -> None:
+        """Update specific fields on a webapp_simulations row.
+
+        None values are rendered as NULL in the SET clause; all other
+        values are passed as named parameters to avoid SQL injection.
+        """
+        if not fields:
+            return
+
+        set_parts: list[str] = []
+        params: dict = {"simulation_id": simulation_id}
+
+        for key, value in fields.items():
+            if value is None:
+                set_parts.append(f"{key} = NULL")
+            else:
+                set_parts.append(f"{key} = :{key}")
+                params[key] = value
+
+        query = f"""
+            UPDATE ta_coll.whatif.webapp_simulations
+            SET    {', '.join(set_parts)}
+            WHERE  id = :simulation_id
+        """
+        self._logger.info("update_simulation | id=%s fields=%s", simulation_id, list(fields.keys()))
+
+        with self._connection.cursor() as cursor:
+            cursor.execute(query, parameters=params)

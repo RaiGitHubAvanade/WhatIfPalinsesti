@@ -99,16 +99,3 @@ export async function getSimulationSchedule(ch, dest_time) {
   if (!result.success) throw new Error(result.message || 'Errore caricamento palinsesto')
   return result.data
 }
-
-// Channels
-export function getChannels() {
-  return apiFetch('/api/channels')
-}
-
-export function getChannelSchedule(ch, isoDate) {
-  return apiFetch(`/api/channels/schedule?ch=${encodeURIComponent(ch)}&date=${isoDate}`)
-}
-
-export function getAllChannelsSchedule(isoDate) {
-  return apiFetch(`/api/channels/all-schedule?date=${isoDate}`)
-}

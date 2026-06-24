@@ -11,7 +11,7 @@ Usage in a route:
 from flask import g
 
 from app.services.databricks_service_weekly_programming import DatabricksServiceWeeklyProgramming
-from app.services.databricks_service_simulation import DatabricksServiceSimulation
+from app.services.databricks_service_simulation_mock import DatabricksServiceSimulationMock
 
 
 def get_databricks_service() -> DatabricksServiceWeeklyProgramming:
@@ -32,10 +32,10 @@ def teardown_databricks_service(exception=None) -> None:
         svc.close()
 
 
-def get_simulation_service() -> DatabricksServiceSimulation:
-    """Return the DatabricksServiceSimulation for the current request context."""
+def get_simulation_service() -> DatabricksServiceSimulationMock:
+    """Return the DatabricksServiceSimulationMock for the current request context."""
     if "simulation_service" not in g:
-        g.simulation_service = DatabricksServiceSimulation()
+        g.simulation_service = DatabricksServiceSimulationMock()
     return g.simulation_service
 
 
