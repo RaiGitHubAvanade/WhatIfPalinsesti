@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useApp } from '../context/useApp'
 import { getWeeklyTable } from '../services/apiService'
 
-/** @typedef {import('../models/palinsestoViewModel').PalinsestoViewModel} PalinsestoViewModel */
+/** @typedef {import('../models/programViewModel').ProgramViewModel} ProgramViewModel */
 /** @typedef {import('../models/weeklyTableViewModel').WeeklyTableViewModel} WeeklyTableViewModel */
 import ChannelSelector from '../components/shared/ChannelSelector'
 import DaySelector from '../components/shared/DaySelector'

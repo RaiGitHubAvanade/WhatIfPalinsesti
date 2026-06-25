@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from app.models.other_channel import OtherChannel
+from app.models.program import Program
 
 
 @dataclass
@@ -14,7 +14,7 @@ class OtherProgramViewModel:
     genere_predominante: str | None
 
     @classmethod
-    def MapOtherProgramViewModelFromOtherChannel(cls, row: OtherChannel) -> "OtherProgramViewModel":
+    def MapOtherProgramViewModelFromProgram(cls, row: Program) -> "OtherProgramViewModel":
         return cls(
             canale=row.canale,
             program_name=row.programma,

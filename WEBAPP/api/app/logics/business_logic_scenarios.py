@@ -3,7 +3,7 @@
 import logging
 
 from app.services.databricks_service_scenarios import DatabricksServiceScenarios
-from app.view_models.scenario_view_models import (
+from app.view_models.scenarios import (
     SimulationSostViewModel,
     SimulationSpostViewModel,
     ScenarioViewModel,

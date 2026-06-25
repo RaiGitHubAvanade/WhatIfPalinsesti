@@ -1,5 +1,5 @@
 /**
- * @typedef {import('../models/palinsestoViewModel').PalinsestoViewModel} PalinsestoViewModel
+ * @typedef {import('../models/programViewModel').ProgramViewModel} ProgramViewModel
  * @typedef {import('../models/weeklyTableViewModel').WeeklyTableViewModel} WeeklyTableViewModel
  */
 

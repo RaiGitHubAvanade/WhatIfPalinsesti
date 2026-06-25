@@ -4,10 +4,10 @@ import OtherChannelsModal from './OtherChannelsModal'
 import { editManualShare } from '../../services/apiService'
 import './DayRow.css'
 
-/** @typedef {import('../../models/palinsestoViewModel').PalinsestoViewModel} PalinsestoViewModel */
+/** @typedef {import('../../models/programViewModel').ProgramViewModel} ProgramViewModel */
 
 /**
- * @param {{ row: PalinsestoViewModel, idx: number, showDay: boolean, dayIso: string|null, wCh: string|null, isCurrentWeek: boolean }} props
+ * @param {{ row: ProgramViewModel, idx: number, showDay: boolean, dayIso: string|null, wCh: string|null, isCurrentWeek: boolean }} props
  */
 export default function DayRow({ row, showDay, dayIso, wCh, isCurrentWeek }) {
   const { state, applyWeeklyOverride, toast } = useApp()

@@ -3,12 +3,12 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import date
 
-from app.models.palinsesto import Palinsesto
+from app.models.program import Program
 from app.utils.number_utils import NumberUtils
 
 
 @dataclass
-class PalinsestoViewModel:
+class ProgramViewModel:
     day: str
     from_time: str | None
     to_time: str | None
@@ -18,7 +18,7 @@ class PalinsestoViewModel:
     share_real: float | None
 
     @classmethod
-    def MapPalinsestoViewModelFromPalinsesto(cls, row: Palinsesto) -> "PalinsestoViewModel":
+    def MapProgramViewModelFromProgram(cls, row: Program) -> "ProgramViewModel":
         d = row.data
         day_iso = d.isoformat() if isinstance(d, date) else str(d)
         return cls(

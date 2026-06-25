@@ -1,11 +1,11 @@
 import DayRow from './DayRow'
 import './WeekDay.css'
 
-/** @typedef {import('../../models/palinsestoViewModel').PalinsestoViewModel} PalinsestoViewModel */
+/** @typedef {import('../../models/programViewModel').ProgramViewModel} ProgramViewModel */
 
 /**
  * WeekDay renders all prime-time program rows for a single calendar day.
- * @param {{ rows: PalinsestoViewModel[], baseIdx: number, dayIso: string|null, dayLabel: string, wCh: string|null, isCurrentWeek: boolean }} props
+ * @param {{ rows: PalinsestoViewModel[], dayIso: string|null, dayLabel: string, wCh: string|null, isCurrentWeek: boolean }} props
  */
 export default function WeekDay({ rows, dayIso, dayLabel, wCh, isCurrentWeek }) {
   return (

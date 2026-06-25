@@ -8,7 +8,7 @@ DATABRICKS_HOST, DATABRICKS_CLIENT_ID, DATABRICKS_CLIENT_SECRET).
 from datetime import date
 import logging
 
-from app.models.other_channel import OtherChannel
+from app.models.program import Program
 from app.utils.date_time_utils import DateTimeUtils
 from app.services.databricks_service import DatabricksService
 
@@ -23,7 +23,7 @@ class DatabricksServiceSimulation(DatabricksService):
         channel: str | None = None,
         from_time: str | None = None,
         to_time: str | None = None,
-    ) -> list[OtherChannel]:
+    ) -> list[Program]:
         """Fetch programs overlapping [from_time, to_time] on the given day.
         All filters except *day* are optional."""
         conditions: list[str] = ["Data = :day"]
@@ -62,7 +62,7 @@ class DatabricksServiceSimulation(DatabricksService):
             cursor.execute(query, parameters=params)
             rows = cursor.fetchall()
 
-        return [OtherChannel.MapOtherChannelFromRow(row) for row in rows]
+        return [Program.MapProgramFromFutureRow(row) for row in rows]
     # ------------------------------------------------------------------ #
     # Programs
     # ------------------------------------------------------------------ #
