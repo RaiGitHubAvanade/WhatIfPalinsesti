@@ -42,7 +42,7 @@ class DatabricksServiceSimulation(DatabricksService):
             params["overlap_to"] = DateTimeUtils.hhmm_to_minutes(to_time)
 
         query = f"""
-            SELECT Canale, Programma, orario_inizio, orario_fine,
+            SELECT Canale, Data, Programma, orario_inizio, orario_fine,
                    share_storico, target_genere, target_eta, genere_predominante
             FROM ta_coll.whatif.output_palinsesto_rai
             WHERE {' AND '.join(conditions)}

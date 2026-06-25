@@ -30,7 +30,7 @@ export default function SimRecap() {
 
           <div className="rp-pills">
             {prog.canale && <span className="rp-pill rp-pill-ch">{prog.canale}</span>}
-            {date && <span className="rp-pill rp-pill-date">📅 {fmtDate(date)}</span>}
+            {prog.date && <span className="rp-pill rp-pill-date">📅 {fmtDate(prog.date)}</span>}
             {prog.from_time && (
               <span className="rp-pill rp-pill-time">
                 🕐 {prog.from_time}{prog.to_time ? `–${prog.to_time}` : ''}

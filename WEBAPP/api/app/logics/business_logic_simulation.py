@@ -1,5 +1,3 @@
-"""Business logic for the simulation feature."""
-
 import logging
 import threading
 import uuid
@@ -35,7 +33,7 @@ def _run_simulation_async(simulation_id: str, payload: dict) -> None:
 
     try:
         logger.info("_run_simulation_async | simulation_id=%s START", simulation_id)
-        result = ai.call_spostamento(payload)
+        result = ai.call_sostituzione(payload)
         svc.update_simulation(
             simulation_id,
             share_result=result["predicted_share_pct"],
@@ -104,8 +102,8 @@ class BusinessLogicSimulation:
         ]
 
 
-    def start_spostamento(self, body: dict) -> tuple[str, int]:
-        """Apply the decision logic for a new Spostamento simulation request.
+    def start_sostituzione(self, body: dict) -> tuple[str, int]:
+        """Apply the decision logic for a new Sostituzione simulation request.
 
         Returns a (message, http_status) tuple.
         """
@@ -122,7 +120,6 @@ class BusinessLogicSimulation:
             k for k, v in {
                 "program_name": program_name,
                 "program_channel": program_channel,
-                "program_share_predict": program_share_predict,
                 "program_date": program_date,
                 "program_from_time": program_from_time,
                 "scenario_type": scenario_type,

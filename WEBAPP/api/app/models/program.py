@@ -48,6 +48,7 @@ class Program:
         """RAI future schedule / competitor overlap view (vw_output_palinsesto_futuro)."""
         return cls(
             canale=row.Canale,
+            data=row.Data,
             programma=row.Programma,
             orario_inizio=row.orario_inizio,
             orario_fine=row.orario_fine,

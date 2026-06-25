@@ -4,6 +4,7 @@
  * @property {string|null} program_name
  * @property {string|null} from_time
  * @property {string|null} to_time
+ * @property {string|null} date
  * @property {number|null} share_storico
  * @property {string|null} target_sex
  * @property {string|null} target_age

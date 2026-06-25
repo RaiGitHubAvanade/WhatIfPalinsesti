@@ -104,7 +104,7 @@ export default function StepProgram() {
         />
         <DaySelector
           value={date || today}
-          onChange={val => set({ date: val, prog: null, cand: null })}
+          onChange={val => { if (val) set({ date: val, prog: null, cand: null }) }}
         />
         <TimeSelector
           fromTime={fromTime}
