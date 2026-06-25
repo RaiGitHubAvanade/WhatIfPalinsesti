@@ -13,10 +13,7 @@ logger = logging.getLogger(__name__)
 bp = Blueprint("simulation", __name__)
 
 
-# ------------------------------------------------------------------ #
-# Palinsesto RAI (step 1)
-# ------------------------------------------------------------------ #
-
+# Step 1
 @bp.route("/simulation/getPalinsestoFuturoRai")
 def get_palinsesto_futuro_rai():
     channel   = request.args.get("channel")   or None
@@ -52,10 +49,7 @@ def get_palinsesto_futuro_rai():
     return success(data=[asdict(ch) for ch in result], message="Palinsesto RAI ottenuto con successo")
 
 
-# ------------------------------------------------------------------ #
-# Candidate programs (step 3 — sostituzione)
-# ------------------------------------------------------------------ #
-
+# Step 3
 @bp.route("/simulation/getCandidatePrograms")
 def get_candidate_programs():
     program_name = request.args.get("program_name") or None
@@ -95,13 +89,13 @@ def get_candidate_programs():
     return success(data=[asdict(p) for p in result], message="Programmi candidati ottenuti con successo")
 
 
-@bp.route("/simulation/spostamento/start", methods=["POST"])
-def start_spostamento():
+# Simulation: Sostituzione
+@bp.route("/simulation/sostituzione/start", methods=["POST"])
+def start_sostituzione():
     body = request.get_json(silent=True) or {}
 
     program_name              = body.get("program_name")
     program_channel           = body.get("program_channel")
-    program_share_predict     = body.get("program_share_predict")
     program_date              = body.get("program_date")
     program_from_time         = body.get("program_from_time")
     scenario_type             = body.get("scenario_type")
@@ -112,7 +106,6 @@ def start_spostamento():
         name for name, val in {
             "program_name":              program_name,
             "program_channel":           program_channel,
-            "program_share_predict":     program_share_predict,
             "program_date":              program_date,
             "program_from_time":         program_from_time,
             "scenario_type":             scenario_type,
@@ -128,7 +121,7 @@ def start_spostamento():
         ), 400
 
     logger.info(
-        "startSpostamento | scenario_type=%s program=%s channel=%s date=%s from=%s new_program=%s",
+        "startSostituzione | scenario_type=%s program=%s channel=%s date=%s from=%s new_program=%s",
         scenario_type,
         program_name,
         program_channel,
@@ -139,14 +132,14 @@ def start_spostamento():
 
     try:
         logic = BusinessLogicSimulation(get_simulation_service())
-        message, status_code = logic.start_spostamento(body)
+        message, status_code = logic.start_sostituzione(body)
     except ValueError as e:
         return error(message=str(e), errors=["missing_params"]), 400
     except RuntimeError as e:
-        logger.error("startSpostamento RuntimeError: %s", e)
+        logger.error("startSostituzione RuntimeError: %s", e)
         return error(message=str(e), errors=["databricks_error"]), 502
     except Exception as e:
-        logger.exception("startSpostamento unexpected: %s", e)
+        logger.exception("startSostituzione unexpected: %s", e)
         return error(message=f"Errore imprevisto: {e}", errors=["internal_error"]), 500
 
     if status_code == 202:

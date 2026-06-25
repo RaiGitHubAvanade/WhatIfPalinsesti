@@ -1,5 +1,3 @@
-"""Business logic for the scenarios feature."""
-
 import logging
 
 from app.services.databricks_service_scenarios import DatabricksServiceScenarios

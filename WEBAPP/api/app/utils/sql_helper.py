@@ -1,6 +1,3 @@
-"""SQL helper utilities shared across service classes."""
-
-
 class SqlHelper:
     @staticmethod
     def to_minutes_sql(col: str) -> str:

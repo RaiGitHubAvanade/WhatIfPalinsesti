@@ -1,5 +1,3 @@
-"""General-purpose date/time utilities."""
-
 from datetime import date, timedelta
 
 

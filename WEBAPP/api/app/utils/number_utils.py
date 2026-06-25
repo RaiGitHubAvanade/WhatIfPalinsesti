@@ -1,6 +1,3 @@
-"""General-purpose number formatting utilities."""
-
-
 class NumberUtils:
     @staticmethod
     def float_to_percent(value: float | None) -> float | None:

@@ -1,11 +1,9 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useApp } from '../../context/useApp'
 import { startSostituzione, startSpostamento } from '../../services/apiSimulation'
 
 export default function SimNav() {
-  const navigate = useNavigate()
-  const { state, set, toast, addToScenarioWithResult, resetSim } = useApp()
+  const { state, set, toast, addToScenarioWithResult } = useApp()
   const { step, mode, prog, cand, spDestCh, spDestDay, spDestTime } = state
   const [loading, setLoading] = useState(false)
 
@@ -47,8 +45,8 @@ export default function SimNav() {
         throw new Error('Modalità di simulazione non valida')
       }
       addToScenarioWithResult(result)
-      resetSim()
-      navigate('/scenari')
+      toast('Simulazione avviata. Puoi visualizzarla nella sezione "Scenario"')
+      set({ cand: null })
     } catch (e) {
       toast('Errore simulazione: ' + e.message)
     } finally {

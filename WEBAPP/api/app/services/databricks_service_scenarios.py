@@ -1,10 +1,3 @@
-"""Databricks scenarios service — queries webapp_scenarios joined with
-webapp_simulations_sostituzione and webapp_simulations_spostamento.
-"""
-
-from datetime import date
-import logging
-
 from app.services.databricks_service import DatabricksService
 
 

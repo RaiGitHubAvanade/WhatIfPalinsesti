@@ -1,8 +1,6 @@
 import logging
 import threading
-import uuid
 from copy import deepcopy
-from datetime import datetime, timezone
 
 from app.services.databricks_service import DatabricksService
 from app.data.mocked_data import PROGS, COMPS

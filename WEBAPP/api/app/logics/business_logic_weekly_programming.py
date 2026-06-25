@@ -1,5 +1,3 @@
-"""Business logic for the weekly programming feature."""
-
 import logging
 from datetime import date, timedelta
 
