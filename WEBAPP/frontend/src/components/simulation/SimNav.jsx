@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useApp } from '../../context/useApp'
-import { startSostituzione, startSpostamento } from '../../services/apiService'
+import { startSostituzione, startSpostamento } from '../../services/apiSimulation'
 
 export default function SimNav() {
   const navigate = useNavigate()

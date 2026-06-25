@@ -1,5 +1,3 @@
-"""Databricks service for Weekly Programming — extends DatabricksService."""
-
 from datetime import date
 
 from app.models.program import Program
@@ -11,9 +9,13 @@ class DatabricksServiceWeeklyProgramming(DatabricksService):
 
     ### --- Weekly Table --- ###
 
-    def get_palinsesto_delta(self, channel: str, from_day: date, to_day: date) -> list[Program]:
+    def get_palinsesto_delta(
+            self,
+            channel: str,
+            from_day: date,
+            to_day: date
+    ) -> list[Program]:
         """Execute the query and return rows for the week containing *day*."""
-
         query = """
             SELECT Canale, Data, Programma, orario_inizio, orario_fine, share_predetto, 
                 share_manuale, share_reale 
@@ -31,9 +33,17 @@ class DatabricksServiceWeeklyProgramming(DatabricksService):
             cursor.execute(query, parameters=params)
             rows = cursor.fetchall()
 
-        return [Program.MapProgramFromRow(row) for row in rows]
+        result = []
+        for row in rows:
+            result.append(Program.MapProgramFromRow(row))
+        return result
 
-    def get_palinsesto_predict(self, channel: str, from_day: date, to_day: date) -> list[Program]:
+    def get_palinsesto_predict(
+            self,
+            channel: str,
+            from_day: date,
+            to_day: date
+    ) -> list[Program]:
         """Execute the query and return rows for the week containing *day*."""
         query = """
             SELECT Canale, Data, Programma, orario_inizio, orario_fine, share_predetto, 
@@ -55,7 +65,10 @@ class DatabricksServiceWeeklyProgramming(DatabricksService):
             cursor.execute(query, parameters=params)
             rows = cursor.fetchall()
 
-        return [Program.MapProgramFromRow(row) for row in rows]
+        result = []
+        for row in rows:
+            result.append(Program.MapProgramFromRow(row))
+        return result
 
 
 
@@ -88,11 +101,11 @@ class DatabricksServiceWeeklyProgramming(DatabricksService):
             "to_time": to_time,
             "day": day,
         }
+        if db_value is not None:
+            params["db_value"] = db_value
 
         self._logger.info(f"Query: {query} with params {params}")
 
-        if db_value is not None:
-            params["db_value"] = db_value
         with self._connection.cursor() as cursor:
             cursor.execute(query, parameters=params)
 
@@ -107,7 +120,7 @@ class DatabricksServiceWeeklyProgramming(DatabricksService):
         from_time: str,
         to_time: str,
     ) -> list[Program]:
-        """Fetch historical competitor programs overlapping [from_time, to_time] on the given day."""
+        """Fetch past Rai and Competitor programs overlapping [from_time, to_time] on the given day."""
         channel_params = {f"ch{i}": ch for i, ch in enumerate(channel_order)}
         placeholders = ", ".join(f":ch{i}" for i in range(len(channel_order)))
         query = f"""
@@ -143,7 +156,7 @@ class DatabricksServiceWeeklyProgramming(DatabricksService):
         from_time: str,
         to_time: str,
     ) -> list[Program]:
-        """Fetch RAI programs overlapping [from_time, to_time] on the given day."""
+        """Fetch future Rai and Competitorprograms overlapping [from_time, to_time] on the given day."""
         channel_params = {f"ch{i}": ch for i, ch in enumerate(channel_order)}
         placeholders = ", ".join(f":ch{i}" for i in range(len(channel_order)))
         query = f"""

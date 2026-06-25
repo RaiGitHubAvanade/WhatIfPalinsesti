@@ -1,6 +1,6 @@
 ﻿import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useApp } from '../../context/useApp'
-import { getPalinsestoFuturoRai } from '../../services/apiService'
+import { getPalinsestoFuturoRai } from '../../services/apiSimulation'
 import ChannelSelector from '../shared/ChannelSelector'
 import DaySelector from '../shared/DaySelector'
 import TimeSelector from './TimeSelector'

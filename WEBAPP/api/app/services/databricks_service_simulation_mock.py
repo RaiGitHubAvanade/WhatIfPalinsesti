@@ -1,10 +1,3 @@
-"""Databricks simulation service — mock implementation for development.
-
-All data is served from in-memory stores; no real Databricks connection
-is opened. Replace usages with DatabricksServiceSimulation (production)
-once the ta_coll.whatif.* tables are ready.
-"""
-
 import logging
 import threading
 import uuid

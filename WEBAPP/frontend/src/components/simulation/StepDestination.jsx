@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useApp } from '../../context/useApp'
-import { getSimulationSchedule } from '../../services/apiService'
+import { getSimulationSchedule } from '../../services/apiSimulation'
 import ChannelSelector from '../shared/ChannelSelector'
 import DaySelector from '../shared/DaySelector'
 import './StepDestination.css'
 
-/** @typedef {import('../../models/simulationViewModel').ScheduleItem} ScheduleItem */
+/** @typedef {import('../../models/simulation/channelScheduleViewModel').ScheduleItem} ScheduleItem */
 
 const PAGE_SIZE = 8
 const DEST_HOURS = [

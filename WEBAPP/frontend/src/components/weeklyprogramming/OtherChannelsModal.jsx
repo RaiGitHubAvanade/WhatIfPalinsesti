@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { getCompetitorPrograms } from '../../services/apiService'
+import { getCompetitorPrograms } from '../../services/apiWeeklyProgramming'
 import './OtherChannelsModal.css'
 
 export default function OtherChannelsModal({ onClose, channel, day, from_time, to_time, program_name }) {

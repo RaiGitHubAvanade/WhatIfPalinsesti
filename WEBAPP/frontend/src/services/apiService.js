@@ -1,11 +1,6 @@
-/**
- * @typedef {import('../models/programViewModel').ProgramViewModel} ProgramViewModel
- * @typedef {import('../models/weeklyTableViewModel').WeeklyTableViewModel} WeeklyTableViewModel
- */
-
 const BASE_URL = import.meta.env.VITE_API_URL || ''
 
-async function apiFetch(path, options = {}) {
+export async function apiFetch(path, options = {}) {
   const res = await fetch(`${BASE_URL}${path}`, options)
   if (!res.ok) {
     const text = await res.text()
@@ -13,6 +8,7 @@ async function apiFetch(path, options = {}) {
   }
   return res.json()
 }
+
 
 
 // Weekly

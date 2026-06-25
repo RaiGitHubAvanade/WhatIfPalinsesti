@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { getSimulationCompetitors } from '../../services/apiService'
+import { getSimulationCompetitors } from '../../services/apiSimulation'
 import './SimulationDetail.css'
 
 function fmtDate(iso) {

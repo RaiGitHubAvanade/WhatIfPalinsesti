@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useApp } from '../../context/useApp'
-import { getSimulationCandidates } from '../../services/apiService'
+import { getSimulationCandidates } from '../../services/apiSimulation'
 import './StepCandidates.css'
 import TextInputFilter from '../shared/TextInputFilter'
 
-/** @typedef {import('../../models/simulationViewModel').ProgramItem} ProgramItem */
+/** @typedef {import('../../models/simulation/programItemViewModel').ProgramItem} ProgramItem */
 
 const PAGE_SIZE = 8
 

@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { useApp } from '../../context/useApp'
 import OtherChannelsModal from './OtherChannelsModal'
-import { editManualShare } from '../../services/apiService'
+import { editManualShare } from '../../services/apiWeeklyProgramming'
 import './DayRow.css'
 
-/** @typedef {import('../../models/programViewModel').ProgramViewModel} ProgramViewModel */
+/** @typedef {import('../../models/weekly_programming/programViewModel').ProgramViewModel} ProgramViewModel */
 
 /**
  * @param {{ row: ProgramViewModel, idx: number, showDay: boolean, dayIso: string|null, wCh: string|null, isCurrentWeek: boolean }} props

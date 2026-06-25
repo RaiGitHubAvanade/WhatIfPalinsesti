@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { useApp } from '../context/useApp'
-import { getWeeklyTable } from '../services/apiService'
+import { getWeeklyTable } from '../services/apiWeeklyProgramming'
 
-/** @typedef {import('../models/programViewModel').ProgramViewModel} ProgramViewModel */
-/** @typedef {import('../models/weeklyTableViewModel').WeeklyTableViewModel} WeeklyTableViewModel */
+/** @typedef {import('../models/weekly_programming/programViewModel').ProgramViewModel} ProgramViewModel */
+/** @typedef {import('../models/weekly_programming/weeklyTableViewModel').WeeklyTableViewModel} WeeklyTableViewModel */
 import ChannelSelector from '../components/shared/ChannelSelector'
 import DaySelector from '../components/shared/DaySelector'
 import WeekTable from '../components/weeklyprogramming/WeekTable'

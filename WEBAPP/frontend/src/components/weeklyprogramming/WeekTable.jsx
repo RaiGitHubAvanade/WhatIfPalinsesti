@@ -2,8 +2,8 @@ import WeekDay from './WeekDay'
 import WeekTableInfo from './WeekTableInfo'
 import './WeekTable.css'
 
-/** @typedef {import('../../models/programViewModel').ProgramViewModel} ProgramViewModel */
-/** @typedef {import('../../models/weeklyTableViewModel').WeeklyTableViewModel} WeeklyTableViewModel */
+/** @typedef {import('../../models/weekly_programming/programViewModel').ProgramViewModel} ProgramViewModel */
+/** @typedef {import('../../models/weekly_programming/weeklyTableViewModel').WeeklyTableViewModel} WeeklyTableViewModel */
 
 const _DAY_NAMES = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom']
 

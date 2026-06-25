@@ -2,8 +2,8 @@ import { useState } from 'react'
 import './ScenCard.css'
 
 /**
- * @typedef {import('../../models/simulationViewModel').SimResultSost} SimResultSost
- * @typedef {import('../../models/simulationViewModel').SimResultSposta} SimResultSposta
+ * @typedef {import('../../models/simulation/simResultViewModels').SimResultSost} SimResultSost
+ * @typedef {import('../../models/simulation/simResultViewModels').SimResultSposta} SimResultSposta
  */
 
 function fmtDateShort(iso) {
