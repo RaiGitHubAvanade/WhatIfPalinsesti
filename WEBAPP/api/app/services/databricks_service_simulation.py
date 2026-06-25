@@ -5,14 +5,64 @@ Authentication is handled by DatabricksService (SDK Config picks up
 DATABRICKS_HOST, DATABRICKS_CLIENT_ID, DATABRICKS_CLIENT_SECRET).
 """
 
+from datetime import date
 import logging
 
+from app.models.other_channel import OtherChannel
+from app.utils.date_time_utils import DateTimeUtils
 from app.services.databricks_service import DatabricksService
 
 
 class DatabricksServiceSimulation(DatabricksService):
     """Production simulation service backed by real Databricks SQL."""
 
+
+    def get_output_palinsesto_rai(
+        self,
+        day: date,
+        channel: str | None = None,
+        from_time: str | None = None,
+        to_time: str | None = None,
+    ) -> list[OtherChannel]:
+        """Fetch programs overlapping [from_time, to_time] on the given day.
+        All filters except *day* are optional."""
+        conditions: list[str] = ["Data = :day"]
+        params: dict = {"day": day}
+
+        if channel:
+            conditions.append("Canale = :channel")
+            params["channel"] = channel
+
+        if from_time is not None:
+            conditions.append(
+                "(CASE WHEN INT(split(orario_fine, ':')[0]) < 6 "
+                "THEN INT(split(orario_fine, ':')[0]) * 60 + INT(split(orario_fine, ':')[1]) + 1440 "
+                "ELSE INT(split(orario_fine, ':')[0]) * 60 + INT(split(orario_fine, ':')[1]) END) > :overlap_from"
+            )
+            params["overlap_from"] = DateTimeUtils.hhmm_to_minutes(from_time)
+
+        if to_time is not None:
+            conditions.append(
+                "(CASE WHEN INT(split(orario_inizio, ':')[0]) < 6 "
+                "THEN INT(split(orario_inizio, ':')[0]) * 60 + INT(split(orario_inizio, ':')[1]) + 1440 "
+                "ELSE INT(split(orario_inizio, ':')[0]) * 60 + INT(split(orario_inizio, ':')[1]) END) < :overlap_to"
+            )
+            params["overlap_to"] = DateTimeUtils.hhmm_to_minutes(to_time)
+
+        query = f"""
+            SELECT Canale, Programma, orario_inizio, orario_fine,
+                   share_storico, target_genere, target_eta, genere_predominante
+            FROM ta_coll.whatif.output_palinsesto_rai
+            WHERE {' AND '.join(conditions)}
+            ORDER BY orario_inizio
+        """
+        self._logger.info(f"Query: {query} with params {params}")
+
+        with self._connection.cursor() as cursor:
+            cursor.execute(query, parameters=params)
+            rows = cursor.fetchall()
+
+        return [OtherChannel.MapOtherChannelFromRow(row) for row in rows]
     # ------------------------------------------------------------------ #
     # Programs
     # ------------------------------------------------------------------ #
@@ -208,7 +258,7 @@ class DatabricksServiceSimulation(DatabricksService):
                 sim.last_error,
                 sim.is_retry
             FROM ta_coll.whatif.webapp_scenarios sce
-            LEFT JOIN ta_coll.whatif.webapp_simulations sim
+            LEFT JOIN ta_coll.whatif.webapp_simulations_sostituzione sim
                    ON sce.id = sim.id_scenario
             WHERE sce.program_name      = :program_name
               AND sce.program_channel   = :program_channel
@@ -223,7 +273,7 @@ class DatabricksServiceSimulation(DatabricksService):
             "program_from_time": program_from_time,
             "scenario_type": scenario_type,
         }
-        self._logger.info("get_scenario_simulations | params=%s", params)
+        self._logger.info(f"Query: {query} with params {params}")
 
         with self._connection.cursor() as cursor:
             cursor.execute(query, parameters=params)
@@ -248,9 +298,9 @@ class DatabricksServiceSimulation(DatabricksService):
             cursor.execute(query, parameters=scenario)
 
     def insert_simulation(self, simulation: dict) -> None:
-        """Insert a new row into webapp_simulations."""
+        """Insert a new row into webapp_simulations_sostituzione."""
         query = """
-            INSERT INTO ta_coll.whatif.webapp_simulations
+            INSERT INTO ta_coll.whatif.webapp_simulations_sostituzione
                 (id, id_scenario, new_program_name, new_program_share_storico,
                  share_result, status, creation_date, modified_date,
                  last_error, is_retry)
@@ -284,7 +334,7 @@ class DatabricksServiceSimulation(DatabricksService):
                 params[key] = value
 
         query = f"""
-            UPDATE ta_coll.whatif.webapp_simulations
+            UPDATE ta_coll.whatif.webapp_simulations_sostituzione
             SET    {', '.join(set_parts)}
             WHERE  id = :simulation_id
         """

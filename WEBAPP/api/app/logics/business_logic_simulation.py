@@ -5,7 +5,7 @@ import threading
 import uuid
 from datetime import datetime, timezone
 
-from app.services.databricks_service_simulation_mock import DatabricksServiceSimulationMock
+from app.services.databricks_service_simulation import DatabricksServiceSimulation
 from app.view_models.simulation_view_models import (
     ProgramItemViewModel,
     ProgramListViewModel,
@@ -16,6 +16,9 @@ from app.view_models.simulation_view_models import (
     ScheduleItemViewModel,
     ChannelScheduleViewModel,
 )
+from app.view_models.other_channel_view_model import OtherChannelViewModel
+from app.models.other_channel import OtherChannel
+from app.view_models.other_program_view_model import OtherProgramViewModel
 
 
 # ------------------------------------------------------------------ #
@@ -24,11 +27,11 @@ from app.view_models.simulation_view_models import (
 
 def _run_simulation_async(simulation_id: str, payload: dict) -> None:
     """Background thread: calls the AI service and updates the simulation record."""
-    from app.services.databricks_service_simulation_mock import DatabricksServiceSimulationMock  # noqa: PLC0415
+    from app.services.databricks_service_simulation import DatabricksServiceSimulation  # noqa: PLC0415
     from app.services.ai_service import AiService  # noqa: PLC0415
 
     logger = logging.getLogger(__name__)
-    svc = DatabricksServiceSimulationMock()
+    svc = DatabricksServiceSimulation()
     ai = AiService()
 
     try:
@@ -53,13 +56,32 @@ def _run_simulation_async(simulation_id: str, payload: dict) -> None:
 
 
 class BusinessLogicSimulation:
-    def __init__(self, service: DatabricksServiceSimulationMock) -> None:
+    def __init__(self, service: DatabricksServiceSimulation) -> None:
         self._service = service
         self._logger = logging.getLogger(__name__)
 
     # ------------------------------------------------------------------ #
-    # Programs
+    # Palinsesto RAI
     # ------------------------------------------------------------------ #
+
+    def get_palinsesto_futuro_rai(
+        self,
+        day,
+        channel: str | None = None,
+        from_time: str | None = None,
+        to_time: str | None = None,
+    ) -> list[OtherProgramViewModel]:
+        try:
+            rows = self._service.get_output_palinsesto_rai(
+                day=day, channel=channel, from_time=from_time, to_time=to_time
+            )
+        except Exception as e:
+            raise RuntimeError(f"Errore nel recupero del palinsesto RAI: {e}") from e
+
+        return [
+            OtherProgramViewModel.MapOtherProgramViewModelFromOtherChannel(row)
+            for row in rows
+        ]
 
     def get_programs(
         self,
@@ -335,7 +357,7 @@ class BusinessLogicSimulation:
                         return "Non è possibile ripetere una simulazione già completata.", 409
 
             else:
-                # ── Step 5: fewer than 3 simulations on this scenario? ─
+                # ── Step 4: fewer than 3 simulations on this scenario? ─
                 sim_count = len([r for r in rows if r.get("sim_id") is not None])
                 if sim_count < 3:
                     simulation_id = str(uuid.uuid4())

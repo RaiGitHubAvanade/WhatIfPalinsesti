@@ -57,8 +57,6 @@ export default function StepDestination() {
   return (
     <div className="card psel-card">
 
-      <div className="sect-label" style={{ marginTop: 20 }}>Configura contesto di destinazione</div>
-
       {/* Filter bar */}
       <div className="psel-filter-bar">
         {/* Channel */}
@@ -92,8 +90,7 @@ export default function StepDestination() {
       {/* Schedule preview */}
       {!spDestCh || !spDestTime ? (
         <div className="dest-placeholder">
-          Seleziona <strong>canale</strong>, <strong>data</strong> e <strong>orario</strong>{' '}
-          per visualizzare il palinsesto di destinazione.
+          Seleziona <strong>canale</strong>, <strong>data</strong> e <strong>orario</strong> di destinazione.
         </div>
       ) : loading ? (
         <div className="psel-loading">Caricamento…</div>

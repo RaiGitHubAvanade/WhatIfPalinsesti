@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useApp } from '../../context/useApp'
-import { runSimulation } from '../../services/apiService'
+import { startSostituzione, startSpostamento } from '../../services/apiService'
 
 export default function SimNav() {
   const navigate = useNavigate()
@@ -20,20 +20,31 @@ export default function SimNav() {
     setLoading(true)
     try {
       let result
-      if (mode === 'spostamento') {
-        result = await runSimulation({
-          mode: 'spostamento',
-          prog_id: prog.id,
-          dest_ch: spDestCh,
-          dest_day: spDestDay,
-          dest_time: spDestTime,
+      if (mode === 'sostituzione') {
+        result = await startSostituzione({
+          program_name: prog.title,
+          program_channel: prog.ch,
+          program_share_predict: prog.share,
+          program_date: state.date,
+          program_from_time: prog.time,
+          scenario_type: mode,
+          new_program_name: cand.title,
+          new_program_share_storico: cand.share,
+        })
+      } else if (mode === 'spostamento') {
+        result = await startSpostamento({
+          program_name: prog.title,
+          program_channel: prog.ch,
+          program_share_predict: prog.share,
+          program_date: state.date,
+          program_from_time: prog.time,
+          scenario_type: mode,
+          new_channel: spDestCh,
+          new_date: spDestDay,
+          new_from_time: spDestTime,
         })
       } else {
-        result = await runSimulation({
-          mode: 'sostituzione',
-          orig_id: prog.id,
-          cand_id: cand.id,
-        })
+        throw new Error('Modalità di simulazione non valida')
       }
       addToScenarioWithResult(result)
       resetSim()

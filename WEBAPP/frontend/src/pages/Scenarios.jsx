@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useApp } from '../context/useApp'
+import { getScenarios } from '../services/apiService'
 import ScenCard from '../components/scenarios/ScenCard'
 import SimulationDetail from '../components/scenarios/SimulationDetail'
 import DaySelector from '../components/shared/DaySelector'
@@ -10,27 +11,150 @@ import './Scenarios.css'
 
 const SCEN_PER_PAGE = 3
 
+/**
+ * Map one API scenario to the display shape expected by ScenCard.
+ * @param {import('../services/apiService').ScenarioItem} apiScen
+ * @returns {{ id: string, sc: object }}
+ */
+function mapToDisplay(apiScen) {
+  const {
+    id, scenario_type, program_name, program_channel,
+    program_date, program_from_time, program_share_predict,
+    creation_date, simulations,
+  } = apiScen
+
+  const prog = {
+    title: program_name,
+    ch: program_channel,
+    share: program_share_predict,
+    time: program_from_time,
+  }
+
+  const items = simulations.map(sim => {
+    const predicted = sim.share_result ?? null
+    const delta =
+      predicted !== null && program_share_predict !== null
+        ? parseFloat((predicted - program_share_predict).toFixed(2))
+        : null
+
+    if (scenario_type === 'sostituzione') {
+      return {
+        mode: 'sostituzione',
+        result: {
+          mode: 'sostituzione',
+          orig_title: program_name,
+          orig_share: program_share_predict,
+          orig_ch: program_channel,
+          orig_time: program_from_time,
+          orig_end: null,
+          cand_title: sim.new_program_name,
+          cand_share: sim.new_program_share_storico,
+          predicted_share: predicted,
+          delta,
+        },
+        prog,
+        cand: { title: sim.new_program_name, share: sim.new_program_share_storico },
+        date: program_date,
+        ch: program_channel,
+        _status: sim.status,
+        _sim_id: sim.id,
+      }
+    } else {
+      return {
+        mode: 'spostamento',
+        result: {
+          mode: 'spostamento',
+          prog_title: program_name,
+          orig_ch: program_channel,
+          orig_date: program_date,
+          orig_time: program_from_time,
+          orig_end: null,
+          orig_slot_share: program_share_predict,
+          dest_ch: sim.new_channel,
+          dest_date: sim.new_date,
+          dest_time: sim.new_from_time,
+          dest_slot_share: predicted,
+          delta,
+        },
+        prog,
+        date: program_date,
+        ch: program_channel,
+        spDestCh: sim.new_channel,
+        spDestDay: sim.new_date,
+        spDestTime: sim.new_from_time,
+        _status: sim.status,
+        _sim_id: sim.id,
+      }
+    }
+  })
+
+  return {
+    id,
+    sc: {
+      items,
+      anchor: prog,
+      type: scenario_type,
+      createdAt: creation_date,
+      title: null,
+    },
+  }
+}
+
 export default function Scenarios() {
   const navigate = useNavigate()
-  const { state, removeFromScenario, deleteScenario, setScenarioTitle } = useApp()
+  const { toast } = useApp()
+
+  const [scenarios, setScenarios] = useState([])
+  const [loading, setLoading] = useState(false)
   const [search, setSearch] = useState('')
-  const [typeFilter, setTypeFilter] = useState('')   // '' | 'sostituzione' | 'spostamento'
+  const [typeFilter, setTypeFilter] = useState('')
   const [dateFilter, setDateFilter] = useState('')
   const [page, setPage] = useState(1)
   const [selectedItem, setSelectedItem] = useState(null)
 
-  // All non-empty scenarios sorted by createdAt descending
-  const allScenarios = Object.entries(state.scenarios)
-    .filter(([, sc]) => sc.items.length > 0)
-    .map(([k, sc]) => ({ id: Number(k), sc }))
-    .sort((a, b) => {
-      const ta = a.sc.createdAt ? new Date(a.sc.createdAt).getTime() : 0
-      const tb = b.sc.createdAt ? new Date(b.sc.createdAt).getTime() : 0
-      return tb - ta
-    })
+  // ── Fetch on mount (component remounts on every navigation to /scenari) ──
+  useEffect(() => {
+    let cancelled = false
+    setLoading(true)
+    getScenarios()
+      .then(data => {
+        if (cancelled) return
+        setScenarios((data.scenarios || []).map(mapToDisplay))
+      })
+      .catch(e => {
+        if (cancelled) return
+        toast('Errore caricamento scenari: ' + e.message)
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false)
+      })
+    return () => { cancelled = true }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Apply filters
-  const filtered = allScenarios.filter(({ sc }) => {
+  // ── Local-only mutations (display state only — no DB writes) ──────────
+  function handleRemoveItem(scenId, idx) {
+    setScenarios(prev => prev
+      .map(item =>
+        item.id === scenId
+          ? { ...item, sc: { ...item.sc, items: item.sc.items.filter((_, i) => i !== idx) } }
+          : item
+      )
+      .filter(item => item.sc.items.length > 0)
+    )
+  }
+
+  function handleDelete(scenId) {
+    setScenarios(prev => prev.filter(item => item.id !== scenId))
+  }
+
+  function handleRename(scenId, title) {
+    setScenarios(prev => prev.map(item =>
+      item.id === scenId ? { ...item, sc: { ...item.sc, title } } : item
+    ))
+  }
+
+  // ── Client-side filtering ─────────────────────────────────────────────
+  const filtered = scenarios.filter(({ sc }) => {
     if (typeFilter && sc.type !== typeFilter) return false
     if (dateFilter) {
       const hasDate = sc.items.some(it => (it.date || it.spDestDay) === dateFilter)
@@ -43,15 +167,15 @@ export default function Scenarios() {
         (it.result?.orig_title || '').toLowerCase().includes(q) ||
         (it.result?.cand_title || '').toLowerCase().includes(q) ||
         (it.result?.prog_title || '').toLowerCase().includes(q) ||
-        (it.prog?.title || '').toLowerCase().includes(q) ||
-        (it.cand?.title || '').toLowerCase().includes(q)
+        (it.cand?.title || '').toLowerCase().includes(q) ||
+        (it.result?.dest_ch || '').toLowerCase().includes(q)
       )
       if (!titleMatch && !itemMatch) return false
     }
     return true
   })
 
-  const hasAny = allScenarios.length > 0
+  const hasAny = scenarios.length > 0
   const total = filtered.length
   const totalPages = Math.max(1, Math.ceil(total / SCEN_PER_PAGE))
   const currentPage = Math.min(page, totalPages)
@@ -66,7 +190,6 @@ export default function Scenarios() {
     setPage(Math.max(1, Math.min(p, totalPages)))
   }
 
-  // Build visible page numbers with ellipsis gaps
   function buildPageNums(cur, tot) {
     const nums = []
     for (let p = 1; p <= tot; p++) {
@@ -116,12 +239,17 @@ export default function Scenarios() {
           )}
 
           <span className="scen-filter-count">
-            {total} {total === 1 ? 'scenario' : 'scenari'}
+            {loading ? '…' : `${total} ${total === 1 ? 'scenario' : 'scenari'}`}
           </span>
         </div>
 
         {/* ── Content ── */}
-        {total === 0 ? (
+        {loading ? (
+          <div className="scen-empty-state">
+            <div className="scen-empty-ico">⏳</div>
+            <div className="scen-empty-msg">Caricamento scenari…</div>
+          </div>
+        ) : total === 0 ? (
           <div className="scen-empty-state">
             <div className="scen-empty-ico">📋</div>
             <div className="scen-empty-msg">
@@ -138,9 +266,9 @@ export default function Scenarios() {
                   key={id}
                   scenId={id}
                   sc={sc}
-                  onRemoveItem={idx => removeFromScenario(id, idx)}
-                  onDelete={() => deleteScenario(id)}
-                  onRename={title => setScenarioTitle(id, title)}
+                  onRemoveItem={idx => handleRemoveItem(id, idx)}
+                  onDelete={() => handleDelete(id)}
+                  onRename={title => handleRename(id, title)}
                   onAddSim={() => navigate('/simulazione')}
                   onViewDetail={item => setSelectedItem(item)}
                 />

@@ -40,9 +40,11 @@ class DateTimeUtils:
 
     @staticmethod
     def hhmm_to_seconds(t: str) -> int:
-        """Convert 'HH:MM' string to total seconds since midnight."""
+        """Convert 'HH:MM' string to total seconds since midnight.
+        Times before 06:00 are treated as next-day (result > 86400)."""
         h, m = int(t[:2]), int(t[3:5])
-        return h * 3600 + m * 60
+        secs = h * 3600 + m * 60
+        return secs + 86400 if h < 6 else secs
 
     @staticmethod
     def seconds_to_hhmm(seconds: int) -> str:

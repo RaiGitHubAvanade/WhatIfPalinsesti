@@ -1,15 +1,14 @@
-﻿import { useState, useEffect, useCallback } from 'react'
+﻿import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useApp } from '../../context/useApp'
-import { getSimulationPrograms } from '../../services/apiService'
+import { getPalinsestoFuturoRai } from '../../services/apiService'
 import ChannelSelector from '../shared/ChannelSelector'
 import DaySelector from '../shared/DaySelector'
 import TimeSelector from './TimeSelector'
 import TextInputFilter from '../shared/TextInputFilter'
 import './StepProgram.css'
 
-/** @typedef {import('../../models/simulationViewModel').ProgramItem} ProgramItem */
-
 const PAGE_SIZE = 8
+const CH_CLS = { 'Rai 1': 'prow-r1', 'Rai 2': 'prow-r2', 'Rai 3': 'prow-r3' }
 
 function fmtDate(iso) {
   if (!iso) return '—'
@@ -40,7 +39,7 @@ export default function StepProgram() {
   const { state, set, toast } = useApp()
   const { ch, date, slot, _search, prog } = state
 
-  const [programs, setPrograms] = useState(/** @type {ProgramItem[]} */ ([]))
+  const [rawData, setRawData] = useState([])
   const [loading, setLoading] = useState(false)
   const [page, setPage] = useState(1)
 
@@ -51,28 +50,52 @@ export default function StepProgram() {
     setLoading(true)
     setPage(1)
     try {
-      const data = await getSimulationPrograms({
-        ch: ch || '',
-        date: date || today,
+      const data = await getPalinsestoFuturoRai({
+        channel: ch || '',
+        day: date || today,
         from_time: fromTime,
         to_time: toTime,
-        search: _search || '',
       })
-      setPrograms(data.programs || [])
+      setRawData(data || [])
     } catch (e) {
       toast('Errore caricamento programmi: ' + e.message)
     } finally {
       setLoading(false)
     }
-  }, [ch, date, slot, _search]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [ch, date, slot]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const t = setTimeout(fetchPrograms, 200)
     return () => clearTimeout(t)
   }, [fetchPrograms])
 
+  // Flat list from API — apply client-side text search
+  // `safePage` clamps the current page whenever the filtered list shrinks
+  const programs = useMemo(() => {
+    const flat = rawData.map(p => ({
+      id: `${p.canale}_${p.from_time}`,
+      title: p.program_name || '—',
+      ch: p.canale,
+      share: p.share_storico ?? null,
+      time: p.from_time,
+      end: p.to_time,
+      genre: p.genere_predominante || null,
+      dur: null,
+      eta: p.target_eta || null,
+      sesso: p.target_genere || null,
+      tipo: null,
+      slot: null,
+    }))
+    if (_search) {
+      const q = _search.toLowerCase()
+      return flat.filter(p => p.title.toLowerCase().includes(q))
+    }
+    return flat
+  }, [rawData, _search])
+
   const totalPages = Math.max(1, Math.ceil(programs.length / PAGE_SIZE))
-  const pageItems = programs.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+  const safePage = Math.min(page, totalPages)
+  const pageItems = programs.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE)
 
   const handleSelectProg = (p) => {
     if (prog?.id === p.id) {
@@ -81,8 +104,6 @@ export default function StepProgram() {
       set({ prog: p, cand: null })
     }
   }
-
-  const CH_CLS = { 'Rai 1': 'prow-r1', 'Rai 2': 'prow-r2', 'Rai 3': 'prow-r3' }
 
   return (
     <div className="card psel-card">
@@ -162,17 +183,17 @@ export default function StepProgram() {
 
       {!loading && totalPages > 1 && (
         <div className="psel-pager">
-          <button className="psel-pager-nav" disabled={page <= 1} onClick={() => setPage(p => p - 1)}>←</button>
+          <button className="psel-pager-nav" disabled={safePage <= 1} onClick={() => setPage(p => p - 1)}>←</button>
           {Array.from({ length: totalPages }, (_, i) => i + 1)
-            .filter(n => n === 1 || n === totalPages || Math.abs(n - page) <= 2)
+            .filter(n => n === 1 || n === totalPages || Math.abs(n - safePage) <= 2)
             .reduce((acc, n, i, arr) => { if (i > 0 && n - arr[i - 1] > 1) acc.push('…'); acc.push(n); return acc }, [])
             .map((item, i) =>
               item === '…'
                 ? <span key={`ell-${i}`} className="psel-pager-ell">…</span>
-                : <button key={item} className={`psel-pager-num${page === item ? ' active' : ''}`} onClick={() => setPage(item)}>{item}</button>
+                : <button key={item} className={`psel-pager-num${safePage === item ? ' active' : ''}`} onClick={() => setPage(item)}>{item}</button>
             )}
-          <button className="psel-pager-nav" disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}>→</button>
-          <span className="psel-pager-info">{(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, programs.length)} di {programs.length}</span>
+          <button className="psel-pager-nav" disabled={safePage >= totalPages} onClick={() => setPage(p => p + 1)}>→</button>
+          <span className="psel-pager-info">{(safePage - 1) * PAGE_SIZE + 1}–{Math.min(safePage * PAGE_SIZE, programs.length)} di {programs.length}</span>
         </div>
       )}
     </div>
