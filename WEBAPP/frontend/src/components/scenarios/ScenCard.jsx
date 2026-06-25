@@ -29,7 +29,7 @@ export default function ScenCard({ scenId, sc, onRemoveItem, onDelete, onRename,
   const isFull = sc.items.length >= 3
   const typeCls = sc.type === 'spostamento' ? 'spostamento' : 'sostituzione'
   const typeLabel = sc.type === 'spostamento' ? 'Spostamento' : sc.type === 'sostituzione' ? 'Sostituzione' : ''
-  const displayTitle = sc.title || sc.anchor?.title || `Scenario ${scenId}`
+  const displayTitle = sc.title || sc.anchor?.program_name || `Scenario ${scenId}`
 
   // Anchor datetime: combine first item date + anchor.time
   let anchorDateTime = '—'
@@ -101,10 +101,10 @@ export default function ScenCard({ scenId, sc, onRemoveItem, onDelete, onRename,
       {/* ── Anchor meta ── */}
       <div className="scen-hcard-meta">
         {sc.anchor && (
-          <div className="scen-hcard-anchor" title={sc.anchor.title}>
-            🎯 {sc.anchor.title}
-            {typeof sc.anchor.share === 'number' && (
-              <span className="scen-anchor-share">{sc.anchor.share.toFixed(1)}%</span>
+          <div className="scen-hcard-anchor" title={sc.anchor.program_name}>
+            🎯 {sc.anchor.program_name}
+            {typeof sc.anchor.share_storico === 'number' && (
+              <span className="scen-anchor-share">{sc.anchor.share_storico.toFixed(1)}%</span>
             )}
           </div>
         )}
@@ -133,8 +133,8 @@ export default function ScenCard({ scenId, sc, onRemoveItem, onDelete, onRename,
             candName = `→ ${fmtDateShort(destDate)}${destTime ? ' · ' + destTime : ''}`
             predicted = item.result?.dest_slot_share ?? null
           } else {
-            candName = item.result?.cand_title || item.cand?.title || '—'
-            candShare = item.result?.cand_share ?? item.cand?.share ?? null
+            candName = item.result?.cand_title || item.cand?.program_name || '—'
+            candShare = item.result?.cand_share ?? item.cand?.share_storico ?? null
             predicted = item.result?.predicted_share ?? null
           }
 

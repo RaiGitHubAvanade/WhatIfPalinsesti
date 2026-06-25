@@ -22,22 +22,22 @@ export default function SimNav() {
       let result
       if (mode === 'sostituzione') {
         result = await startSostituzione({
-          program_name: prog.title,
-          program_channel: prog.ch,
-          program_share_predict: prog.share,
+          program_name: prog.program_name,
+          program_channel: prog.canale,
+          program_share_predict: prog.share_storico,
           program_date: state.date,
-          program_from_time: prog.time,
+          program_from_time: prog.from_time,
           scenario_type: mode,
-          new_program_name: cand.title,
-          new_program_share_storico: cand.share,
+          new_program_name: cand.program_name,
+          new_program_share_storico: cand.share_storico,
         })
       } else if (mode === 'spostamento') {
         result = await startSpostamento({
-          program_name: prog.title,
-          program_channel: prog.ch,
-          program_share_predict: prog.share,
+          program_name: prog.program_name,
+          program_channel: prog.canale,
+          program_share_predict: prog.share_storico,
           program_date: state.date,
-          program_from_time: prog.time,
+          program_from_time: prog.from_time,
           scenario_type: mode,
           new_channel: spDestCh,
           new_date: spDestDay,

@@ -69,28 +69,11 @@ export default function StepProgram() {
     return () => clearTimeout(t)
   }, [fetchPrograms])
 
-  // Flat list from API — apply client-side text search
-  // `safePage` clamps the current page whenever the filtered list shrinks
+  // Apply client-side text search directly on raw OtherProgramViewModel fields
   const programs = useMemo(() => {
-    const flat = rawData.map(p => ({
-      id: `${p.canale}_${p.from_time}`,
-      title: p.program_name || '—',
-      ch: p.canale,
-      share: p.share_storico ?? null,
-      time: p.from_time,
-      end: p.to_time,
-      genre: p.genre || null,
-      dur: null,
-      eta: p.target_age || null,
-      sesso: p.target_sex || null,
-      tipo: null,
-      slot: null,
-    }))
-    if (_search) {
-      const q = _search.toLowerCase()
-      return flat.filter(p => p.title.toLowerCase().includes(q))
-    }
-    return flat
+    if (!_search) return rawData
+    const q = _search.toLowerCase()
+    return rawData.filter(p => (p.program_name || '').toLowerCase().includes(q))
   }, [rawData, _search])
 
   const totalPages = Math.max(1, Math.ceil(programs.length / PAGE_SIZE))
@@ -98,7 +81,7 @@ export default function StepProgram() {
   const pageItems = programs.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE)
 
   const handleSelectProg = (p) => {
-    if (prog?.id === p.id) {
+    if (prog?.canale === p.canale && prog?.from_time === p.from_time) {
       set({ prog: null, cand: null })
     } else {
       set({ prog: p, cand: null })
@@ -149,29 +132,28 @@ export default function StepProgram() {
       ) : (
         <div className="psel-list-body">
           {pageItems.map((p) => {
-            const sel = prog?.id === p.id
-            const sv = typeof p.share === 'number' ? p.share.toFixed(1) + '%' : '–'
-            const cc = CH_CLS[p.ch] || ''
+            const sel = prog?.canale === p.canale && prog?.from_time === p.from_time
+            const sv = typeof p.share_storico === 'number' ? p.share_storico.toFixed(1) + '%' : '–'
+            const cc = CH_CLS[p.canale] || ''
             const sub = []
-            if (!ch) sub.push(p.ch)
+            if (!ch) sub.push(p.canale)
             if (p.genre) sub.push(p.genre)
-            if (p.dur) sub.push(p.dur + ' min')
-            if (p.eta) sub.push(p.eta)
-            if (p.sesso && p.sesso !== 'Tutti' && p.sesso !== 'All') sub.push(p.sesso)
+            if (p.target_age) sub.push(p.target_age)
+            if (p.target_sex && p.target_sex !== 'Tutti' && p.target_sex !== 'All') sub.push(p.target_sex)
             return (
               <div
-                key={p.id}
+                key={`${p.canale}_${p.from_time}`}
                 className={`prow${cc ? ' ' + cc : ''}${sel ? ' sel' : ''}`}
                 tabIndex={0}
                 onClick={() => handleSelectProg(p)}
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleSelectProg(p) }}
               >
                 <span className="prow-time">
-                  {p.time}
-                  {p.end && <span className="prow-end">–{p.end}</span>}
+                  {p.from_time}
+                  {p.to_time && <span className="prow-end">–{p.to_time}</span>}
                 </span>
                 <div className="prow-body">
-                  <span className="prow-title">{p.title}</span>
+                  <span className="prow-title">{p.program_name || '—'}</span>
                   {sub.length > 0 && <span className="prow-sub">{sub.join(' · ')}</span>}
                 </div>
                 <span className="prow-share">{sv}</span>

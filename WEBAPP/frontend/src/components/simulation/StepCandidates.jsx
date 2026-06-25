@@ -8,19 +8,6 @@ import TextInputFilter from '../shared/TextInputFilter'
 
 const PAGE_SIZE = 8
 
-/** Normalise an OtherProgramViewModel to the shape the rest of the app expects on cand. */
-function toCand(p) {
-  return {
-    id: `${p.canale}|${p.program_name}`,
-    title: p.program_name,
-    ch: p.canale,
-    share: p.share_storico,
-    eta: p.target_age,
-    sesso: p.target_sex,
-    genre: p.genre,
-  }
-}
-
 export default function StepCandidates() {
   const { state, set, toast } = useApp()
   const { cand } = state
@@ -31,7 +18,7 @@ export default function StepCandidates() {
   const [targetAge, setTargetAge] = useState('')
   const [shareMin, setShareMin] = useState('')
 
-  const [candidates, setCandidates] = useState(/** @type {ReturnType<typeof toCand>[]} */ ([]))
+  const [candidates, setCandidates] = useState(/** @type {OtherProgramViewModel[]} */ ([]))
   const [loading, setLoading] = useState(false)
   const [page, setPage] = useState(1)
 
@@ -48,7 +35,7 @@ export default function StepCandidates() {
         target_age: targetAge,
         min_share: shareMin,
       })
-      setCandidates((data || []).map(toCand))
+      setCandidates(data || [])
     } catch (e) {
       toast('Errore caricamento candidati: ' + e.message)
     } finally {
@@ -168,25 +155,25 @@ export default function StepCandidates() {
           ) : (
             <div className="psel-list-body" id="cand-list-items">
               {pageItems.map((p) => {
-                const sel = cand?.id === p.id
-                const sv = typeof p.share === 'number' ? p.share.toFixed(1) + '%' : '—“'
-                const cc = CH_CLS[p.ch] || ''
+                const sel = cand?.canale === p.canale && cand?.program_name === p.program_name
+                const sv = typeof p.share_storico === 'number' ? p.share_storico.toFixed(1) + '%' : '-'
+                const cc = CH_CLS[p.canale] || ''
                 const tags = [
-                  p.ch || 'N/A',
-                  p.sesso ? `Genere: ${p.sesso}` : null,
-                  p.eta   ? `Età: ${p.eta}` : null,
+                  p.canale || 'N/A',
+                  p.target_sex ? `Genere: ${p.target_sex}` : null,
+                  p.target_age ? `Età: ${p.target_age}` : null,
                 ].filter(Boolean)
 
                 return (
                   <div
-                    key={p.id}
+                    key={`${p.canale}|${p.program_name}`}
                     className={`prow${cc ? ' ' + cc : ''}${sel ? ' sel' : ''}`}
                     tabIndex={0}
                     onClick={() => set({ cand: sel ? null : p })}
                     onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') set({ cand: sel ? null : p }) }}
                   >
                     <div className="prow-body">
-                      <span className="prow-title">{p.title}</span>
+                      <span className="prow-title">{p.program_name}</span>
                       <span className="prow-sub">{tags.join(' · ')}</span>
                     </div>
                     <span className="prow-share">{sv}</span>
@@ -199,7 +186,7 @@ export default function StepCandidates() {
           {/* Pagination */}
           {totalPages > 1 && (
             <div className="psel-pager">
-              <button className="psel-pager-nav" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>←</button>
+              <button className="psel-pager-nav" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>←</button>
               {Array.from({ length: totalPages }, (_, i) => i + 1)
                 .filter((n) => n === 1 || n === totalPages || Math.abs(n - page) <= 2)
                 .reduce((acc, n, i, arr) => {
@@ -220,9 +207,9 @@ export default function StepCandidates() {
                       </button>
                     )
                 )}
-              <button className="psel-pager-nav" disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)}>←’</button>
+              <button className="psel-pager-nav" disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)}>→</button>
               <span className="psel-pager-info">
-                {(page - 1) * PAGE_SIZE + 1}—“{Math.min(page * PAGE_SIZE, candidates.length)} di {candidates.length}
+                {(page - 1) * PAGE_SIZE + 1}-{Math.min(page * PAGE_SIZE, candidates.length)} di {candidates.length}
               </span>
             </div>
           )}

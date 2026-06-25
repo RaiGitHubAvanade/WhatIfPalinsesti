@@ -82,11 +82,11 @@ function reducer(state, action) {
 
       // 1. Find scenario whose anchor matches the current program (prefer reuse)
       let targetId = null
-      const progTitle = state.prog?.title
+      const progTitle = state.prog?.program_name
       if (progTitle) {
         for (const k of allKeys) {
           const sc = scenarios[k]
-          if (sc && sc.anchor?.title === progTitle && sc.items.length < 3) {
+          if (sc && sc.anchor?.program_name === progTitle && sc.items.length < 3) {
             targetId = k; break
           }
         }

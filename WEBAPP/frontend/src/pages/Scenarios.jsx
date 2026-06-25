@@ -24,10 +24,10 @@ function mapToDisplay(apiScen) {
   } = apiScen
 
   const prog = {
-    title: program_name,
-    ch: program_channel,
-    share: program_share_predict,
-    time: program_from_time,
+    program_name,
+    canale: program_channel,
+    share_storico: program_share_predict,
+    from_time: program_from_time,
   }
 
   const items = simulations.map(sim => {
@@ -53,7 +53,7 @@ function mapToDisplay(apiScen) {
           delta,
         },
         prog,
-        cand: { title: sim.new_program_name, share: sim.new_program_share_storico },
+        cand: { program_name: sim.new_program_name, share_storico: sim.new_program_share_storico },
         date: program_date,
         ch: program_channel,
         _status: sim.status,
@@ -162,12 +162,12 @@ export default function Scenarios() {
     }
     if (search) {
       const q = search.toLowerCase()
-      const titleMatch = (sc.title || sc.anchor?.title || '').toLowerCase().includes(q)
+      const titleMatch = (sc.title || sc.anchor?.program_name || '').toLowerCase().includes(q)
       const itemMatch = sc.items.some(it =>
         (it.result?.orig_title || '').toLowerCase().includes(q) ||
         (it.result?.cand_title || '').toLowerCase().includes(q) ||
         (it.result?.prog_title || '').toLowerCase().includes(q) ||
-        (it.cand?.title || '').toLowerCase().includes(q) ||
+        (it.cand?.program_name || '').toLowerCase().includes(q) ||
         (it.result?.dest_ch || '').toLowerCase().includes(q)
       )
       if (!titleMatch && !itemMatch) return false

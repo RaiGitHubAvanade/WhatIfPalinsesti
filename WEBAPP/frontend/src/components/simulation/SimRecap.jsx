@@ -26,31 +26,28 @@ export default function SimRecap() {
       <div className="rp-section-label">Programma</div>
       {hasProg ? (
         <div className="rp-prog-block">
-          <div className="rp-prog-name">{prog.title}</div>
+          <div className="rp-prog-name">{prog.program_name}</div>
 
           <div className="rp-pills">
-            {prog.ch && <span className="rp-pill rp-pill-ch">{prog.ch}</span>}
+            {prog.canale && <span className="rp-pill rp-pill-ch">{prog.canale}</span>}
             {date && <span className="rp-pill rp-pill-date">📅 {fmtDate(date)}</span>}
-            {prog.time && (
+            {prog.from_time && (
               <span className="rp-pill rp-pill-time">
-                🕐 {prog.time}{prog.end ? `–${prog.end}` : ''}
+                🕐 {prog.from_time}{prog.to_time ? `–${prog.to_time}` : ''}
               </span>
             )}
           </div>
 
-          {(prog.tipo || prog.genre) && (
+          {prog.genre && (
             <div className="rp-pills">
-              {prog.tipo && <span className="rp-pill">{prog.tipo}</span>}
-              {prog.genre && prog.genre !== prog.tipo && (
-                <span className="rp-pill">{prog.genre}</span>
-              )}
+              <span className="rp-pill">{prog.genre}</span>
             </div>
           )}
 
-          {typeof prog.share === 'number' && (
+          {typeof prog.share_storico === 'number' && (
             <div className="rp-share-row">
               <span className="rp-share-lbl">Share attuale</span>
-              <span className="rp-share-val">{prog.share.toFixed(1)}%</span>
+              <span className="rp-share-val">{prog.share_storico.toFixed(1)}%</span>
             </div>
           )}
         </div>
@@ -88,17 +85,16 @@ export default function SimRecap() {
           <div className="rp-section-label">Candidato</div>
           {hasCand ? (
             <div className="rp-prog-block">
-              <div className="rp-prog-name">{cand.title}</div>
-              {cand.ch && (
+              <div className="rp-prog-name">{cand.program_name}</div>
+              {cand.canale && (
                 <div className="rp-pills">
-                  <span className="rp-pill rp-pill-ch">{cand.ch}</span>
-                  {cand.tipo && <span className="rp-pill">{cand.tipo}</span>}
+                  <span className="rp-pill rp-pill-ch">{cand.canale}</span>
                 </div>
               )}
-              {typeof cand.share === 'number' && (
+              {typeof cand.share_storico === 'number' && (
                 <div className="rp-share-row">
                   <span className="rp-share-lbl">Share storico</span>
-                  <span className="rp-share-val">{cand.share.toFixed(1)}%</span>
+                  <span className="rp-share-val">{cand.share_storico.toFixed(1)}%</span>
                 </div>
               )}
             </div>
