@@ -1,58 +1,60 @@
-import { useState, useEffect, useCallback } from 'react'
+﻿import { useState, useEffect, useCallback } from 'react'
 import { useApp } from '../../context/useApp'
-import { getSimulationCandidates } from '../../services/apiSimulation'
+import { getCandidatePrograms } from '../../services/apiSimulation'
 import './StepCandidates.css'
 import TextInputFilter from '../shared/TextInputFilter'
 
-/** @typedef {import('../../models/simulation/programItemViewModel').ProgramItem} ProgramItem */
+/** @typedef {import('../../models/weekly_programming/competitorProgramsViewModel').OtherProgramViewModel} OtherProgramViewModel */
 
 const PAGE_SIZE = 8
 
-function mapEtaToRange(eta) {
-  if (!eta || eta === 'Tutti' || eta === 'All') return 'Tutti'
-  if (eta.startsWith('15') || eta === '18-24' || eta === '15-34') return '15-24'
-  if (eta.startsWith('25') || eta === '18-44' || eta === '25-54' || eta === '35-54') return '25-44'
-  if (eta.startsWith('45') || eta === '35-64' || eta === '45-64') return '45-64'
-  if (eta.startsWith('55') || eta.startsWith('65')) return '65+'
-  return 'Tutti'
+/** Normalise an OtherProgramViewModel to the shape the rest of the app expects on cand. */
+function toCand(p) {
+  return {
+    id: `${p.canale}|${p.program_name}`,
+    title: p.program_name,
+    ch: p.canale,
+    share: p.share_storico,
+    eta: p.target_age,
+    sesso: p.target_sex,
+    genre: p.genre,
+  }
 }
 
 export default function StepCandidates() {
   const { state, set, toast } = useApp()
-  const { prog, cand } = state
+  const { cand } = state
 
   const [search, setSearch] = useState('')
   const [ch, setCh] = useState('')
-  const [genere, setGenere] = useState('')
-  const [eta, setEta] = useState('')
+  const [targetSex, setTargetSex] = useState('')
+  const [targetAge, setTargetAge] = useState('')
   const [shareMin, setShareMin] = useState('')
 
-  const [candidates, setCandidates] = useState(/** @type {ProgramItem[]} */ ([]))
+  const [candidates, setCandidates] = useState(/** @type {ReturnType<typeof toCand>[]} */ ([]))
   const [loading, setLoading] = useState(false)
   const [page, setPage] = useState(1)
 
-  const hasFilters = !!(ch || search || genere || eta || shareMin)
+  const hasFilters = !!(ch || search || targetSex || targetAge || shareMin)
 
   const fetchCandidates = useCallback(async () => {
     if (!hasFilters) { setCandidates([]); return }
     setLoading(true)
     try {
-      const data = await getSimulationCandidates({
-        exclude_id: prog?.id || '',
-        ch,
-        search,
-        genere,
-        eta,
-        share_min: shareMin,
-        target_dur: prog?.dur || '',
+      const data = await getCandidatePrograms({
+        program_name: search,
+        channel: ch,
+        target_sex: targetSex,
+        target_age: targetAge,
+        min_share: shareMin,
       })
-      setCandidates(data.programs || [])
+      setCandidates((data || []).map(toCand))
     } catch (e) {
       toast('Errore caricamento candidati: ' + e.message)
     } finally {
       setLoading(false)
     }
-  }, [ch, search, genere, eta, shareMin, prog?.id]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [ch, search, targetSex, targetAge, shareMin]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const t = setTimeout(() => {
@@ -74,7 +76,7 @@ export default function StepCandidates() {
         <TextInputFilter
           label="Cerca"
           value={search}
-          placeholder="Titolo…"
+          placeholder="Titolo..."
           onChange={v => { setSearch(v); setPage(1) }}
           className="psel-fg-search"
         />
@@ -94,13 +96,13 @@ export default function StepCandidates() {
           </select>
         </div>
 
-        {/* Genere */}
+        {/* Target sesso */}
         <div className="psel-fg">
-          <span className="psel-fg-lbl">Genere</span>
+          <span className="psel-fg-lbl">Genere target</span>
           <select
             className="psel-select"
-            value={genere}
-            onChange={(e) => { setGenere(e.target.value); set({ cand: null }); setPage(1) }}
+            value={targetSex}
+            onChange={(e) => { setTargetSex(e.target.value); set({ cand: null }); setPage(1) }}
           >
             <option value="">—</option>
             {['Uomo', 'Donna', 'Tutti'].map((g) => (
@@ -109,17 +111,17 @@ export default function StepCandidates() {
           </select>
         </div>
 
-        {/* Fascia d'età */}
+        {/* Target età */}
         <div className="psel-fg">
-          <span className="psel-fg-lbl">Fascia d&apos;età</span>
+          <span className="psel-fg-lbl">Età target</span>
           <select
             className="psel-select"
-            value={eta}
-            onChange={(e) => { setEta(e.target.value); set({ cand: null }); setPage(1) }}
+            value={targetAge}
+            onChange={(e) => { setTargetAge(e.target.value); set({ cand: null }); setPage(1) }}
           >
             <option value="">—</option>
-            {['Tutti', '15-24', '25-44', '45-64', '65+'].map((e) => (
-              <option key={e} value={e}>{e}</option>
+            {['15+', '25+', '35+', '45+', '55+', '65+', '70+'].map((a) => (
+              <option key={a} value={a}>{a}</option>
             ))}
           </select>
         </div>
@@ -143,14 +145,13 @@ export default function StepCandidates() {
       {/* Candidate list */}
       {!hasFilters ? (
         <div className="psel-empty-state">
-          <div className="psel-empty-icon">🔍</div>
           <div className="psel-empty-title">Seleziona i filtri per cercare programmi sostitutivi</div>
           <div className="psel-empty-desc">
             Utilizza i filtri sopra per trovare programmi compatibili con il programma da sostituire.
           </div>
         </div>
       ) : loading ? (
-        <div className="psel-loading">Caricamento…</div>
+        <div className="psel-loading">Caricamento...</div>
       ) : (
         <>
           <div className="psel-list-hdr psel-list-hdr-pad">
@@ -168,13 +169,13 @@ export default function StepCandidates() {
             <div className="psel-list-body" id="cand-list-items">
               {pageItems.map((p) => {
                 const sel = cand?.id === p.id
-                const sv = typeof p.share === 'number' ? p.share.toFixed(1) + '%' : '–'
+                const sv = typeof p.share === 'number' ? p.share.toFixed(1) + '%' : '—“'
                 const cc = CH_CLS[p.ch] || ''
                 const tags = [
                   p.ch || 'N/A',
-                  `Genere: ${p.sesso || 'Tutti'}`,
-                  `Età: ${mapEtaToRange(p.eta)}`,
-                ]
+                  p.sesso ? `Genere: ${p.sesso}` : null,
+                  p.eta   ? `Età: ${p.eta}` : null,
+                ].filter(Boolean)
 
                 return (
                   <div
@@ -198,17 +199,17 @@ export default function StepCandidates() {
           {/* Pagination */}
           {totalPages > 1 && (
             <div className="psel-pager">
-              <button className="psel-pager-nav" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>←</button>
+              <button className="psel-pager-nav" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>←</button>
               {Array.from({ length: totalPages }, (_, i) => i + 1)
                 .filter((n) => n === 1 || n === totalPages || Math.abs(n - page) <= 2)
                 .reduce((acc, n, i, arr) => {
-                  if (i > 0 && n - arr[i - 1] > 1) acc.push('…')
+                  if (i > 0 && n - arr[i - 1] > 1) acc.push('...')
                   acc.push(n)
                   return acc
                 }, [])
                 .map((item, i) =>
-                  item === '…'
-                    ? <span key={`ell-${i}`} className="psel-pager-ell">…</span>
+                  item === '...'
+                    ? <span key={`ell-${i}`} className="psel-pager-ell">...</span>
                     : (
                       <button
                         key={item}
@@ -219,9 +220,9 @@ export default function StepCandidates() {
                       </button>
                     )
                 )}
-              <button className="psel-pager-nav" disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)}>→</button>
+              <button className="psel-pager-nav" disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)}>←’</button>
               <span className="psel-pager-info">
-                {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, candidates.length)} di {candidates.length}
+                {(page - 1) * PAGE_SIZE + 1}—“{Math.min(page * PAGE_SIZE, candidates.length)} di {candidates.length}
               </span>
             </div>
           )}

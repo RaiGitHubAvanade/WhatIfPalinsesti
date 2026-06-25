@@ -56,6 +56,48 @@ class DatabricksServiceSimulation(DatabricksService):
 
         return [Program.MapProgramFromFutureRow(row) for row in rows]
 
+    def get_candidate_programs(
+        self,
+        program_name: str | None = None,
+        channel: str | None = None,
+        target_sex: str | None = None,
+        target_age: str | None = None,
+        min_share: float | None = None,
+    ) -> list[Program]:
+        """Fetch candidate replacement programs from output_lista_programmi_sostituzione."""
+        conditions: list[str] = []
+        params: dict = {}
+
+        if program_name:
+            conditions.append("LOWER(titolo) LIKE :program_name")
+            params["program_name"] = f"%{program_name.lower()}%"
+        if channel:
+            conditions.append("canale = :channel")
+            params["channel"] = channel
+        if target_sex:
+            conditions.append("genere = :target_sex")
+            params["target_sex"] = target_sex
+        if target_age:
+            conditions.append("eta = :target_age")
+            params["target_age"] = target_age
+        if min_share is not None:
+            conditions.append("share_storico_pct > :min_share")
+            params["min_share"] = min_share
+
+        where_clause = ("WHERE " + " AND ".join(conditions)) if conditions else ""
+        query = f"""
+            SELECT titolo, canale, tipologia, genere, eta, share_storico_pct
+            FROM ta_coll.whatif.output_lista_programmi_sostituzione
+            {where_clause}
+            ORDER BY share_storico_pct DESC
+        """
+        self._logger.info("get_candidate_programs | params=%s", params)
+
+        with self._connection.cursor() as cursor:
+            cursor.execute(query, parameters=params)
+            rows = cursor.fetchall()
+
+        return [Program.MapProgramFromCandidateRow(row) for row in rows]
 
     def get_scenario_simulations(
         self,

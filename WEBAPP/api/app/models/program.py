@@ -10,12 +10,13 @@ class Program:
     """Unified model for any scheduled TV program slot.
 
     Fields are named after the lowercased DB column names.
-    Optional fields are None when the source table does not provide them.
+    Only canale is required; all other fields are None when the source table
+    does not provide them (e.g. catalog programs have no scheduled airtime).
     """
     canale: str
-    programma: str | None
-    orario_inizio: str
-    orario_fine: str
+    programma: str | None = None
+    orario_inizio: str | None = None
+    orario_fine: str | None = None
     # Weekly programming fields (output_palinsesto_delta / out_palinsesto_predict)
     data: date | None = None
     share_predetto: float | None = None
@@ -23,9 +24,9 @@ class Program:
     share_reale: float | None = None
     # Competitor / RAI future schedule fields (vw_output_palinsesto_futuro)
     share_storico: float | None = None
-    target_genere: str | None = None
+    target_sesso: str | None = None
     target_eta: str | None = None
-    genere_predominante: str | None = None
+    genere: str | None = None
 
     @classmethod
     def MapProgramFromRow(cls, row) -> "Program":
@@ -51,9 +52,22 @@ class Program:
             orario_inizio=row.orario_inizio,
             orario_fine=row.orario_fine,
             share_storico=NumberUtils.float_to_percent(getattr(row, 'share_storico', None)),
-            target_genere=getattr(row, 'target_genere', None),
+            target_sesso=getattr(row, 'target_genere', None),
             target_eta=getattr(row, 'target_eta', None),
-            genere_predominante=getattr(row, 'genere_predominante', None),
+            genere=getattr(row, 'genere_predominante', None),
+        )
+
+    @classmethod
+    def MapProgramFromCandidateRow(cls, row) -> "Program":
+        """Candidate replacement programs from output_lista_programmi_sostituzione.
+        share_storico_pct is already a percentage — no float_to_percent conversion."""
+        return cls(
+            canale=row.canale,
+            programma=row.titolo,
+            genere=row.tipologia,
+            target_sesso=row.genere,
+            target_eta=row.eta,
+            share_storico=row.share_storico_pct,
         )
 
     @classmethod

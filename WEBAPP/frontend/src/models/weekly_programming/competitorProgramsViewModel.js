@@ -2,12 +2,12 @@
  * @typedef {Object} OtherProgramViewModel
  * @property {string} canale
  * @property {string|null} program_name
- * @property {string} from_time
- * @property {string} to_time
+ * @property {string|null} from_time
+ * @property {string|null} to_time
  * @property {number|null} share_storico
- * @property {string|null} target_genere
- * @property {string|null} target_eta
- * @property {string|null} genere_predominante
+ * @property {string|null} target_sex
+ * @property {string|null} target_age
+ * @property {string|null} genre
  */
 
 /**

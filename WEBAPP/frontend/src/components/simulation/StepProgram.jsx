@@ -79,10 +79,10 @@ export default function StepProgram() {
       share: p.share_storico ?? null,
       time: p.from_time,
       end: p.to_time,
-      genre: p.genere_predominante || null,
+      genre: p.genre || null,
       dur: null,
-      eta: p.target_eta || null,
-      sesso: p.target_genere || null,
+      eta: p.target_age || null,
+      sesso: p.target_sex || null,
       tipo: null,
       slot: null,
     }))

@@ -5,13 +5,13 @@ from app.models.program import Program
 @dataclass
 class OtherProgramViewModel:
     canale: str
-    program_name: str | None
-    from_time: str
-    to_time: str
-    share_storico: float | None
-    target_genere: str | None
-    target_eta: str | None
-    genere_predominante: str | None
+    program_name: str | None = None
+    from_time: str | None = None
+    to_time: str | None = None
+    share_storico: float | None = None
+    target_sex: str | None = None
+    target_age: str | None = None
+    genre: str | None = None
 
     @classmethod
     def MapOtherProgramViewModelFromProgram(cls, row: Program) -> "OtherProgramViewModel":
@@ -21,7 +21,7 @@ class OtherProgramViewModel:
             from_time=row.orario_inizio,
             to_time=row.orario_fine,
             share_storico=row.share_storico,
-            target_genere=row.target_genere,
-            target_eta=row.target_eta,
-            genere_predominante=row.genere_predominante,
+            target_sex=row.target_sesso,
+            target_age=row.target_eta,
+            genre=row.genere,
         )

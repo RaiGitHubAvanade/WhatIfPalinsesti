@@ -79,6 +79,30 @@ class BusinessLogicSimulation:
             for row in rows
         ]
 
+    def get_candidate_programs(
+        self,
+        program_name: str | None = None,
+        channel: str | None = None,
+        target_sex: str | None = None,
+        target_age: str | None = None,
+        min_share: float | None = None,
+    ) -> list[OtherProgramViewModel]:
+        try:
+            rows = self._service.get_candidate_programs(
+                program_name=program_name,
+                channel=channel,
+                target_sex=target_sex,
+                target_age=target_age,
+                min_share=min_share,
+            )
+        except Exception as e:
+            raise RuntimeError(f"Errore nel recupero dei programmi candidati: {e}") from e
+
+        return [
+            OtherProgramViewModel.MapOtherProgramViewModelFromProgram(row)
+            for row in rows
+        ]
+
 
     def start_spostamento(self, body: dict) -> tuple[str, int]:
         """Apply the decision logic for a new Spostamento simulation request.
