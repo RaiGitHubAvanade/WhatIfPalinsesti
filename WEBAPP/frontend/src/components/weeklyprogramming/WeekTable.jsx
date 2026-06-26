@@ -2,8 +2,8 @@ import WeekDay from './WeekDay'
 import WeekTableInfo from './WeekTableInfo'
 import './WeekTable.css'
 
-/** @typedef {import('../../models/palinsestoViewModel').PalinsestoViewModel} PalinsestoViewModel */
-/** @typedef {import('../../models/weeklyTableViewModel').WeeklyTableViewModel} WeeklyTableViewModel */
+/** @typedef {import('../../models/weekly_programming/programViewModel').ProgramViewModel} ProgramViewModel */
+/** @typedef {import('../../models/weekly_programming/weeklyTableViewModel').WeeklyTableViewModel} WeeklyTableViewModel */
 
 const _DAY_NAMES = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom']
 
@@ -16,19 +16,15 @@ function isoToDayLabel(iso) {
   return _DAY_NAMES[offset] + ' ' + String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0')
 }
 
-/** Group a flat rows array into [{day, rows, baseIdx}] preserving order. */
+/** Group a flat rows array into [{day, rows}] preserving order. */
 function groupByDay(rows) {
-  const groups = []
-  const seen = new Map()
-  rows.forEach((row) => {
+  const map = new Map()
+  for (const row of rows) {
     const key = row.day || ''
-    if (!seen.has(key)) {
-      seen.set(key, groups.length)
-      groups.push({ day: key, rows: [] })
-    }
-    groups[seen.get(key)].rows.push(row)
-  })
-  return groups
+    if (!map.has(key)) map.set(key, [])
+    map.get(key).push(row)
+  }
+  return [...map.entries()].map(([day, rows]) => ({ day, rows }))
 }
 
 /** Returns the ISO date string (YYYY-MM-DD) of the Monday of the current week. */
@@ -42,11 +38,11 @@ function getCurrentWeekMondayISO() {
 }
 
 /**
- * @param {{ rows: PalinsestoViewModel[], loading: boolean, weekStart: string|null, weekLabel: string, wCh: string|null }} props
+ * @param {{ rows: ProgramViewModel[], loading: boolean, weekStart: string|null, weekLabel: string, wCh: string|null }} props
  */
 export default function WeekTable({ rows, loading, weekStart, weekLabel, wCh }) {
   const groups = groupByDay(rows)
-  const isCurrentWeek = Boolean(weekStart) && weekStart === getCurrentWeekMondayISO()
+  const isCurrentWeek = weekStart === getCurrentWeekMondayISO()
 
   return (
     <div>

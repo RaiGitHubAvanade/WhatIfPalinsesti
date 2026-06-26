@@ -1,0 +1,65 @@
+/* TimeSelector — time range (from/to) selector used in simulation filter bars */
+
+.time-sel {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.time-sel__lbl {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: var(--muted);
+}
+
+.time-sel__row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.time-sel__unit {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: var(--muted);
+}
+
+.time-sel__select {
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 12.5px;
+  font-family: inherit;
+  color: var(--text);
+  background: #fff;
+  outline: none;
+  cursor: pointer;
+  min-width: 80px;
+  transition: border-color .15s;
+  appearance: auto;
+}
+.time-sel__select:focus {
+  border-color: var(--rai);
+  box-shadow: 0 0 0 3px rgba(11, 61, 145, .08);
+}
+
+.time-sel__clear {
+  background: none;
+  border: 1.5px solid var(--border);
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 7px;
+  transition: color .15s, border-color .15s, background .15s;
+}
+.time-sel__clear:hover {
+  color: var(--danger);
+  border-color: var(--danger);
+  background: rgba(220, 38, 38, .06);
+}

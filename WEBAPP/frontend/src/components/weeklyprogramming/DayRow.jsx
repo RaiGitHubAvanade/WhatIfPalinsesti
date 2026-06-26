@@ -1,13 +1,13 @@
 import { useState } from 'react'
 import { useApp } from '../../context/useApp'
 import OtherChannelsModal from './OtherChannelsModal'
-import { editManualShare } from '../../services/apiService'
+import { editManualShare } from '../../services/apiWeeklyProgramming'
 import './DayRow.css'
 
-/** @typedef {import('../../models/palinsestoViewModel').PalinsestoViewModel} PalinsestoViewModel */
+/** @typedef {import('../../models/weekly_programming/programViewModel').ProgramViewModel} ProgramViewModel */
 
 /**
- * @param {{ row: PalinsestoViewModel, idx: number, showDay: boolean, dayIso: string|null, wCh: string|null, isCurrentWeek: boolean }} props
+ * @param {{ row: ProgramViewModel, idx: number, showDay: boolean, dayIso: string|null, wCh: string|null, isCurrentWeek: boolean }} props
  */
 export default function DayRow({ row, showDay, dayIso, wCh, isCurrentWeek }) {
   const { state, applyWeeklyOverride, toast } = useApp()

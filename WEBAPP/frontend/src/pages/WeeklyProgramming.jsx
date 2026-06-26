@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import { useApp } from '../context/useApp'
-import { getWeeklyTable } from '../services/apiService'
+import { getWeeklyTable } from '../services/apiWeeklyProgramming'
 
-/** @typedef {import('../models/palinsestoViewModel').PalinsestoViewModel} PalinsestoViewModel */
-/** @typedef {import('../models/weeklyTableViewModel').WeeklyTableViewModel} WeeklyTableViewModel */
-import ChannelSelector from '../components/weeklyprogramming/ChannelSelector'
-import WeekSelector from '../components/weeklyprogramming/WeekSelector'
+/** @typedef {import('../models/weekly_programming/programViewModel').ProgramViewModel} ProgramViewModel */
+/** @typedef {import('../models/weekly_programming/weeklyTableViewModel').WeeklyTableViewModel} WeeklyTableViewModel */
+import ChannelSelector from '../components/shared/ChannelSelector'
+import DaySelector from '../components/shared/DaySelector'
 import WeekTable from '../components/weeklyprogramming/WeekTable'
 import './WeeklyProgramming.css'
 
@@ -16,6 +16,16 @@ function getMondayISO(dayISO) {
   const diff = dow === 0 ? -6 : 1 - dow
   d.setDate(d.getDate() + diff)
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
+/** Return the ISO date string (YYYY-MM-DD) of the Sunday of the current week. */
+function getCurrentWeekSunday() {
+  const today = new Date()
+  const dow = today.getDay()
+  const daysToSunday = dow === 0 ? 0 : 7 - dow
+  const sunday = new Date(today)
+  sunday.setDate(today.getDate() + daysToSunday)
+  return `${sunday.getFullYear()}-${String(sunday.getMonth() + 1).padStart(2, '0')}-${String(sunday.getDate()).padStart(2, '0')}`
 }
 
 export default function WeeklyProgramming() {
@@ -63,19 +73,28 @@ export default function WeeklyProgramming() {
 
   return (
     <div>
-      <div className="page-sub">Visualizza e modifica il palinsesto settimanale. Puoi inserire manualmente le previsioni share.</div>
+      <div className="page-sub">Visualizza e modifica il palinsesto settimanale dalle 20:30 alle 23:30. Puoi inserire manualmente le previsioni share.</div>
 
       {/* Controls */}
       <div className="pw-controls">
         <div className="pw-controls-inner">
-          <ChannelSelector
-            selected={wCh}
-            onChange={c => set({ wCh: c })}
-          />
+          <div className="pw-ctrl-group">
+            <ChannelSelector
+              selected={wCh}
+              onChange={c => set({ wCh: c })}
+            />
+          </div>
 
           <div className="pw-ctrl-sep" />
 
-          <WeekSelector value={selectedDay} onChange={setSelectedDay} />
+          <div className="pw-ctrl-group">
+            <DaySelector
+              label="Settimana"
+              value={selectedDay}
+              onChange={setSelectedDay}
+              maxDate={getCurrentWeekSunday()}
+            />
+          </div>
 
           <div className="pw-ctrl-sep" />
 

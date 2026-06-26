@@ -11,6 +11,8 @@ Usage in a route:
 from flask import g
 
 from app.services.databricks_service_weekly_programming import DatabricksServiceWeeklyProgramming
+from app.services.databricks_service_simulation import DatabricksServiceSimulation
+from app.services.databricks_service_scenarios import DatabricksServiceScenarios
 
 
 def get_databricks_service() -> DatabricksServiceWeeklyProgramming:
@@ -27,5 +29,33 @@ def get_databricks_service() -> DatabricksServiceWeeklyProgramming:
 def teardown_databricks_service(exception=None) -> None:
     """Close the DatabricksService connection at end of request."""
     svc = g.pop("databricks_service", None)
+    if svc is not None:
+        svc.close()
+
+
+def get_simulation_service() -> DatabricksServiceSimulation:
+    """Return the DatabricksServiceSimulation for the current request context."""
+    if "simulation_service" not in g:
+        g.simulation_service = DatabricksServiceSimulation()
+    return g.simulation_service
+
+
+def teardown_simulation_service(exception=None) -> None:
+    """Close the simulation service at end of request (no-op in mock mode)."""
+    svc = g.pop("simulation_service", None)
+    if svc is not None:
+        svc.close()
+
+
+def get_scenarios_service() -> DatabricksServiceScenarios:
+    """Return the DatabricksServiceScenarios for the current request context."""
+    if "scenarios_service" not in g:
+        g.scenarios_service = DatabricksServiceScenarios()
+    return g.scenarios_service
+
+
+def teardown_scenarios_service(exception=None) -> None:
+    """Close the scenarios service connection at end of request."""
+    svc = g.pop("scenarios_service", None)
     if svc is not None:
         svc.close()

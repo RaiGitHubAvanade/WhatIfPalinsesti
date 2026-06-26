@@ -18,19 +18,15 @@ const INITIAL_STATE = {
   spDestDay: '',
   spSrcDay: '',
   spDestTime: null,
+  spDestCh: null,
 
   // simulation result overlay
   _viewSim: false,
   _simResult: null,
+  _simSaved: false,
 
-  // scenarios
-  activeScen: 1,
-  scenarios: {
-    1: { items: [], anchor: null },
-    2: { items: [], anchor: null },
-    3: { items: [], anchor: null },
-    4: { items: [], anchor: null },
-  },
+  // scenarios — dynamic, populated by SCEN_ADD
+  scenarios: {},
 
   // competitors panel
   showComp: false,
@@ -70,31 +66,68 @@ function reducer(state, action) {
         spDestDay: '',
         spSrcDay: '',
         spDestTime: null,
+        spDestCh: null,
         _viewSim: false,
         _simResult: null,
+        _simSaved: false,
         showComp: false,
       }
 
-    // Save a simulation result to the active scenario
+    // Save a simulation result — auto-picks or creates a scenario slot
     case 'SCEN_ADD': {
-      const id = state.activeScen
-      const scen = state.scenarios[id]
-      if (!scen || scen.items.length >= 3) return state
+      const incomingResult = action.payload?.result ?? state._simResult
+      if (!incomingResult) return state
+      const scenarios = state.scenarios
+      const allKeys = Object.keys(scenarios).map(Number).filter(n => !isNaN(n) && n >= 1).sort((a, b) => a - b)
+
+      // 1. Find scenario whose anchor matches the current program (prefer reuse)
+      let targetId = null
+      const progTitle = state.prog?.program_name
+      if (progTitle) {
+        for (const k of allKeys) {
+          const sc = scenarios[k]
+          if (sc && sc.anchor?.program_name === progTitle && sc.items.length < 3) {
+            targetId = k; break
+          }
+        }
+      }
+      // 2. First non-full existing scenario
+      if (targetId === null) {
+        for (const k of allKeys) {
+          if (scenarios[k] && scenarios[k].items.length < 3) { targetId = k; break }
+        }
+      }
+      // 3. Create a new slot
+      if (targetId === null) {
+        targetId = allKeys.length > 0 ? Math.max(...allKeys) + 1 : 1
+      }
+
+      const existing = scenarios[targetId] || { items: [], anchor: null, type: null, createdAt: null, title: null }
+      if (existing.items.length >= 3) return state
+
       const newItem = {
         prog: state.prog,
         cand: state.cand,
         mode: state.mode,
-        result: state._simResult,
+        result: incomingResult,
         date: state.date,
         ch: state.ch,
         spDestDay: state.spDestDay,
         spDestTime: state.spDestTime,
       }
+
       return {
         ...state,
+        _simSaved: true,
         scenarios: {
-          ...state.scenarios,
-          [id]: { ...scen, items: [...scen.items, newItem] },
+          ...scenarios,
+          [targetId]: {
+            ...existing,
+            items: [...existing.items, newItem],
+            anchor: existing.anchor || state.prog || null,
+            type: existing.type || state.mode || null,
+            createdAt: existing.createdAt || new Date().toISOString(),
+          },
         },
       }
     }
@@ -111,6 +144,25 @@ function reducer(state, action) {
           ...state.scenarios,
           [scenId]: { ...scen, items },
         },
+      }
+    }
+
+    // Delete an entire scenario
+    case 'SCEN_DELETE': {
+      const { scenId } = action.payload
+      const { [scenId]: _deleted, ...rest } = state.scenarios
+      void _deleted
+      return { ...state, scenarios: rest }
+    }
+
+    // Rename a scenario
+    case 'SCEN_SET_TITLE': {
+      const { scenId, title } = action.payload
+      const scen = state.scenarios[scenId]
+      if (!scen) return state
+      return {
+        ...state,
+        scenarios: { ...state.scenarios, [scenId]: { ...scen, title } },
       }
     }
 
@@ -158,8 +210,13 @@ export function AppProvider({ children }) {
   const resetSim = useCallback(() => dispatch({ type: 'SIM_RESET' }), [])
 
   const addToScenario = useCallback(() => dispatch({ type: 'SCEN_ADD' }), [])
+  const addToScenarioWithResult = useCallback((result) => dispatch({ type: 'SCEN_ADD', payload: { result } }), [])
   const removeFromScenario = useCallback((scenId, idx) =>
     dispatch({ type: 'SCEN_REMOVE', payload: { scenId, idx } }), [])
+  const deleteScenario = useCallback((scenId) =>
+    dispatch({ type: 'SCEN_DELETE', payload: { scenId } }), [])
+  const setScenarioTitle = useCallback((scenId, title) =>
+    dispatch({ type: 'SCEN_SET_TITLE', payload: { scenId, title } }), [])
   const setScenarioAnchor = useCallback((scenId, anchor) =>
     dispatch({ type: 'SCEN_SET_ANCHOR', payload: { scenId, anchor } }), [])
 
@@ -176,7 +233,10 @@ export function AppProvider({ children }) {
     clearToast,
     resetSim,
     addToScenario,
+    addToScenarioWithResult,
     removeFromScenario,
+    deleteScenario,
+    setScenarioTitle,
     setScenarioAnchor,
     applyWeeklyOverride,
     clearWeeklyOverrides,

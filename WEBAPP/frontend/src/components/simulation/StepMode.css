@@ -1,0 +1,39 @@
+/* StepMode — mode selection card grid (mirrors SimLanding styles) */
+
+.sim-mode-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 8px;
+}
+
+.sim-mode-card {
+  background: #fff;
+  border: 2px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  cursor: pointer;
+  transition: border-color .18s, box-shadow .18s, transform .18s, background .18s;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  min-height: 180px;
+}
+.sim-mode-card:hover {
+  border-color: var(--rai);
+  box-shadow: 0 8px 28px rgba(11, 61, 145, .14);
+  transform: translateY(-3px);
+}
+
+.sim-mode-card-sost         { background: linear-gradient(180deg, #fafafa, #fff); border-color: #d7ccc8; }
+.sim-mode-card-sost:hover   { border-color: #8d6e63; background: linear-gradient(180deg, #efebe9, #fff); }
+.sim-mode-card-sposta       { background: linear-gradient(180deg, #f3f4f9, #fff); border-color: #c5cae9; }
+.sim-mode-card-sposta:hover { border-color: #5c6bc0; background: linear-gradient(180deg, #e8eaf6, #fff); }
+
+.sim-mode-ico   { font-size: 36px; margin-bottom: 10px; }
+.sim-mode-title { font-size: 17px; font-weight: 600; margin-bottom: 6px; }
+.sim-mode-desc  { font-size: 13px; color: var(--muted); line-height: 1.5; flex: 1; }
+
+@media (max-width: 600px) {
+  .sim-mode-grid { grid-template-columns: 1fr; }
+}

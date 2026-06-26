@@ -1,0 +1,10 @@
+.dest-placeholder {
+  padding: 32px 20px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.dest-time-select {
+  min-width: 160px;
+}

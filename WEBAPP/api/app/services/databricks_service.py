@@ -1,5 +1,3 @@
-"""Databricks service � queries Unity Catalog via the Databricks SQL Connector."""
-
 import logging
 from databricks import sql
 from databricks.sdk.core import Config as DatabricksConfig

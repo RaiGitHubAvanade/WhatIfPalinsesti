@@ -1,0 +1,36 @@
+.sidebar {
+  width: 230px; min-height: 100vh;
+  background: linear-gradient(180deg, #0B3D91 0%, #071D45 100%);
+  display: flex; flex-direction: column;
+  position: fixed; left: 0; top: 0; z-index: 100;
+}
+.sb-logo { padding: 20px 16px 18px; border-bottom: 1px solid rgba(255,255,255,.12); display: flex; align-items: center; gap: 12px; }
+.sb-badge { width: 44px; height: 44px; background: #fff; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 900; color: var(--rai); box-shadow: 0 2px 8px rgba(0,0,0,.15); flex-shrink: 0; }
+.sb-name { font-size: 18px; font-weight: 900; color: #fff; letter-spacing: -.5px; }
+.sb-sub { font-size: 12px; color: rgba(255,255,255,.6); font-weight: 700; letter-spacing: .8px; text-transform: uppercase; margin-top: 2px; }
+.sb-nav { flex: 1; padding: 10px 0; }
+.sb-sect { font-size: 10px; font-weight: 700; color: rgba(255,255,255,.38); letter-spacing: .8px; text-transform: uppercase; padding: 14px 20px 4px; }
+.sb-item {
+  display: flex; align-items: center; gap: 11px;
+  padding: 12px 20px; cursor: pointer;
+  color: rgba(255,255,255,.7); font-size: 15px; font-weight: 600;
+  transition: .15s; border-left: 3px solid transparent;
+  text-decoration: none;
+}
+.sb-item:hover { background: rgba(255,255,255,.08); color: #fff; }
+.sb-item.active { background: rgba(255,255,255,.13); color: #fff; border-left-color: #fff; font-weight: 700; }
+.sb-item .ico { font-size: 16px; width: 20px; text-align: center; flex-shrink: 0; }
+.sb-footer { padding: 14px 20px; border-top: 1px solid rgba(255,255,255,.1); }
+.sb-help { display: flex; align-items: center; gap: 8px; font-size: 13px; color: rgba(255,255,255,.5); font-weight: 600; cursor: pointer; }
+.sb-help:hover { color: rgba(255,255,255,.9); }
+
+@media (max-width: 768px) {
+  .sidebar { width: 70px; }
+  .sb-name, .sb-sub { display: none; }
+  .sb-sect { padding: 10px 0; font-size: 9px; display: none; }
+  .sb-item { padding: 12px 8px; gap: 8px; font-size: 12px; justify-content: center; }
+  .sb-item span:not(.ico) { display: none; }
+}
+@media (max-width: 480px) {
+  .sidebar { width: 60px; }
+}

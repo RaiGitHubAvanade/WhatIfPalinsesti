@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom'
 import { useApp } from '../../context/useApp'
+import './Sidebar.css'
 
 const NAV_ITEMS = [
   { to: '/', label: 'Home', ico: '🏠', exact: true },
@@ -42,13 +43,6 @@ export default function Sidebar() {
             </span>
           </NavLink>
         ))}
-      </div>
-
-      <div className="sb-footer">
-        <div className="sb-help">
-          <span className="ico">❓</span>
-          <span>Aiuto</span>
-        </div>
       </div>
     </nav>
   )

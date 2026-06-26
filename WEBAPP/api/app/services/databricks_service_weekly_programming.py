@@ -1,9 +1,6 @@
-"""Databricks service for Weekly Programming — extends DatabricksService."""
-
 from datetime import date
 
-from app.models.palinsesto import Palinsesto
-from app.models.other_channel import OtherChannel
+from app.models.program import Program
 from app.services.databricks_service import DatabricksService
 from app.utils.date_time_utils import DateTimeUtils
 
@@ -12,9 +9,13 @@ class DatabricksServiceWeeklyProgramming(DatabricksService):
 
     ### --- Weekly Table --- ###
 
-    def get_palinsesto_delta(self, channel: str, from_day: date, to_day: date) -> list[Palinsesto]:
+    def get_palinsesto_delta(
+            self,
+            channel: str,
+            from_day: date,
+            to_day: date
+    ) -> list[Program]:
         """Execute the query and return rows for the week containing *day*."""
-
         query = """
             SELECT Canale, Data, Programma, orario_inizio, orario_fine, share_predetto, 
                 share_manuale, share_reale 
@@ -34,11 +35,15 @@ class DatabricksServiceWeeklyProgramming(DatabricksService):
 
         result = []
         for row in rows:
-            palinsesto_delta = Palinsesto.MapPalinsestoDeltaFromRow(row)
-            result.append(palinsesto_delta)
+            result.append(Program.MapProgramFromRow(row))
         return result
 
-    def get_palinsesto_predict(self, channel: str, from_day: date, to_day: date) -> list[Palinsesto]:
+    def get_palinsesto_predict(
+            self,
+            channel: str,
+            from_day: date,
+            to_day: date
+    ) -> list[Program]:
         """Execute the query and return rows for the week containing *day*."""
         query = """
             SELECT Canale, Data, Programma, orario_inizio, orario_fine, share_predetto, 
@@ -62,8 +67,7 @@ class DatabricksServiceWeeklyProgramming(DatabricksService):
 
         result = []
         for row in rows:
-            palinsesto = Palinsesto.MapPalinsestoPredictFromRow(row)
-            result.append(palinsesto)
+            result.append(Program.MapProgramFromRow(row))
         return result
 
 
@@ -97,11 +101,11 @@ class DatabricksServiceWeeklyProgramming(DatabricksService):
             "to_time": to_time,
             "day": day,
         }
+        if db_value is not None:
+            params["db_value"] = db_value
 
         self._logger.info(f"Query: {query} with params {params}")
 
-        if db_value is not None:
-            params["db_value"] = db_value
         with self._connection.cursor() as cursor:
             cursor.execute(query, parameters=params)
 
@@ -115,8 +119,8 @@ class DatabricksServiceWeeklyProgramming(DatabricksService):
         day: date,
         from_time: str,
         to_time: str,
-    ) -> list[OtherChannel]:
-        """Fetch historical competitor programs overlapping [from_time, to_time] on the given day."""
+    ) -> list[Program]:
+        """Fetch past Rai and Competitor programs overlapping [from_time, to_time] on the given day."""
         channel_params = {f"ch{i}": ch for i, ch in enumerate(channel_order)}
         placeholders = ", ".join(f":ch{i}" for i in range(len(channel_order)))
         query = f"""
@@ -142,7 +146,7 @@ class DatabricksServiceWeeklyProgramming(DatabricksService):
 
         result = []
         for row in rows:
-            result.append(OtherChannel.MapOtherChannelFromRowTRX(row))
+            result.append(Program.MapProgramFromRowTRX(row))
         return result
 
     def get_vw_output_palinsesto_futuro(
@@ -151,8 +155,8 @@ class DatabricksServiceWeeklyProgramming(DatabricksService):
         day: date,
         from_time: str,
         to_time: str,
-    ) -> list[OtherChannel]:
-        """Fetch RAI programs overlapping [from_time, to_time] on the given day."""
+    ) -> list[Program]:
+        """Fetch future Rai and Competitorprograms overlapping [from_time, to_time] on the given day."""
         channel_params = {f"ch{i}": ch for i, ch in enumerate(channel_order)}
         placeholders = ", ".join(f":ch{i}" for i in range(len(channel_order)))
         query = f"""
@@ -188,6 +192,5 @@ class DatabricksServiceWeeklyProgramming(DatabricksService):
 
         result = []
         for row in rows:
-            otherChannel = OtherChannel.MapOtherChannelFromRow(row)
-            result.append(otherChannel)
+            result.append(Program.MapProgramFromFutureRow(row))
         return result
