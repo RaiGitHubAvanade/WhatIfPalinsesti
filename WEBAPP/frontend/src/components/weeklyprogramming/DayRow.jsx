@@ -27,7 +27,7 @@ export default function DayRow({ row, showDay, dayIso, wCh, isCurrentWeek }) {
     ? (row.share_real - baseForDelta).toFixed(1)
     : null
   const deltaNum = delta != null ? parseFloat(delta) : null
-  const rowClass = deltaNum != null ? (deltaNum > 0 ? 'sP' : deltaNum < 0 ? 'sN' : 'sZ') : ''
+  const rowClass = deltaNum != null ? (deltaNum > 10 ? 'sP' : deltaNum < -10 ? 'sN' : '') : ''
 
   const handleSaveManuale = async () => {
     const trimmed = editManualeVal.trim()

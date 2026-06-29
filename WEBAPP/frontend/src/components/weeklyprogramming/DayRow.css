@@ -3,7 +3,6 @@
 /* Inherits row state colors from WeekTable scope */
 .pw-weekly-wrap tr.sP td { background: #EEFAF2; }
 .pw-weekly-wrap tr.sN td { background: #FFF0F0; }
-.pw-weekly-wrap tr.sZ td { background: #FFFBF0; }
 
 .pw-dr-day { font-weight: 700; vertical-align: top; }
 .pw-dr-day--hidden {
