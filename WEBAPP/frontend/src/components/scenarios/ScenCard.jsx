@@ -123,14 +123,13 @@ export default function ScenCard({ scenId, sc, onRemoveItem, onDelete, onRename,
           const deltaNeg = delta !== null && delta < 0
           const deltaColor = deltaPos ? 'var(--success)' : deltaNeg ? 'var(--danger)' : 'var(--muted)'
 
-          let candName = '—'
-          let candShare = null
-          let predicted = null
+          let candName, candShare, predicted
 
           if (isSpost) {
             const destDate = item.result?.dest_date || item.spDestDay || null
             const destTime = item.result?.dest_time || item.spDestTime || null
             candName = `→ ${fmtDateShort(destDate)}${destTime ? ' · ' + destTime : ''}`
+            candShare = null
             predicted = item.result?.dest_slot_share ?? null
           } else {
             candName = item.result?.cand_title || item.cand?.program_name || '—'
