@@ -2,8 +2,8 @@ import './SimulationTypeSelector.css'
 
 const TYPES = [
   { value: '',             label: 'Tutti' },
-  { value: 'sostituzione', label: '🔄 Sostituzione' },
-  { value: 'spostamento',  label: '🕐 Spostamento' },
+  { value: 'sostituzione', label: 'Sostituzione' },
+  { value: 'spostamento',  label: 'Spostamento' },
 ]
 
 /**

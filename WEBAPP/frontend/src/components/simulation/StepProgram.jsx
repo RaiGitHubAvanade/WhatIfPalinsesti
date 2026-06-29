@@ -118,10 +118,10 @@ export default function StepProgram() {
 
       <div className="psel-list-hdr psel-list-hdr-pad">
         <span className="psel-list-lbl">
-          {ch ? `${ch} · ${fmtDate(date || today)}` : 'Tutti i canali'}
+          {`${ch || 'Tutti i canali'} · ${fmtDate(date || today)}`}
         </span>
         <span className="psel-list-cnt">
-          {loading ? '…' : `${programs.length} programm${programs.length === 1 ? 'a' : 'i'}`}
+          Share Previsto
         </span>
       </div>
 

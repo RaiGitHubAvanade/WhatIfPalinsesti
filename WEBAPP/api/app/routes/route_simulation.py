@@ -98,6 +98,7 @@ def start_sostituzione():
     program_channel           = body.get("program_channel")
     program_date              = body.get("program_date")
     program_from_time         = body.get("program_from_time")
+    program_share_predict     = body.get("program_share_predict")
     scenario_type             = body.get("scenario_type")
     new_program_name          = body.get("new_program_name")
     new_program_share_storico = body.get("new_program_share_storico")
@@ -108,6 +109,7 @@ def start_sostituzione():
             "program_channel":           program_channel,
             "program_date":              program_date,
             "program_from_time":         program_from_time,
+            "program_share_predict":     program_share_predict,
             "scenario_type":             scenario_type,
             "new_program_name":          new_program_name,
             "new_program_share_storico": new_program_share_storico,

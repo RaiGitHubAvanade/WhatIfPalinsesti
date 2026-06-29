@@ -13,7 +13,7 @@ const SCEN_PER_PAGE = 3
 
 /**
  * Map one API scenario to the display shape expected by ScenCard.
- * @param {import('../services/apiService').ScenarioItem} apiScen
+ * @param {import('../models/scenarios/scenarioViewModels').ScenarioViewModel} apiScen
  * @returns {{ id: string, sc: object }}
  */
 function mapToDisplay(apiScen) {
@@ -105,7 +105,7 @@ export default function Scenarios() {
   const { toast } = useApp()
 
   const [scenarios, setScenarios] = useState([])
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [typeFilter, setTypeFilter] = useState('')
   const [dateFilter, setDateFilter] = useState('')
@@ -115,7 +115,6 @@ export default function Scenarios() {
   // ── Fetch on mount (component remounts on every navigation to /scenari) ──
   useEffect(() => {
     let cancelled = false
-    setLoading(true)
     getScenarios()
       .then(data => {
         if (cancelled) return
