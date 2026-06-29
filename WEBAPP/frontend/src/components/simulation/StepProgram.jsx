@@ -133,7 +133,8 @@ export default function StepProgram() {
         <div className="psel-list-body">
           {pageItems.map((p) => {
             const sel = prog?.canale === p.canale && prog?.from_time === p.from_time
-            const sv = typeof p.share_storico === 'number' ? p.share_storico.toFixed(1) + '%' : '–'
+            const hasShare = typeof p.share_storico === 'number'
+            const sv = hasShare ? p.share_storico.toFixed(1) + '%' : '–'
             const cc = CH_CLS[p.canale] || ''
             const sub = []
             if (!ch) sub.push(p.canale)
@@ -143,10 +144,10 @@ export default function StepProgram() {
             return (
               <div
                 key={`${p.canale}_${p.from_time}`}
-                className={`prow${cc ? ' ' + cc : ''}${sel ? ' sel' : ''}`}
-                tabIndex={0}
-                onClick={() => handleSelectProg(p)}
-                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleSelectProg(p) }}
+                className={`prow${cc ? ' ' + cc : ''}${sel ? ' sel' : ''}${!hasShare ? ' prow-disabled' : ''}`}
+                tabIndex={hasShare ? 0 : -1}
+                onClick={() => hasShare && handleSelectProg(p)}
+                onKeyDown={(e) => { if (hasShare && (e.key === 'Enter' || e.key === ' ')) handleSelectProg(p) }}
               >
                 <span className="prow-time">
                   {p.from_time}

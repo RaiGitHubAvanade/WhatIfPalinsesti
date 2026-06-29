@@ -295,6 +295,12 @@
 .prow.sel        { background: #EDF2FF; }
 .prow.sel .prow-title { color: var(--rai); font-weight: 700; }
 
+.prow.prow-disabled {
+  cursor: default;
+  opacity: 0.45;
+  pointer-events: none;
+}
+
 .prow.prow-r1 { border-left-color: #0B3D91; }
 .prow.prow-r2 { border-left-color: #E31F26; }
 .prow.prow-r3 { border-left-color: #2D9E48; }
