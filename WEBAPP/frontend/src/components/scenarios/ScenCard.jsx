@@ -25,6 +25,8 @@ function fmtDateShort(iso) {
 export default function ScenCard({ scenId, sc, onDelete, onRename, onAddSim, onViewDetail, onDeleteSim, onRetrySim }) {
   const [editing, setEditing] = useState(false)
   const [titleInput, setTitleInput] = useState('')
+  const [deletingSimId, setDeletingSimId] = useState(null)
+  const [retryingSimId, setRetryingSimId] = useState(null)
 
   const isFull = sc.items.length >= 3
   const typeCls = sc.type === 'spostamento' ? 'spostamento' : 'sostituzione'
@@ -91,8 +93,8 @@ export default function ScenCard({ scenId, sc, onDelete, onRename, onAddSim, onV
         {sc.anchor && (
           <div className="scen-hcard-anchor" title={sc.anchor.program_name}>
             🎯 {sc.anchor.program_name}
-            {typeof sc.anchor.share_storico === 'number' && (
-              <span className="scen-anchor-share">{sc.anchor.share_storico.toFixed(1)}%</span>
+            {typeof sc.anchor.share_predicted === 'number' && (
+              <span className="scen-anchor-share">{sc.anchor.share_predicted.toFixed(1)}%</span>
             )}
           </div>
         )}
@@ -143,7 +145,9 @@ export default function ScenCard({ scenId, sc, onDelete, onRename, onAddSim, onV
                   <span className="scen-item-cursare">{candShare.toFixed(1)}%</span>
                 )}
                 {item._status === 'Running' && (
-                  <span className="scen-item-status scen-item-status--running" title="Simulazione in corso">⏳</span>
+                  <span className="scen-item-status" title="Simulazione in corso">
+                    <span className="scen-spinner" />
+                  </span>
                 )}
                 {item._status === 'Failed' && (
                   <span className="scen-item-status scen-item-status--failed" title="Simulazione fallita">❌</span>
@@ -163,19 +167,38 @@ export default function ScenCard({ scenId, sc, onDelete, onRename, onAddSim, onV
                   <span className="scen-item-status-lbl scen-item-status-lbl--failed">Fallita</span>
                 ) : <span />}
                 <div className="scen-item-actions" onClick={e => e.stopPropagation()}>
-                  {item._status === 'Failed' && onRetrySim && (
+                  {item._status === 'Failed' && onRetrySim && deletingSimId !== item._sim_id && (
                     <button
                       className="scen-icon-btn"
-                      onClick={() => onRetrySim(item._sim_id)}
+                      disabled={retryingSimId === item._sim_id}
+                      onClick={async () => {
+                        setRetryingSimId(item._sim_id)
+                        try { await onRetrySim(item._sim_id) }
+                        finally { setRetryingSimId(null) }
+                      }}
                       title="Rilancia simulazione"
-                    >🔄</button>
+                    >
+                      {retryingSimId === item._sim_id
+                        ? <span className="scen-spinner" />
+                        : '🔄'}
+                    </button>
                   )}
-                  {item._status !== 'Running' && onDeleteSim && (
+                  {item._status !== 'Running' && onDeleteSim && retryingSimId !== item._sim_id && (
                     <button
                       className="scen-icon-btn"
-                      onClick={() => onDeleteSim(item._sim_id, idx)}
+                      disabled={deletingSimId === item._sim_id}
+                      onClick={async (e) => {
+                        e.stopPropagation()
+                        setDeletingSimId(item._sim_id)
+                        try { await onDeleteSim(item._sim_id, idx) }
+                        finally { setDeletingSimId(null) }
+                      }}
                       title="Rimuovi simulazione"
-                    >🗑️</button>
+                    >
+                      {deletingSimId === item._sim_id
+                        ? <span className="scen-spinner" />
+                        : '🗑️'}
+                    </button>
                   )}
                 </div>
               </div>

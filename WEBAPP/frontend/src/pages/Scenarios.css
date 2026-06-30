@@ -21,6 +21,14 @@
 .scen-filter-sep { width: 1px; background: var(--border); height: 36px; align-self: center; margin: 0 2px; flex-shrink: 0; }
 .scen-filter-reset { background: none; border: 1.5px solid var(--danger); color: var(--danger); border-radius: 9px; padding: 7px 12px; font-size: 12px; font-weight: 600; cursor: pointer; transition: .15s; font-family: inherit; }
 .scen-filter-reset:hover { background: var(--danger); color: #fff; }
+.scen-refresh-btn { background: none; border: 1.5px solid var(--border); color: var(--muted); border-radius: 9px; padding: 6px 11px; font-size: 12px; font-weight: 600; line-height: 1; cursor: pointer; transition: .15s; font-family: inherit; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; gap: 5px; }
+.scen-refresh-btn:hover:not(:disabled) { border-color: var(--primary); color: var(--primary); }
+.scen-refresh-btn:disabled { opacity: .5; cursor: default; }
+.scen-export-btn { background: none; border: 1.5px solid #4caf50; color: #4caf50; border-radius: 9px; padding: 6px 11px; font-size: 12px; font-weight: 600; cursor: pointer; transition: .15s; font-family: inherit; flex-shrink: 0; }
+.scen-export-btn:hover { background: #4caf50; color: #fff; }
+.scen-right-actions { display: flex; flex-direction: column; gap: 5px; flex-shrink: 0; }
+@keyframes scen-spin { to { transform: rotate(360deg); } }
+.scen-spinner { display: inline-block; width: 13px; height: 13px; border: 2px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: scen-spin .7s linear infinite; }
 .scen-filter-count { font-size: 12px; font-weight: 500; color: var(--muted); white-space: nowrap; margin-left: auto; }
 
 /* ── Empty state ────────────────────────────────────────────────────────── */

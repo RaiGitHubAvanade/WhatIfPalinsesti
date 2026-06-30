@@ -26,8 +26,8 @@ function mapToDisplay(apiScen) {
 
   const prog = {
     program_name,
-    canale: program_channel,
-    share_storico: program_share_predict,
+    channel: program_channel,
+    share_predicted: program_share_predict,
     from_time: program_from_time,
     date: program_date,
   }
@@ -114,23 +114,29 @@ export default function Scenarios() {
   const [page, setPage] = useState(1)
   const [selectedItem, setSelectedItem] = useState(null)
 
-  // ── Fetch on mount (component remounts on every navigation to /scenari) ──
+  const [refreshing, setRefreshing] = useState(false)
+
+  // ── Fetch on mount ──
   useEffect(() => {
     let cancelled = false
     getScenarios()
-      .then(data => {
-        if (cancelled) return
-        setScenarios((data.scenarios || []).map(mapToDisplay))
-      })
-      .catch(e => {
-        if (cancelled) return
-        toast('Errore caricamento scenari: ' + e.message)
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false)
-      })
+      .then(data => { if (!cancelled) setScenarios((data.scenarios || []).map(mapToDisplay)) })
+      .catch(e => { if (!cancelled) toast('Errore caricamento scenari: ' + e.message) })
+      .finally(() => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  async function handleRefresh() {
+    setRefreshing(true)
+    try {
+      const data = await getScenarios()
+      setScenarios((data.scenarios || []).map(mapToDisplay))
+    } catch (e) {
+      toast('Errore caricamento scenari: ' + e.message)
+    } finally {
+      setRefreshing(false)
+    }
+}
 
   // ── Local-only mutations (display state only — no DB writes) ──────────
   function handleDelete(scenId) {
@@ -164,8 +170,7 @@ export default function Scenarios() {
       await retrySimulation(simId)
       toast('Simulazione rilanciata.')
       // Refresh to show updated Running status
-      const data = await getScenarios()
-      setScenarios((data.scenarios || []).map(mapToDisplay))
+      await handleRefresh()
     } catch (e) {
       toast('Errore rilancio: ' + e.message)
     }
@@ -259,6 +264,20 @@ export default function Scenarios() {
           <span className="scen-filter-count">
             {loading ? '…' : `${total} ${total === 1 ? 'scenario' : 'scenari'}`}
           </span>
+
+          <div className="scen-right-actions">
+            <button
+              className="scen-refresh-btn"
+              onClick={() => handleRefresh()}
+              disabled={refreshing}
+            >
+              {refreshing ? <span className="scen-spinner" /> : '↻'} Aggiorna
+            </button>
+
+            <button className="scen-export-btn">
+              Esporta Excel
+            </button>
+          </div>
         </div>
 
         {/* ── Content ── */}
@@ -289,7 +308,7 @@ export default function Scenarios() {
                   onAddSim={() => {
                     set({
                       prog: sc.anchor,
-                      ch: sc.anchor.canale,
+                      ch: sc.anchor.channel,
                       date: sc.anchor.date || '',
                       slot: sc.anchor.from_time ? `${sc.anchor.from_time.slice(0, 5)}-` : null,
                       mode: sc.type,
