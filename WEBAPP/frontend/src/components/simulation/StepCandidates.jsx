@@ -155,18 +155,18 @@ export default function StepCandidates() {
           ) : (
             <div className="psel-list-body" id="cand-list-items">
               {pageItems.map((p) => {
-                const sel = cand?.canale === p.canale && cand?.program_name === p.program_name
+                const sel = cand?.channel === p.channel && cand?.program_name === p.program_name
                 const sv = typeof p.share_storico === 'number' ? p.share_storico.toFixed(1) + '%' : '-'
-                const cc = CH_CLS[p.canale] || ''
+                const cc = CH_CLS[p.channel] || ''
                 const tags = [
-                  p.canale || 'N/A',
+                  p.channel || 'N/A',
                   p.target_sex ? `Genere: ${p.target_sex}` : null,
                   p.target_age ? `Età: ${p.target_age}` : null,
                 ].filter(Boolean)
 
                 return (
                   <div
-                    key={`${p.canale}|${p.program_name}`}
+                    key={`${p.channel}|${p.program_name}`}
                     className={`prow${cc ? ' ' + cc : ''}${sel ? ' sel' : ''}`}
                     tabIndex={0}
                     onClick={() => set({ cand: sel ? null : p })}

@@ -9,7 +9,7 @@ class DatabricksServiceSimulation(DatabricksService):
     """Production simulation service backed by real Databricks SQL."""
 
 
-    def get_output_palinsesto_rai(
+    def get_out_palinsesto_predict_all_slots(
         self,
         day: date,
         channel: str | None = None,
@@ -43,8 +43,8 @@ class DatabricksServiceSimulation(DatabricksService):
 
         query = f"""
             SELECT Canale, Data, Programma, orario_inizio, orario_fine,
-                   share_storico, target_genere, target_eta, genere_predominante
-            FROM ta_coll.whatif.output_palinsesto_rai
+                   share_predetto, target_genere, target_eta, DES_GENERE_ESTESA_INT
+            FROM ta_coll.whatif.out_palinsesto_predict_all_slots
             WHERE {' AND '.join(conditions)}
             ORDER BY orario_inizio
         """
@@ -54,7 +54,7 @@ class DatabricksServiceSimulation(DatabricksService):
             cursor.execute(query, parameters=params)
             rows = cursor.fetchall()
 
-        return [Program.MapProgramFromFutureRow(row) for row in rows]
+        return [Program.MapProgramFromRaiPredictRow(row) for row in rows]
 
     def get_simulation_for_retry(self, simulation_id: str) -> dict | None:
         """Fetch simulation + parent scenario data needed to relaunch the async job."""

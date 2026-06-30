@@ -44,18 +44,29 @@ class Program:
         )
 
     @classmethod
-    def MapProgramFromFutureRow(cls, row) -> "Program":
-        """RAI future schedule / competitor overlap view (vw_output_palinsesto_futuro)."""
+    def MapProgramFromRaiPredictRow(cls, row) -> "Program":
+        """RAI predict schedule (out_palinsesto_predict_all_slots)."""
         return cls(
             canale=row.Canale,
             data=row.Data,
             programma=row.Programma,
             orario_inizio=row.orario_inizio,
             orario_fine=row.orario_fine,
-            share_storico=NumberUtils.float_to_percent(getattr(row, 'share_storico', None)),
-            target_sesso=getattr(row, 'target_genere', None),
-            target_eta=getattr(row, 'target_eta', None),
-            genere=getattr(row, 'genere_predominante', None),
+            share_predetto=NumberUtils.float_to_percent(getattr(row, 'share_predetto', None)),
+            target_sesso=row.target_genere,
+            target_eta=row.target_eta,
+            genere=row.DES_GENERE_ESTESA_INT,
+        )
+
+    @classmethod
+    def MapProgramFromFutureRow(cls, row) -> "Program":
+        """Future competitor overlap view (vw_output_palinsesto_futuro) — scheduling fields only."""
+        return cls(
+            canale=row.Canale,
+            data=row.Data,
+            programma=row.Programma,
+            orario_inizio=row.orario_inizio,
+            orario_fine=row.orario_fine,
         )
 
     @classmethod

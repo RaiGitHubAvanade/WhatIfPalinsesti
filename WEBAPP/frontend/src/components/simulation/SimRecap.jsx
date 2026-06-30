@@ -29,7 +29,7 @@ export default function SimRecap() {
           <div className="rp-prog-name">{prog.program_name}</div>
 
           <div className="rp-pills">
-            {prog.canale && <span className="rp-pill rp-pill-ch">{prog.canale}</span>}
+            {prog.channel && <span className="rp-pill rp-pill-ch">{prog.channel}</span>}
             {prog.date && <span className="rp-pill rp-pill-date">📅 {fmtDate(prog.date)}</span>}
             {prog.from_time && (
               <span className="rp-pill rp-pill-time">
@@ -44,10 +44,10 @@ export default function SimRecap() {
             </div>
           )}
 
-          {typeof prog.share_storico === 'number' && (
+          {typeof prog.share_predicted === 'number' && (
             <div className="rp-share-row">
               <span className="rp-share-lbl">Share attuale</span>
-              <span className="rp-share-val">{prog.share_storico.toFixed(1)}%</span>
+              <span className="rp-share-val">{prog.share_predicted.toFixed(1)}%</span>
             </div>
           )}
         </div>
@@ -86,9 +86,9 @@ export default function SimRecap() {
           {hasCand ? (
             <div className="rp-prog-block">
               <div className="rp-prog-name">{cand.program_name}</div>
-              {cand.canale && (
+              {cand.channel && (
                 <div className="rp-pills">
-                  <span className="rp-pill rp-pill-ch">{cand.canale}</span>
+                  <span className="rp-pill rp-pill-ch">{cand.channel}</span>
                 </div>
               )}
               {typeof cand.share_storico === 'number' && (

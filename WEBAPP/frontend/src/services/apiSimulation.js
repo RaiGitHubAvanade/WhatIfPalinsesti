@@ -82,15 +82,15 @@ export async function getSimulationSchedule(ch, dest_time) {
 }
 
 /** @returns {Promise<OtherProgramViewModel[]>} */
-export async function getPalinsestoFuturoRai({ channel = '', day = '', from_time = '', to_time = '' } = {}) {
+export async function getTargetPrograms({ channel = '', day = '', from_time = '', to_time = '' } = {}) {
   const params = new URLSearchParams()
   if (channel)   params.set('channel', channel)
   if (day)       params.set('day', day)
   if (from_time) params.set('from_time', from_time)
   if (to_time)   params.set('to_time', to_time)
   const qs = params.toString()
-  const result = await apiFetch(`/api/simulation/getPalinsestoFuturoRai${qs ? '?' + qs : ''}`)
-  if (!result.success) throw new Error(result.message || 'Errore caricamento palinsesto')
+  const result = await apiFetch(`/api/simulation/getTargetPrograms${qs ? '?' + qs : ''}`)
+  if (!result.success) throw new Error(result.message || 'Errore caricamento programmi')
   return result.data
 }
 

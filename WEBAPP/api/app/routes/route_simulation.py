@@ -15,8 +15,8 @@ bp = Blueprint("simulation", __name__)
 
 
 # Step 1
-@bp.route("/simulation/getPalinsestoFuturoRai")
-def get_palinsesto_futuro_rai():
+@bp.route("/simulation/getTargetPrograms")
+def get_target_programs():
     channel   = request.args.get("channel")   or None
     day_str   = request.args.get("day")       or None
     from_time = request.args.get("from_time") or None
@@ -31,20 +31,20 @@ def get_palinsesto_futuro_rai():
         day = date.today()
 
     logger.info(
-        "getPalinsestoFuturoRai | channel=%s day=%s from=%s to=%s",
+        "getTargetPrograms | channel=%s day=%s from=%s to=%s",
         channel, day, from_time, to_time,
     )
 
     try:
         logic = BusinessLogicSimulation(get_simulation_service())
-        result = logic.get_palinsesto_futuro_rai(
+        result = logic.get_target_programs(
             day=day, channel=channel, from_time=from_time, to_time=to_time
         )
     except RuntimeError as e:
-        logger.error("getPalinsestoFuturoRai RuntimeError: %s", e)
+        logger.error("getTargetPrograms RuntimeError: %s", e)
         return error(message=str(e), errors=["databricks_error"]), 502
     except Exception as e:
-        logger.exception("getPalinsestoFuturoRai unexpected: %s", e)
+        logger.exception("getTargetPrograms unexpected: %s", e)
         return error(message=f"Errore imprevisto: {e}", errors=["internal_error"]), 500
 
     return success(data=[asdict(ch) for ch in result], message="Palinsesto RAI ottenuto con successo")

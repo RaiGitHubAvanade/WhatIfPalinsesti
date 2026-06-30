@@ -59,7 +59,7 @@ class BusinessLogicSimulation:
         self._logger = logging.getLogger(__name__)
 
 
-    def get_palinsesto_futuro_rai(
+    def get_target_programs(
         self,
         day,
         channel: str | None = None,
@@ -67,14 +67,14 @@ class BusinessLogicSimulation:
         to_time: str | None = None,
     ) -> list[OtherProgramViewModel]:
         try:
-            rows = self._service.get_output_palinsesto_rai(
+            rows = self._service.get_out_palinsesto_predict_all_slots(
                 day=day, channel=channel, from_time=from_time, to_time=to_time
             )
         except Exception as e:
             raise RuntimeError(f"Errore nel recupero del palinsesto RAI: {e}") from e
 
         return [
-            OtherProgramViewModel.MapOtherProgramViewModelFromProgram(row)
+            OtherProgramViewModel.MapRaiProgramViewModelFromProgram(row)
             for row in rows
         ]
 

@@ -21,8 +21,8 @@ export default function SimNav() {
       if (mode === 'sostituzione') {
         result = await startSostituzione({
           program_name: prog.program_name,
-          program_channel: prog.canale,
-          program_share_predict: prog.share_storico,
+          program_channel: prog.channel,
+          program_share_predict: prog.share_predicted,
           program_date: prog.date,
           program_from_time: prog.from_time,
           scenario_type: mode,
@@ -32,8 +32,8 @@ export default function SimNav() {
       } else if (mode === 'spostamento') {
         result = await startSpostamento({
           program_name: prog.program_name,
-          program_channel: prog.canale,
-          program_share_predict: prog.share_storico,
+          program_channel: prog.channel,
+          program_share_predict: prog.share_predicted,
           program_date: prog.date,
           program_from_time: prog.from_time,
           scenario_type: mode,

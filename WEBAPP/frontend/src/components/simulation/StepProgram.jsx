@@ -1,6 +1,6 @@
 ﻿import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useApp } from '../../context/useApp'
-import { getPalinsestoFuturoRai } from '../../services/apiSimulation'
+import { getTargetPrograms } from '../../services/apiSimulation'
 import ChannelSelector from '../shared/ChannelSelector'
 import DaySelector from '../shared/DaySelector'
 import TimeSelector from './TimeSelector'
@@ -50,7 +50,7 @@ export default function StepProgram() {
     setLoading(true)
     setPage(1)
     try {
-      const data = await getPalinsestoFuturoRai({
+      const data = await getTargetPrograms({
         channel: ch || '',
         day: date || today,
         from_time: fromTime,
@@ -81,7 +81,7 @@ export default function StepProgram() {
   const pageItems = programs.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE)
 
   const handleSelectProg = (p) => {
-    if (prog?.canale === p.canale && prog?.from_time === p.from_time) {
+    if (prog?.channel === p.channel && prog?.from_time === p.from_time) {
       set({ prog: null, cand: null })
     } else {
       set({ prog: p, cand: null })
@@ -132,18 +132,18 @@ export default function StepProgram() {
       ) : (
         <div className="psel-list-body">
           {pageItems.map((p) => {
-            const sel = prog?.canale === p.canale && prog?.from_time === p.from_time
-            const hasShare = typeof p.share_storico === 'number'
-            const sv = hasShare ? p.share_storico.toFixed(1) + '%' : '–'
-            const cc = CH_CLS[p.canale] || ''
+            const sel = prog?.channel === p.channel && prog?.from_time === p.from_time
+            const hasShare = typeof p.share_predicted === 'number'
+            const sv = hasShare ? p.share_predicted.toFixed(1) + '%' : '–'
+            const cc = CH_CLS[p.channel] || ''
             const sub = []
-            if (!ch) sub.push(p.canale)
+            if (!ch) sub.push(p.channel)
             if (p.genre) sub.push(p.genre)
             if (p.target_age) sub.push(p.target_age)
             if (p.target_sex && p.target_sex !== 'Tutti' && p.target_sex !== 'All') sub.push(p.target_sex)
             return (
               <div
-                key={`${p.canale}_${p.from_time}`}
+                key={`${p.channel}_${p.from_time}`}
                 className={`prow${cc ? ' ' + cc : ''}${sel ? ' sel' : ''}${!hasShare ? ' prow-disabled' : ''}`}
                 tabIndex={hasShare ? 0 : -1}
                 onClick={() => hasShare && handleSelectProg(p)}
