@@ -22,11 +22,11 @@ export async function getCompetitorPrograms({ channel, day, from_time, to_time, 
 }
 
 /** @returns {Promise<void>} */
-export async function editManualShare({ channel, program_name, from_time, to_time, day, value }) {
+export async function editManualShare({ id, value }) {
   const result = await apiFetch('/api/weekly/editManualShare', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ channel, program_name, from_time, to_time, day, value }),
+    body: JSON.stringify({ id, value }),
   })
   if (!result.success) throw new Error(result.message || 'Errore aggiornamento share manuale')
   return result.data

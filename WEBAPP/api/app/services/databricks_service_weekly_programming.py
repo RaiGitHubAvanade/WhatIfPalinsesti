@@ -17,7 +17,7 @@ class DatabricksServiceWeeklyProgramming(DatabricksService):
     ) -> list[Program]:
         """Execute the query and return rows for the week containing *day*."""
         query = """
-            SELECT Canale, Data, Programma, orario_inizio, orario_fine, share_predetto, 
+            SELECT ID, Canale, Data, Programma, orario_inizio, orario_fine, share_predetto, 
                 share_manuale, share_reale 
             FROM ta_coll.whatif.output_palinsesto_delta 
             WHERE Canale = :channel 
@@ -46,7 +46,7 @@ class DatabricksServiceWeeklyProgramming(DatabricksService):
     ) -> list[Program]:
         """Execute the query and return rows for the week containing *day*."""
         query = """
-            SELECT Canale, Data, Programma, orario_inizio, orario_fine, share_predetto, 
+            SELECT ID, Canale, Data, Programma, orario_inizio, orario_fine, share_predetto, 
                 share_manuale 
             FROM ta_coll.whatif.out_palinsesto_predict 
             WHERE Canale = :channel 
@@ -76,11 +76,7 @@ class DatabricksServiceWeeklyProgramming(DatabricksService):
 
     def edit_manual_share_predict(
         self,
-        channel: str,
-        program_name: str,
-        from_time: str,
-        to_time: str,
-        day: date,
+        row_id: str,
         db_value: float | None,
     ) -> None:
         """Update the share_manuale field on a single row in out_palinsesto_predict."""
@@ -88,19 +84,9 @@ class DatabricksServiceWeeklyProgramming(DatabricksService):
         query = f"""
             UPDATE ta_coll.whatif.out_palinsesto_predict
             SET {query_set}
-            WHERE Canale = :channel
-              AND Programma = :program_name
-              AND orario_inizio = :from_time
-              AND orario_fine = :to_time
-              AND Data = :day
+            WHERE ID = :row_id
         """
-        params = {
-            "channel": channel,
-            "program_name": program_name,
-            "from_time": from_time,
-            "to_time": to_time,
-            "day": day,
-        }
+        params = {"row_id": row_id}
         if db_value is not None:
             params["db_value"] = db_value
 

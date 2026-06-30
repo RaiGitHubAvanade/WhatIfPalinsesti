@@ -107,25 +107,19 @@ class BusinessLogicWeeklyProgramming:
 
     def edit_manual_share(
         self,
-        channel: str,
-        program_name: str,
-        from_time: str,
-        to_time: str,
-        day: date,
+        row_id: str,
         value: float | None,
     ) -> None:
         """Persist a manual share override for a single program row via Databricks.
 
         Only the current week's predict table is writable; past weeks are read-only.
         """
-        
         try:
             db_value = NumberUtils.percent_to_float(value)
-            self._databricks_service.edit_manual_share_predict(channel, program_name, from_time, to_time, day, db_value)
+            self._databricks_service.edit_manual_share_predict(row_id, db_value)
         except Exception as e:
             raise RuntimeError(
-                f"Errore durante l'aggiornamento del palinsesto per '{program_name}' "
-                f"in data {day.isoformat()}: {e}"
+                f"Errore durante l'aggiornamento del palinsesto: {e}"
             ) from e
 
 

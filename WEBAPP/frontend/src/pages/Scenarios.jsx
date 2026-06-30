@@ -283,12 +283,12 @@ export default function Scenarios() {
         {/* ── Content ── */}
         {loading ? (
           <div className="scen-empty-state">
-            <div className="scen-empty-ico">⏳</div>
+            {/* <div className="scen-empty-ico">⏳</div> */}
             <div className="scen-empty-msg">Caricamento scenari…</div>
           </div>
         ) : total === 0 ? (
           <div className="scen-empty-state">
-            <div className="scen-empty-ico">📋</div>
+            {/* <div className="scen-empty-ico">📋</div> */}
             <div className="scen-empty-msg">
               {hasAny
                 ? 'Nessun risultato per i filtri selezionati.'

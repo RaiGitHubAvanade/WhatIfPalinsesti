@@ -16,12 +16,14 @@ class ProgramViewModel:
     share_expected: float | None
     share_manual: float | None
     share_real: float | None
+    id: str | None = None
 
     @classmethod
     def MapProgramViewModelFromProgram(cls, row: Program) -> "ProgramViewModel":
         d = row.data
         day_iso = d.isoformat() if isinstance(d, date) else str(d)
         return cls(
+            id=row.id,
             day=day_iso,
             from_time=row.orario_inizio or None,
             to_time=row.orario_fine or None,

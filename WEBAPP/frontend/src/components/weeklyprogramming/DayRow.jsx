@@ -15,6 +15,7 @@ export default function DayRow({ row, showDay, dayIso, wCh, isCurrentWeek }) {
   const override = state.wOverrides[overrideKey]
   const [editingManuale, setEditingManuale] = useState(false)
   const [editManualeVal, setEditManualeVal] = useState('')
+  const [savingManuale, setSavingManuale] = useState(false)
   const [showAltriCanali, setShowAltriCanali] = useState(false)
 
   const displayProg = override?.prog ?? row.program_name
@@ -44,19 +45,18 @@ export default function DayRow({ row, showDay, dayIso, wCh, isCurrentWeek }) {
     // Optimistically update local state — always store manual explicitly (null = cleared)
     applyWeeklyOverride(overrideKey, { ...(override || {}), manual: newValue })
     setEditingManuale(false)
+    setSavingManuale(true)
 
     // Persist to backend
     try {
       await editManualShare({
-        channel: wCh,
-        program_name: row.program_name,
-        from_time: row.from_time,
-        to_time: row.to_time,
-        day: dayIso,
+        id: row.id,
         value: newValue,
       })
     } catch (e) {
       toast('Errore salvataggio share manuale: ' + e.message)
+    } finally {
+      setSavingManuale(false)
     }
   }
 
@@ -82,11 +82,13 @@ export default function DayRow({ row, showDay, dayIso, wCh, isCurrentWeek }) {
             {manualeVal != null ? manualeVal + '%' : <span className="pw-muted-italic">—</span>}
           </span>
           {isCurrentWeek && (
-            <button
-              className="pw-edit-btn"
-              onClick={() => { setEditManualeVal(manualeVal ?? ''); setEditingManuale(true) }}
-              title="Modifica manuale"
-            >✏️</button>
+            savingManuale
+              ? <span className="pw-spinner" />
+              : <button
+                  className="pw-edit-btn"
+                  onClick={() => { setEditManualeVal(manualeVal ?? ''); setEditingManuale(true) }}
+                  title="Modifica manuale"
+                >✏️</button>
           )}
         </span>
         {/* Edit state — absolutely positioned so it doesn't affect layout */}

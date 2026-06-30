@@ -52,6 +52,9 @@
   font-size: 14px;
 }
 
+@keyframes pw-spin { to { transform: rotate(360deg); } }
+.pw-spinner { display: inline-block; width: 12px; height: 12px; border: 2px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: pw-spin .7s linear infinite; vertical-align: middle; }
+
 .pw-ok-btn { padding: 4px 8px; font-size: 11px; }
 
 .pw-prev-input {

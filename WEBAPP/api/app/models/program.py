@@ -17,6 +17,7 @@ class Program:
     programma: str | None = None
     orario_inizio: str | None = None
     orario_fine: str | None = None
+    id: str | None = None
     # Weekly programming fields (output_palinsesto_delta / out_palinsesto_predict)
     data: date | None = None
     share_predetto: float | None = None
@@ -34,6 +35,7 @@ class Program:
         share_reale is present only in the delta table; getattr handles both cases."""
         return cls(
             canale=row.Canale,
+            id=row.ID,
             data=row.Data,
             programma=row.Programma,
             orario_inizio=row.orario_inizio,

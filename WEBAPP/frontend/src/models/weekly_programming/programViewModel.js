@@ -1,5 +1,6 @@
 /**
  * @typedef {Object} ProgramViewModel
+ * @property {string|null} id
  * @property {string} day          - ISO date string, e.g. "2026-06-18"
  * @property {string|null} from_time  - Start time "HH:MM"
  * @property {string|null} to_time    - End time "HH:MM"

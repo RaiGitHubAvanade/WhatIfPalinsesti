@@ -135,32 +135,29 @@ def _validate_edit_manual_share(channel, program_name, from_time, to_time, day_s
 @bp.route("/weekly/editManualShare", methods=["POST"])
 def edit_manual_share():
     body = request.get_json(silent=True) or {}
-    channel = body.get("channel")
-    program_name = body.get("program_name")
-    from_time = body.get("from_time")
-    to_time = body.get("to_time")
-    day_str = body.get("day")
+    row_id = body.get("id")
     value = body.get("value")
-    logger.info("editManualShare called | channel=%s program=%s day=%s from=%s to=%s value=%s", channel, program_name, day_str, from_time, to_time, value)
-    day, value, err = _validate_edit_manual_share(channel, program_name, from_time, to_time, day_str, value)
-    if err:
-        logger.warning("editManualShare: validation failed | channel=%s program=%s day=%s", channel, program_name, day_str)
-        return err
 
-    if not DateTimeUtils.is_current_week(day):
-        logger.warning("editManualShare: day not in current week | day=%s", day)
-        raise ValueError(
-            "Non è possibile modificare il palinsesto di settimane passate"
-        )
+    if not row_id:
+        return error(message="Il parametro 'id' è obbligatorio", errors=["missing required fields"]), 400
+
+    if value is not None:
+        try:
+            value = float(value)
+        except (TypeError, ValueError):
+            return error(message="Il valore deve essere un numero o null", errors=["invalid value"]), 400
+
+    logger.info("editManualShare called | id=%s value=%s", row_id, value)
+
     logic = BusinessLogicWeeklyProgramming(get_databricks_service())
     try:
-        logic.edit_manual_share(channel, program_name, from_time, to_time, day, value)
+        logic.edit_manual_share(row_id, value)
     except ValueError as e:
         logger.warning("editManualShare: validation error from logic | error=%s", e)
         return error(message=str(e), errors=["validation_error"]), 400
     except RuntimeError as e:
-        logger.error("editManualShare: Databricks error | channel=%s program=%s day=%s error=%s", channel, program_name, day, e)
+        logger.error("editManualShare: Databricks error | id=%s error=%s", row_id, e)
         return error(message=str(e), errors=["databricks_error"]), 502
 
-    logger.info("editManualShare: success | channel=%s program=%s day=%s", channel, program_name, day)
+    logger.info("editManualShare: success | id=%s", row_id)
     return success(data=None, message="Share manuale aggiornato con successo")
