@@ -97,6 +97,29 @@ class BusinessLogicScenarios:
         )
         return ScenarioListViewModel(scenarios=sorted_list, total=len(sorted_list))
 
+    def delete_simulation(self, simulation_id: str) -> None:
+        try:
+            info = self._service.get_delete_informations(simulation_id)
+            if info is None:
+                raise ValueError(f"Simulazione non trovata: {simulation_id}")
+            id_scenario, scenario_type = info
+
+            self._logger.info(
+                "delete_simulation | id=%s id_scenario=%s scenario_type=%s",
+                simulation_id, id_scenario, scenario_type,
+            )
+
+            if scenario_type == "sostituzione":
+                self._service.delete_simulation_sostituzione(simulation_id)
+            elif scenario_type == "spostamento":
+                self._service.delete_simulation_spostamento(simulation_id)
+            else:
+                raise ValueError(f"Tipo di scenario sconosciuto: {scenario_type}")
+
+            self._service.delete_scenario(id_scenario)
+        except Exception as e:
+            raise RuntimeError(f"Errore nell'eliminazione della simulazione: {e}") from e
+
     # ------------------------------------------------------------------ #
 
     def _upsert_scenario(self, scenarios_map: dict, row: dict) -> None:

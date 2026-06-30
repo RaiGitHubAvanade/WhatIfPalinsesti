@@ -56,6 +56,34 @@ class DatabricksServiceSimulation(DatabricksService):
 
         return [Program.MapProgramFromFutureRow(row) for row in rows]
 
+    def get_simulation_for_retry(self, simulation_id: str) -> dict | None:
+        """Fetch simulation + parent scenario data needed to relaunch the async job."""
+        query = """
+            SELECT
+                sim.id               AS sim_id,
+                sim.new_program_name,
+                sim.new_program_share_storico,
+                sim.status,
+                sim.is_retry,
+                sce.id               AS sce_id,
+                sce.scenario_type,
+                sce.program_name,
+                sce.program_channel,
+                sce.program_date,
+                sce.program_from_time,
+                sce.program_share_predict
+            FROM ta_coll.whatif.webapp_simulations_sostituzione sim
+            JOIN ta_coll.whatif.webapp_scenarios sce
+              ON sim.id_scenario = sce.id
+            WHERE sim.id = :simulation_id
+        """
+        self._logger.info("get_simulation_for_retry | id=%s", simulation_id)
+        with self._connection.cursor() as cursor:
+            cursor.execute(query, parameters={"simulation_id": simulation_id})
+            columns = [col[0] for col in cursor.description]
+            row = cursor.fetchone()
+        return dict(zip(columns, row)) if row else None
+
     def get_candidate_programs(
         self,
         program_name: str | None = None,

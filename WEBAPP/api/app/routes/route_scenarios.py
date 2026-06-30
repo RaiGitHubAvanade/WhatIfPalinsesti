@@ -38,3 +38,18 @@ def get_scenarios():
         return error(message=f"Errore imprevisto: {e}", errors=["internal_error"]), 500
 
     return success(data=asdict(result), message="Scenari ottenuti con successo")
+
+
+@bp.route("/scenarios/simulation/<simulation_id>", methods=["DELETE"])
+def delete_simulation(simulation_id):
+    logger.info("deleteSimulation | id=%s", simulation_id)
+    try:
+        logic = BusinessLogicScenarios(get_scenarios_service())
+        logic.delete_simulation(simulation_id)
+    except RuntimeError as e:
+        logger.error("deleteSimulation RuntimeError: %s", e)
+        return error(message=str(e), errors=["databricks_error"]), 502
+    except Exception as e:
+        logger.exception("deleteSimulation unexpected: %s", e)
+        return error(message=f"Errore imprevisto: {e}", errors=["internal_error"]), 500
+    return success(message="Simulazione eliminata con successo")

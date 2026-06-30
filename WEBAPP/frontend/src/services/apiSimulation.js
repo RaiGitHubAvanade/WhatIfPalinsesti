@@ -107,3 +107,9 @@ export async function getCandidatePrograms({ program_name = '', channel = '', ta
   if (!result.success) throw new Error(result.message || 'Errore caricamento candidati')
   return result.data
 }
+
+/** @returns {Promise<void>} */
+export async function retrySimulation(simulationId) {
+  const result = await apiFetch(`/api/simulation/simulation/${simulationId}/retry`, { method: 'POST' })
+  if (!result.success) throw new Error(result.message || 'Errore rilancio simulazione')
+}

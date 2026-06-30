@@ -4,6 +4,7 @@ import uuid
 from datetime import datetime, timezone
 
 from app.services.databricks_service_simulation import DatabricksServiceSimulation
+from app.models.simulation_request import SimulationSostRequest
 from app.view_models.simulation import (
     ProgramItemViewModel,
     ProgramListViewModel,
@@ -77,6 +78,30 @@ class BusinessLogicSimulation:
             for row in rows
         ]
 
+    def retry_simulation(self, simulation_id: str) -> tuple[str, int]:
+        """Validate a failed simulation then delegate to start_sostituzione."""
+        try:
+            row = self._service.get_simulation_for_retry(simulation_id)
+        except Exception as e:
+            raise RuntimeError(f"Errore nel recupero della simulazione: {e}") from e
+
+        if row is None:
+            raise ValueError("Simulazione non trovata")
+        if row.get("status") != "Failed" or not row.get("is_retry"):
+            raise ValueError("Solo le simulazioni fallite possono essere rilanciate")
+
+        req = SimulationSostRequest(
+            program_name=row.get("program_name"),
+            program_channel=row.get("program_channel"),
+            program_date=str(row.get("program_date")) if row.get("program_date") else None,
+            program_from_time=row.get("program_from_time"),
+            scenario_type=row.get("scenario_type"),
+            new_program_name=row.get("new_program_name"),
+            new_program_share_storico=row.get("new_program_share_storico"),
+            program_share_predict=row.get("program_share_predict"),
+        )
+        return self.start_sostituzione(req)
+
     def get_candidate_programs(
         self,
         program_name: str | None = None,
@@ -102,19 +127,19 @@ class BusinessLogicSimulation:
         ]
 
 
-    def start_sostituzione(self, body: dict) -> tuple[str, int]:
+    def start_sostituzione(self, req: SimulationSostRequest) -> tuple[str, int]:
         """Apply the decision logic for a new Sostituzione simulation request.
 
         Returns a (message, http_status) tuple.
         """
-        program_name     = body.get("program_name")
-        program_channel  = body.get("program_channel")
-        program_share_predict = body.get("program_share_predict")
-        program_date     = body.get("program_date")
-        program_from_time = body.get("program_from_time")
-        scenario_type    = body.get("scenario_type")
-        new_program_name = body.get("new_program_name")
-        new_program_share_storico = body.get("new_program_share_storico")
+        program_name     = req.program_name
+        program_channel  = req.program_channel
+        program_share_predict = req.program_share_predict
+        program_date     = req.program_date
+        program_from_time = req.program_from_time
+        scenario_type    = req.scenario_type
+        new_program_name = req.new_program_name
+        new_program_share_storico = req.new_program_share_storico
 
         missing = [
             k for k, v in {
@@ -165,7 +190,7 @@ class BusinessLogicSimulation:
                         last_error=None,
                         is_retry=False,
                     )
-                    self._launch_thread(simulation_id, body)
+                    self._launch_thread(simulation_id, req.to_payload())
                     return "Simulazione avviata. Lo stato può essere verificato nella pagina Scenari.", 202
 
                 else:
@@ -193,7 +218,7 @@ class BusinessLogicSimulation:
                         "last_error": None,
                         "is_retry": False,
                     })
-                    self._launch_thread(simulation_id, body)
+                    self._launch_thread(simulation_id, req.to_payload())
                     return "Simulazione avviata. Lo stato può essere verificato nella pagina Scenari.", 202
                 else:
                     return (
@@ -229,7 +254,7 @@ class BusinessLogicSimulation:
                 "last_error": None,
                 "is_retry": False,
             })
-            self._launch_thread(simulation_id, body)
+            self._launch_thread(simulation_id, req.to_payload())
             return "Simulazione avviata. Lo stato può essere verificato nella pagina Scenari.", 202
 
     def _launch_thread(self, simulation_id: str, body: dict) -> None:

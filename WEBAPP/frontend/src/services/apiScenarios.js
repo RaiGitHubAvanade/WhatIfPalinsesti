@@ -15,3 +15,9 @@ export async function getScenarios({ search = '', type = '', date = '' } = {}) {
   if (!result.success) throw new Error(result.message || 'Errore caricamento scenari')
   return result.data
 }
+
+/** @returns {Promise<void>} */
+export async function deleteSimulation(simulationId) {
+  const result = await apiFetch(`/api/scenarios/simulation/${simulationId}`, { method: 'DELETE' })
+  if (!result.success) throw new Error(result.message || 'Errore eliminazione simulazione')
+}

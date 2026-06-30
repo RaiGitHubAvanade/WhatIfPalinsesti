@@ -57,6 +57,63 @@ class DatabricksServiceScenarios(DatabricksService):
             rows = [dict(zip(columns, row)) for row in cursor.fetchall()]
         return rows
 
+    def get_delete_informations(self, simulation_id: str) -> tuple[str, str] | None:
+        """Return (id_scenario, scenario_type) for the given simulation_id, searching both tables."""
+        query = """
+            SELECT sim.id_scenario, sce.scenario_type
+            FROM ta_coll.whatif.webapp_simulations_sostituzione sim
+            JOIN ta_coll.whatif.webapp_scenarios sce ON sce.id = sim.id_scenario
+            WHERE sim.id = :simulation_id
+            UNION ALL
+            SELECT sim.id_scenario, sce.scenario_type
+            FROM ta_coll.whatif.webapp_simulations_spostamento sim
+            JOIN ta_coll.whatif.webapp_scenarios sce ON sce.id = sim.id_scenario
+            WHERE sim.id = :simulation_id
+        """
+        with self._connection.cursor() as cursor:
+            cursor.execute(query, parameters={"simulation_id": simulation_id})
+            row = cursor.fetchone()
+        if row is None:
+            return None
+        return str(row[0]), str(row[1])
+
+    def delete_simulation_sostituzione(self, simulation_id: str) -> None:
+        """Delete a row from webapp_simulations_sostituzione."""
+        with self._connection.cursor() as cursor:
+            cursor.execute(
+                "DELETE FROM ta_coll.whatif.webapp_simulations_sostituzione WHERE id = :simulation_id",
+                parameters={"simulation_id": simulation_id},
+            )
+
+    def delete_simulation_spostamento(self, simulation_id: str) -> None:
+        """Delete a row from webapp_simulations_spostamento."""
+        with self._connection.cursor() as cursor:
+            cursor.execute(
+                "DELETE FROM ta_coll.whatif.webapp_simulations_spostamento WHERE id = :simulation_id",
+                parameters={"simulation_id": simulation_id},
+            )
+
+    def delete_scenario(self, scenario_id: str) -> None:
+        """Delete the scenario if it has no remaining simulations in either table."""
+        with self._connection.cursor() as cursor:
+            cursor.execute(
+                """
+                DELETE FROM ta_coll.whatif.webapp_scenarios
+                WHERE id = :id_scenario
+                AND NOT EXISTS (
+                    SELECT 1
+                    FROM ta_coll.whatif.webapp_simulations_sostituzione
+                    WHERE id_scenario = :id_scenario
+                )
+                AND NOT EXISTS (
+                    SELECT 1
+                    FROM ta_coll.whatif.webapp_simulations_spostamento
+                    WHERE id_scenario = :id_scenario
+                )
+                """,
+                parameters={"id_scenario": scenario_id},
+            )
+
     def get_spostamento_scenarios(
         self,
         search: str | None = None,

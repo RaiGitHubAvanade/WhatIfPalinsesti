@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useApp } from '../context/useApp'
-import { getScenarios } from '../services/apiScenarios'
+import { getScenarios, deleteSimulation } from '../services/apiScenarios'
+import { retrySimulation } from '../services/apiSimulation'
 import ScenCard from '../components/scenarios/ScenCard'
 import SimulationDetail from '../components/scenarios/SimulationDetail'
 import DaySelector from '../components/shared/DaySelector'
@@ -28,6 +29,7 @@ function mapToDisplay(apiScen) {
     canale: program_channel,
     share_storico: program_share_predict,
     from_time: program_from_time,
+    date: program_date,
   }
 
   const items = simulations.map(sim => {
@@ -102,7 +104,7 @@ function mapToDisplay(apiScen) {
 
 export default function Scenarios() {
   const navigate = useNavigate()
-  const { toast } = useApp()
+  const { toast, set } = useApp()
 
   const [scenarios, setScenarios] = useState([])
   const [loading, setLoading] = useState(true)
@@ -131,17 +133,6 @@ export default function Scenarios() {
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Local-only mutations (display state only — no DB writes) ──────────
-  function handleRemoveItem(scenId, idx) {
-    setScenarios(prev => prev
-      .map(item =>
-        item.id === scenId
-          ? { ...item, sc: { ...item.sc, items: item.sc.items.filter((_, i) => i !== idx) } }
-          : item
-      )
-      .filter(item => item.sc.items.length > 0)
-    )
-  }
-
   function handleDelete(scenId) {
     setScenarios(prev => prev.filter(item => item.id !== scenId))
   }
@@ -150,6 +141,34 @@ export default function Scenarios() {
     setScenarios(prev => prev.map(item =>
       item.id === scenId ? { ...item, sc: { ...item.sc, title } } : item
     ))
+  }
+
+  async function handleDeleteSim(scenId, simId, idx) {
+    try {
+      await deleteSimulation(simId)
+      setScenarios(prev => prev
+        .map(item =>
+          item.id === scenId
+            ? { ...item, sc: { ...item.sc, items: item.sc.items.filter((_, i) => i !== idx) } }
+            : item
+        )
+        .filter(item => item.sc.items.length > 0)
+      )
+    } catch (e) {
+      toast('Errore eliminazione: ' + e.message)
+    }
+  }
+
+  async function handleRetrySim(simId) {
+    try {
+      await retrySimulation(simId)
+      toast('Simulazione rilanciata.')
+      // Refresh to show updated Running status
+      const data = await getScenarios()
+      setScenarios((data.scenarios || []).map(mapToDisplay))
+    } catch (e) {
+      toast('Errore rilancio: ' + e.message)
+    }
   }
 
   // ── Client-side filtering ─────────────────────────────────────────────
@@ -265,11 +284,22 @@ export default function Scenarios() {
                   key={id}
                   scenId={id}
                   sc={sc}
-                  onRemoveItem={idx => handleRemoveItem(id, idx)}
                   onDelete={() => handleDelete(id)}
                   onRename={title => handleRename(id, title)}
-                  onAddSim={() => navigate('/simulazione')}
+                  onAddSim={() => {
+                    set({
+                      prog: sc.anchor,
+                      ch: sc.anchor.canale,
+                      date: sc.anchor.date || '',
+                      slot: sc.anchor.from_time ? `${sc.anchor.from_time.slice(0, 5)}-` : null,
+                      mode: sc.type,
+                      step: 2,
+                    })
+                    navigate('/simulazione', { state: { prefilled: true } })
+                  }}
                   onViewDetail={item => setSelectedItem(item)}
+                  onDeleteSim={(simId, idx) => handleDeleteSim(id, simId, idx)}
+                  onRetrySim={simId => handleRetrySim(simId)}
                 />
               ))}
             </div>

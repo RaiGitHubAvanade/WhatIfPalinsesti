@@ -22,7 +22,7 @@ function fmtDateShort(iso) {
  *   onAddSim: () => void,
  * }} props
  */
-export default function ScenCard({ scenId, sc, onRemoveItem, onDelete, onRename, onAddSim, onViewDetail }) {
+export default function ScenCard({ scenId, sc, onDelete, onRename, onAddSim, onViewDetail, onDeleteSim, onRetrySim }) {
   const [editing, setEditing] = useState(false)
   const [titleInput, setTitleInput] = useState('')
 
@@ -33,21 +33,9 @@ export default function ScenCard({ scenId, sc, onRemoveItem, onDelete, onRename,
 
   // Anchor datetime: combine first item date + anchor.time
   let anchorDateTime = '—'
-  if (sc.anchor?.time) {
-    const refDate = sc.items[0]?.date
-    if (refDate) {
-      try {
-        const d = new Date(`${refDate}T${sc.anchor.time}:00`)
-        anchorDateTime = d.toLocaleString('it-IT', {
-          day: '2-digit', month: '2-digit', year: 'numeric',
-          hour: '2-digit', minute: '2-digit',
-        })
-      } catch {
-        anchorDateTime = `${refDate} ${sc.anchor.time}`
-      }
-    } else {
-      anchorDateTime = sc.anchor.time
-    }
+  if (sc.anchor?.from_time) {
+    const time = sc.anchor.from_time.slice(0, 5)
+    anchorDateTime = sc.anchor.date ? `${sc.anchor.date} ${time}` : time
   }
 
   const createdTs = sc.createdAt
@@ -138,36 +126,57 @@ export default function ScenCard({ scenId, sc, onRemoveItem, onDelete, onRename,
           }
 
           return (
-            <div key={idx} className="scen-hcard-item">
+            <div
+              key={idx}
+              className={`scen-hcard-item${item._status === 'Completed' && onViewDetail ? ' scen-hcard-item--clickable' : ''}`}
+              onClick={item._status === 'Completed' && onViewDetail ? () => onViewDetail(item) : undefined}
+              role={item._status === 'Completed' && onViewDetail ? 'button' : undefined}
+              tabIndex={item._status === 'Completed' && onViewDetail ? 0 : undefined}
+              onKeyDown={item._status === 'Completed' && onViewDetail
+                ? (e) => { if (e.key === 'Enter' || e.key === ' ') onViewDetail(item) }
+                : undefined}
+            >
               <div className="scen-item-sub">
                 <span className="scen-item-emoji">{emoji}</span>
                 <span className="scen-item-name">{candName}</span>
                 {candShare !== null && (
                   <span className="scen-item-cursare">{candShare.toFixed(1)}%</span>
                 )}
+                {item._status === 'Running' && (
+                  <span className="scen-item-status scen-item-status--running" title="Simulazione in corso">⏳</span>
+                )}
+                {item._status === 'Failed' && (
+                  <span className="scen-item-status scen-item-status--failed" title="Simulazione fallita">❌</span>
+                )}
               </div>
               <div className="scen-item-result">
-                {predicted !== null ? (
+                {item._status === 'Completed' && predicted !== null ? (
                   <span className="scen-item-pred" style={{ color: deltaColor }}>
                     {predicted.toFixed(1)}%
                     {delta !== null && (
                       <small>&nbsp;{delta >= 0 ? '+' : ''}{delta.toFixed(1)} pp</small>
                     )}
                   </span>
+                ) : item._status === 'Running' ? (
+                  <span className="scen-item-status-lbl">In elaborazione…</span>
+                ) : item._status === 'Failed' ? (
+                  <span className="scen-item-status-lbl scen-item-status-lbl--failed">Fallita</span>
                 ) : <span />}
-                <div className="scen-item-actions">
-                  {item.result && onViewDetail && (
+                <div className="scen-item-actions" onClick={e => e.stopPropagation()}>
+                  {item._status === 'Failed' && onRetrySim && (
                     <button
                       className="scen-icon-btn"
-                      onClick={() => onViewDetail(item)}
-                      title="Vedi dettaglio simulazione"
-                    >🔍</button>
+                      onClick={() => onRetrySim(item._sim_id)}
+                      title="Rilancia simulazione"
+                    >🔄</button>
                   )}
-                  <button
-                    className="scen-icon-btn"
-                    onClick={() => onRemoveItem(idx)}
-                    title="Rimuovi simulazione"
-                  >🗑️</button>
+                  {item._status !== 'Running' && onDeleteSim && (
+                    <button
+                      className="scen-icon-btn"
+                      onClick={() => onDeleteSim(item._sim_id, idx)}
+                      title="Rimuovi simulazione"
+                    >🗑️</button>
+                  )}
                 </div>
               </div>
             </div>

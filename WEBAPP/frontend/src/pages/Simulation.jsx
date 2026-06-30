@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
 import { useApp } from '../context/useApp'
 import ProgBar from '../components/simulation/ProgBar'
 import StepProgram from '../components/simulation/StepProgram'
@@ -13,9 +14,12 @@ import './Simulation.css'
 export default function Simulation() {
   const { state, resetSim } = useApp()
   const { mode, step } = state
+  const location = useLocation()
 
-  // Every navigation to /simulazione starts fresh at step 0
-  useEffect(() => { resetSim() }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  // Reset only on fresh navigation; skip when pre-filled from Scenarios page
+  useEffect(() => {
+    if (!location.state?.prefilled) resetSim()
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const stepLabels = [
     'Seleziona Programma',
