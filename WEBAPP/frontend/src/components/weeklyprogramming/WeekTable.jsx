@@ -74,7 +74,7 @@ export default function WeekTable({ rows, loading, weekStart, weekLabel, wCh }) 
               <th>Programma</th>
               <th>Previsto</th>
               <th>Manuale</th>
-              <th>Reale</th>
+              <th>Auditel</th>
               <th>Scostamento</th>
               <th>Altri Canali</th>
             </tr>
