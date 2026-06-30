@@ -76,7 +76,7 @@ export default function StepCandidates() {
             value={ch}
             onChange={(e) => { setCh(e.target.value); set({ cand: null }); setPage(1) }}
           >
-            <option value="">—</option>
+            <option value="">Tutti</option>
             {['Rai 1', 'Rai 2', 'Rai 3'].map((c) => (
               <option key={c} value={c}>{c}</option>
             ))}
@@ -91,7 +91,7 @@ export default function StepCandidates() {
             value={targetSex}
             onChange={(e) => { setTargetSex(e.target.value); set({ cand: null }); setPage(1) }}
           >
-            <option value="">—</option>
+            <option value="">Entrambi</option>
             {['Uomo', 'Donna', 'Tutti'].map((g) => (
               <option key={g} value={g}>{g}</option>
             ))}
@@ -106,7 +106,7 @@ export default function StepCandidates() {
             value={targetAge}
             onChange={(e) => { setTargetAge(e.target.value); set({ cand: null }); setPage(1) }}
           >
-            <option value="">—</option>
+            <option value="">Tutte</option>
             {['15+', '25+', '35+', '45+', '55+', '65+', '70+'].map((a) => (
               <option key={a} value={a}>{a}</option>
             ))}
@@ -121,7 +121,7 @@ export default function StepCandidates() {
             value={shareMin}
             onChange={(e) => { setShareMin(e.target.value); set({ cand: null }); setPage(1) }}
           >
-            <option value="">—</option>
+            <option value="">Nessuna</option>
             {['10', '20', '30', '40', '50', '60', '70', '80'].map((s) => (
               <option key={s} value={s}>{s}%</option>
             ))}

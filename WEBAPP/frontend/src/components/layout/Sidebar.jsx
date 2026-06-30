@@ -24,7 +24,6 @@ export default function Sidebar() {
       </div>
 
       <div className="sb-nav">
-        <div className="sb-sect">Navigazione</div>
         {NAV_ITEMS.map(({ to, label, ico, exact }) => (
           <NavLink
             key={to}

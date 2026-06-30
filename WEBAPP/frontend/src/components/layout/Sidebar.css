@@ -9,7 +9,6 @@
 .sb-name { font-size: 18px; font-weight: 900; color: #fff; letter-spacing: -.5px; }
 .sb-sub { font-size: 12px; color: rgba(255,255,255,.6); font-weight: 700; letter-spacing: .8px; text-transform: uppercase; margin-top: 2px; }
 .sb-nav { flex: 1; padding: 10px 0; }
-.sb-sect { font-size: 10px; font-weight: 700; color: rgba(255,255,255,.38); letter-spacing: .8px; text-transform: uppercase; padding: 14px 20px 4px; }
 .sb-item {
   display: flex; align-items: center; gap: 11px;
   padding: 12px 20px; cursor: pointer;
@@ -27,7 +26,6 @@
 @media (max-width: 768px) {
   .sidebar { width: 70px; }
   .sb-name, .sb-sub { display: none; }
-  .sb-sect { padding: 10px 0; font-size: 9px; display: none; }
   .sb-item { padding: 12px 8px; gap: 8px; font-size: 12px; justify-content: center; }
   .sb-item span:not(.ico) { display: none; }
 }
