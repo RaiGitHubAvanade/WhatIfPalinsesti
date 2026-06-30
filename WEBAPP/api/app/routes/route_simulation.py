@@ -137,11 +137,8 @@ def start_sostituzione():
     return error(message=message, errors=["simulation_conflict"]), status_code
 
 
-# ------------------------------------------------------------------ #
-# Simulation lifecycle — retry
-# ------------------------------------------------------------------ #
-
-@bp.route("/simulation/simulation/<simulation_id>/retry", methods=["POST"])
+# Simulation: Retry Sostituzione
+@bp.route("/simulation/<simulation_id>/retry", methods=["POST"])
 def retry_simulation(simulation_id):
     logger.info("retrySimulation | id=%s", simulation_id)
     try:

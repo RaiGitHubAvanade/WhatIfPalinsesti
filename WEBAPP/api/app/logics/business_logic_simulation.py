@@ -15,42 +15,7 @@ from app.view_models.simulation import (
     ScheduleItemViewModel,
     ChannelScheduleViewModel,
 )
-from app.models.program import Program
 from app.view_models.weekly_programming import OtherProgramViewModel
-
-
-# ------------------------------------------------------------------ #
-# Async simulation runner (module-level to avoid circular imports)
-# ------------------------------------------------------------------ #
-
-def _run_simulation_async(simulation_id: str, payload: dict) -> None:
-    """Background thread: calls the AI service and updates the simulation record."""
-    from app.services.databricks_service_simulation import DatabricksServiceSimulation  # noqa: PLC0415
-    from app.services.ai_service import AiService  # noqa: PLC0415
-
-    logger = logging.getLogger(__name__)
-    svc = DatabricksServiceSimulation()
-    ai = AiService()
-
-    try:
-        logger.info("_run_simulation_async | simulation_id=%s START", simulation_id)
-        result = ai.call_sostituzione(payload)
-        svc.update_simulation(
-            simulation_id,
-            share_result=result["predicted_share_pct"],
-            status="Completed",
-            modified_date=datetime.now(timezone.utc),
-        )
-        logger.info("_run_simulation_async | simulation_id=%s COMPLETED result=%s", simulation_id, result["predicted_share_pct"])
-    except Exception as exc:
-        logger.exception("_run_simulation_async | simulation_id=%s FAILED: %s", simulation_id, exc)
-        svc.update_simulation(
-            simulation_id,
-            status="Failed",
-            modified_date=datetime.now(timezone.utc),
-            last_error=str(exc),
-            is_retry=True,
-        )
 
 
 class BusinessLogicSimulation:
@@ -78,29 +43,6 @@ class BusinessLogicSimulation:
             for row in rows
         ]
 
-    def retry_simulation(self, simulation_id: str) -> tuple[str, int]:
-        """Validate a failed simulation then delegate to start_sostituzione."""
-        try:
-            row = self._service.get_simulation_for_retry(simulation_id)
-        except Exception as e:
-            raise RuntimeError(f"Errore nel recupero della simulazione: {e}") from e
-
-        if row is None:
-            raise ValueError("Simulazione non trovata")
-        if row.get("status") != "Failed" or not row.get("is_retry"):
-            raise ValueError("Solo le simulazioni fallite possono essere rilanciate")
-
-        req = SimulationSostRequest(
-            program_name=row.get("program_name"),
-            program_channel=row.get("program_channel"),
-            program_date=str(row.get("program_date")) if row.get("program_date") else None,
-            program_from_time=row.get("program_from_time"),
-            scenario_type=row.get("scenario_type"),
-            new_program_name=row.get("new_program_name"),
-            new_program_share_storico=row.get("new_program_share_storico"),
-            program_share_predict=row.get("program_share_predict"),
-        )
-        return self.start_sostituzione(req)
 
     def get_candidate_programs(
         self,
@@ -257,9 +199,35 @@ class BusinessLogicSimulation:
             self._launch_thread(simulation_id, req.to_payload())
             return "Simulazione avviata. Lo stato può essere verificato nella pagina Scenari.", 202
 
+
+    def retry_simulation(self, simulation_id: str) -> tuple[str, int]:
+        """Validate a failed simulation then delegate to start_sostituzione."""
+        try:
+            row = self._service.get_simulation_for_retry(simulation_id)
+        except Exception as e:
+            raise RuntimeError(f"Errore nel recupero della simulazione: {e}") from e
+
+        if row is None:
+            raise ValueError("Simulazione non trovata")
+        if row.get("status") != "Failed" or not row.get("is_retry"):
+            raise ValueError("Solo le simulazioni fallite possono essere rilanciate")
+
+        req = SimulationSostRequest(
+            program_name=row.get("program_name"),
+            program_channel=row.get("program_channel"),
+            program_date=str(row.get("program_date")) if row.get("program_date") else None,
+            program_from_time=row.get("program_from_time"),
+            scenario_type=row.get("scenario_type"),
+            new_program_name=row.get("new_program_name"),
+            new_program_share_storico=row.get("new_program_share_storico"),
+            program_share_predict=row.get("program_share_predict"),
+        )
+        return self.start_sostituzione(req)
+
+
     def _launch_thread(self, simulation_id: str, body: dict) -> None:
         thread = threading.Thread(
-            target=_run_simulation_async,
+            target=self._run_simulation_async,
             args=(simulation_id, body),
             daemon=True,
         )
@@ -267,190 +235,31 @@ class BusinessLogicSimulation:
         self._logger.info("_launch_thread | simulation_id=%s thread started", simulation_id)
 
 
+    def _run_simulation_async(self, simulation_id: str, payload: dict) -> None:
+        """Background thread: calls the AI service and updates the simulation record."""
+        from app.services.databricks_service_simulation import DatabricksServiceSimulation  # noqa: PLC0415
+        from app.services.ai_service import AiService  # noqa: PLC0415
 
-# # ------------------------------------------------------------------ #
-# # MOCKED
-# # ------------------------------------------------------------------ #
+        logger = logging.getLogger(__name__)
+        svc = DatabricksServiceSimulation()
+        ai = AiService()
 
-    def get_programs(
-        self,
-        ch: str | None = None,
-        date: str | None = None,
-        from_time: str | None = None,
-        to_time: str | None = None,
-        search: str | None = None,
-    ) -> ProgramListViewModel:
         try:
-            rows = self._service.get_programs(
-                ch=ch, date=date, from_time=from_time, to_time=to_time, search=search
+            logger.info("_run_simulation_async | simulation_id=%s START", simulation_id)
+            result = ai.call_sostituzione(payload)
+            svc.update_simulation(
+                simulation_id,
+                share_result=result["predicted_share_pct"],
+                status="Completed",
+                modified_date=datetime.now(timezone.utc),
             )
-        except Exception as e:
-            raise RuntimeError(f"Errore nel recupero dei programmi: {e}") from e
-
-        items = [
-            ProgramItemViewModel(
-                id=p["id"],
-                title=p["title"],
-                genre=p.get("genre"),
-                time=p.get("time"),
-                end=p.get("end"),
-                dur=p.get("dur"),
-                ch=p.get("ch", ""),
-                share=p.get("share"),
-                eta=p.get("eta"),
-                sesso=p.get("sesso"),
-                tipo=p.get("tipo"),
-                slot=p.get("slot"),
+            logger.info("_run_simulation_async | simulation_id=%s COMPLETED result=%s", simulation_id, result["predicted_share_pct"])
+        except Exception as exc:
+            logger.exception("_run_simulation_async | simulation_id=%s FAILED: %s", simulation_id, exc)
+            svc.update_simulation(
+                simulation_id,
+                status="Failed",
+                modified_date=datetime.now(timezone.utc),
+                last_error=str(exc),
+                is_retry=True,
             )
-            for p in rows
-        ]
-        return ProgramListViewModel(programs=items, total=len(items))
-
-
-    def get_candidates(
-        self,
-        exclude_id: str | None = None,
-        ch: str | None = None,
-        search: str | None = None,
-        genere: str | None = None,
-        eta: str | None = None,
-        share_min: float | None = None,
-        target_dur: int | None = None,
-    ) -> ProgramListViewModel:
-        try:
-            rows = self._service.get_candidates(
-                exclude_id=exclude_id,
-                ch=ch,
-                search=search,
-                genere=genere,
-                eta=eta,
-                share_min=share_min,
-                target_dur=target_dur,
-            )
-        except Exception as e:
-            raise RuntimeError(f"Errore nel recupero dei candidati: {e}") from e
-
-        items = [
-            ProgramItemViewModel(
-                id=p["id"],
-                title=p["title"],
-                genre=p.get("genre"),
-                time=p.get("time"),
-                end=p.get("end"),
-                dur=p.get("dur"),
-                ch=p.get("ch", ""),
-                share=p.get("share"),
-                eta=p.get("eta"),
-                sesso=p.get("sesso"),
-                tipo=p.get("tipo"),
-                slot=p.get("slot"),
-            )
-            for p in rows
-        ]
-        return ProgramListViewModel(programs=items, total=len(items))
-
-
-    def get_competitors(self, slot: str | None = None) -> CompetitorListViewModel:
-        try:
-            rows = self._service.get_competitors(slot=slot)
-        except Exception as e:
-            raise RuntimeError(f"Errore nel recupero dei competitor: {e}") from e
-
-        items = [
-            CompetitorItemViewModel(
-                title=c["title"],
-                ch=c.get("ch", ""),
-                tipo=c.get("tipo"),
-                share=c.get("share"),
-                evento=c.get("evento", False),
-            )
-            for c in rows
-        ]
-        return CompetitorListViewModel(competitors=items)
-
-
-    def simulate_sostituzione(
-        self,
-        orig_id: str,
-        cand_id: str,
-    ) -> SimResultSostViewModel:
-        try:
-            pred = self._service.predict_sostituzione(orig_id, cand_id)
-        except Exception as e:
-            raise RuntimeError(f"Errore nella simulazione di sostituzione: {e}") from e
-
-        from app.data.mocked_data import PROGS  # noqa: PLC0415
-        orig = next((p for p in PROGS if p["id"] == orig_id), {})
-        cand = next((p for p in PROGS if p["id"] == cand_id), {})
-
-        return SimResultSostViewModel(
-            mode="sostituzione",
-            orig_title=orig.get("title", orig_id),
-            orig_share=orig.get("share"),
-            orig_ch=orig.get("ch", ""),
-            orig_time=orig.get("time"),
-            orig_end=orig.get("end"),
-            cand_title=cand.get("title", cand_id),
-            cand_share=cand.get("share"),
-            predicted_share=pred.get("pred"),
-            delta=pred.get("delta"),
-        )
-
-
-    def simulate_spostamento(
-        self,
-        prog_id: str,
-        dest_ch: str,
-        dest_day: str,
-        dest_time: str,
-    ) -> SimResultSpostaViewModel:
-        try:
-            pred = self._service.predict_spostamento(prog_id, dest_ch, dest_time)
-        except Exception as e:
-            raise RuntimeError(f"Errore nella simulazione di spostamento: {e}") from e
-
-        from app.data.mocked_data import PROGS  # noqa: PLC0415
-        prog = next((p for p in PROGS if p["id"] == prog_id), {})
-
-        return SimResultSpostaViewModel(
-            mode="spostamento",
-            prog_title=prog.get("title", prog_id),
-            orig_ch=prog.get("ch", ""),
-            orig_date=prog.get("date", ""),
-            orig_time=prog.get("time"),
-            orig_end=prog.get("end"),
-            orig_slot_share=pred.get("orig_slot_share"),
-            dest_ch=dest_ch,
-            dest_date=dest_day,
-            dest_time=dest_time,
-            dest_slot_share=pred.get("dest_slot_share"),
-            delta=pred.get("delta"),
-        )
-
-
-    def get_channel_schedule(
-        self,
-        ch: str,
-        dest_time: str,
-    ) -> ChannelScheduleViewModel:
-        try:
-            rows = self._service.get_channel_schedule(ch=ch, dest_time=dest_time)
-        except Exception as e:
-            raise RuntimeError(f"Errore nel recupero del palinsesto: {e}") from e
-
-        items = [
-            ScheduleItemViewModel(
-                id=p["id"],
-                title=p["title"],
-                time=p.get("time", ""),
-                end=p.get("end"),
-                dur=p.get("dur"),
-                share=p.get("share"),
-                tipo=p.get("tipo"),
-                genre=p.get("genre"),
-            )
-            for p in rows
-        ]
-        return ChannelScheduleViewModel(
-            ch=ch, date="", dest_time=dest_time, programs=items
-        )

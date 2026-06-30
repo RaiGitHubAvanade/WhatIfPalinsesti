@@ -23,6 +23,7 @@ class BusinessLogicScenarios:
         self._service = service
         self._logger = logging.getLogger(__name__)
 
+
     def get_scenarios(
         self,
         search: str | None = None,
@@ -97,6 +98,7 @@ class BusinessLogicScenarios:
         )
         return ScenarioListViewModel(scenarios=sorted_list, total=len(sorted_list))
 
+
     def delete_simulation(self, simulation_id: str) -> None:
         try:
             info = self._service.get_delete_informations(simulation_id)
@@ -120,7 +122,7 @@ class BusinessLogicScenarios:
         except Exception as e:
             raise RuntimeError(f"Errore nell'eliminazione della simulazione: {e}") from e
 
-    # ------------------------------------------------------------------ #
+
 
     def _upsert_scenario(self, scenarios_map: dict, row: dict) -> None:
         """Insert a ScenarioViewModel into the map if not already present."""
