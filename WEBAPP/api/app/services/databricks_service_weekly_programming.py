@@ -160,7 +160,7 @@ class DatabricksServiceWeeklyProgramming(DatabricksService):
         channel_params = {f"ch{i}": ch for i, ch in enumerate(channel_order)}
         placeholders = ", ".join(f":ch{i}" for i in range(len(channel_order)))
         query = f"""
-            SELECT Canale, Programma, orario_inizio, orario_fine 
+            SELECT Canale, Data, Programma, orario_inizio, orario_fine 
             FROM ta_coll.whatif.vw_output_palinsesto_futuro 
             WHERE Data = :day 
             AND Canale IN ({placeholders}) 
