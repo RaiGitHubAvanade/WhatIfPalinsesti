@@ -104,7 +104,7 @@ export default function StepCandidates() {
             onChange={(e) => { setTargetAge(e.target.value); set({ cand: null }); setPage(1) }}
           >
             <option value="">Tutte</option>
-            {['15+', '25+', '35+', '45+', '55+', '65+', '70+'].map((a) => (
+            {['45+', '55+', '70+', '75+'].map((a) => (
               <option key={a} value={a}>{a}</option>
             ))}
           </select>

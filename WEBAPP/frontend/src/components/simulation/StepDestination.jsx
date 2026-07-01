@@ -3,17 +3,12 @@ import { useApp } from '../../context/useApp'
 import { getSimulationSchedule } from '../../services/apiSimulation'
 import ChannelSelector from '../shared/ChannelSelector'
 import DaySelector from '../shared/DaySelector'
+import { TimePicker } from './TimeSelector'
 import './StepDestination.css'
 
 /** @typedef {import('../../models/simulation/channelScheduleViewModel').ScheduleItem} ScheduleItem */
 
 const PAGE_SIZE = 8
-const DEST_HOURS = [
-  '06:00', '07:00', '08:00', '09:00', '10:00', '11:00', '12:00',
-  '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00',
-  '20:00', '20:30', '21:00', '21:30', '22:00', '22:30',
-  '23:00', '23:30', '00:00', '01:00', '02:00',
-]
 
 function fmtDate(iso) {
   if (!iso) return '—'
@@ -74,16 +69,10 @@ export default function StepDestination() {
         {/* Time */}
         <div className="psel-fg">
           <span className="psel-fg-lbl">Orario</span>
-          <select
-            className="psel-select dest-time-select"
+          <TimePicker
             value={spDestTime || ''}
-            onChange={(e) => set({ spDestTime: e.target.value || null })}
-          >
-            <option value="">Seleziona orario…</option>
-            {DEST_HOURS.map((h) => (
-              <option key={h} value={h}>{h}</option>
-            ))}
-          </select>
+            onChange={val => set({ spDestTime: val || null })}
+          />
         </div>
       </div>
 

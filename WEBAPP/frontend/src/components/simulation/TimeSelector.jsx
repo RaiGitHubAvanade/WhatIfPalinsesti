@@ -1,18 +1,64 @@
+import { useState, useRef, useEffect } from 'react'
 import './TimeSelector.css'
 
-const HOURS = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0') + ':00')
+/** 00:00, 00:30, 01:00 … 23:30 */
+const SLOTS = Array.from({ length: 48 }, (_, i) => {
+  const h = Math.floor(i / 2)
+  const m = i % 2 === 0 ? '00' : '30'
+  return `${String(h).padStart(2, '0')}:${m}`
+})
 
-/**
- * HH:MM–HH:MM time-range selector for the simulation filter bar.
- *
- * @param {Object}   props
- * @param {string}   [props.fromTime]   - Selected start hour ('HH:00') or ''
- * @param {string}   [props.toTime]     - Selected end hour ('HH:00') or ''
- * @param {function}  props.onFromChange
- * @param {function}  props.onToChange
- * @param {boolean}  [props.hasClear]   - Show × clear button
- * @param {function} [props.onClear]
- */
+export function TimePicker({ value, onChange }) {
+  const [open, setOpen] = useState(false)
+  const wrapRef = useRef(null)
+  const selectedRef = useRef(null)
+
+  // Close on outside click
+  useEffect(() => {
+    if (!open) return
+    function onDown(e) {
+      if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false)
+    }
+    document.addEventListener('mousedown', onDown)
+    return () => document.removeEventListener('mousedown', onDown)
+  }, [open])
+
+  // Scroll selected option into view when opening
+  useEffect(() => {
+    if (open && selectedRef.current) {
+      selectedRef.current.scrollIntoView({ block: 'center' })
+    }
+  }, [open])
+
+  return (
+    <div className="tp-wrap" ref={wrapRef}>
+      <button
+        type="button"
+        className={`tp-trigger${value ? ' tp-trigger--set' : ''}`}
+        onClick={() => setOpen(o => !o)}
+      >
+        {value || '--'}
+      </button>
+      {open && (
+        <div className="tp-dropdown">
+          <div
+            className="tp-option tp-option--empty"
+            onClick={() => { onChange(''); setOpen(false) }}
+          >--</div>
+          {SLOTS.map(s => (
+            <div
+              key={s}
+              ref={value === s ? selectedRef : null}
+              className={`tp-option${value === s ? ' tp-option--sel' : ''}`}
+              onClick={() => { onChange(s); setOpen(false) }}
+            >{s}</div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function TimeSelector({
   fromTime = '',
   toTime = '',
@@ -26,23 +72,9 @@ export default function TimeSelector({
       <span className="time-sel__lbl">Orario</span>
       <div className="time-sel__row">
         <span className="time-sel__unit">Da</span>
-        <select
-          className="time-sel__select"
-          value={fromTime}
-          onChange={e => onFromChange(e.target.value)}
-        >
-          <option value="">--</option>
-          {HOURS.map(h => <option key={h} value={h}>{h}</option>)}
-        </select>
+        <TimePicker value={fromTime} onChange={onFromChange} />
         <span className="time-sel__unit">A</span>
-        <select
-          className="time-sel__select"
-          value={toTime}
-          onChange={e => onToChange(e.target.value)}
-        >
-          <option value="">--</option>
-          {HOURS.map(h => <option key={h} value={h}>{h}</option>)}
-        </select>
+        <TimePicker value={toTime} onChange={onToChange} />
         {hasClear && onClear && (
           <button className="time-sel__clear" onClick={onClear} type="button">×</button>
         )}
