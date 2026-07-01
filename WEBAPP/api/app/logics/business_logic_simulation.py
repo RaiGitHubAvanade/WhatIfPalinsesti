@@ -27,14 +27,9 @@ class BusinessLogicSimulation:
     def get_target_programs(
         self,
         day,
-        channel: str | None = None,
-        from_time: str | None = None,
-        to_time: str | None = None,
     ) -> list[OtherProgramViewModel]:
         try:
-            rows = self._service.get_out_palinsesto_predict_all_slots(
-                day=day, channel=channel, from_time=from_time, to_time=to_time
-            )
+            rows = self._service.get_out_palinsesto_predict_all_slots(day=day)
         except Exception as e:
             raise RuntimeError(f"Errore nel recupero del palinsesto RAI: {e}") from e
 
@@ -44,22 +39,9 @@ class BusinessLogicSimulation:
         ]
 
 
-    def get_candidate_programs(
-        self,
-        program_name: str | None = None,
-        channel: str | None = None,
-        target_sex: str | None = None,
-        target_age: str | None = None,
-        min_share: float | None = None,
-    ) -> list[OtherProgramViewModel]:
+    def get_candidate_programs(self) -> list[OtherProgramViewModel]:
         try:
-            rows = self._service.get_candidate_programs(
-                program_name=program_name,
-                channel=channel,
-                target_sex=target_sex,
-                target_age=target_age,
-                min_share=min_share,
-            )
+            rows = self._service.get_candidate_programs()
         except Exception as e:
             raise RuntimeError(f"Errore nel recupero dei programmi candidati: {e}") from e
 

@@ -12,42 +12,17 @@ class DatabricksServiceSimulation(DatabricksService):
     def get_out_palinsesto_predict_all_slots(
         self,
         day: date,
-        channel: str | None = None,
-        from_time: str | None = None,
-        to_time: str | None = None,
     ) -> list[Program]:
-        """Fetch programs overlapping [from_time, to_time] on the given day.
-        All filters except *day* are optional."""
-        conditions: list[str] = ["Data = :day"]
-        params: dict = {"day": day}
-
-        if channel:
-            conditions.append("Canale = :channel")
-            params["channel"] = channel
-
-        if from_time is not None:
-            conditions.append(
-                "(CASE WHEN INT(split(orario_fine, ':')[0]) < 6 "
-                "THEN INT(split(orario_fine, ':')[0]) * 60 + INT(split(orario_fine, ':')[1]) + 1440 "
-                "ELSE INT(split(orario_fine, ':')[0]) * 60 + INT(split(orario_fine, ':')[1]) END) > :overlap_from"
-            )
-            params["overlap_from"] = DateTimeUtils.hhmm_to_minutes(from_time)
-
-        if to_time is not None:
-            conditions.append(
-                "(CASE WHEN INT(split(orario_inizio, ':')[0]) < 6 "
-                "THEN INT(split(orario_inizio, ':')[0]) * 60 + INT(split(orario_inizio, ':')[1]) + 1440 "
-                "ELSE INT(split(orario_inizio, ':')[0]) * 60 + INT(split(orario_inizio, ':')[1]) END) < :overlap_to"
-            )
-            params["overlap_to"] = DateTimeUtils.hhmm_to_minutes(to_time)
-
-        query = f"""
+        """Fetch all programs for the given day (channel/time filtering done client-side)."""
+        query = """
             SELECT Canale, Data, Programma, orario_inizio, orario_fine,
                    share_predetto, target_genere, target_eta, DES_GENERE_ESTESA_INT
             FROM ta_coll.whatif.out_palinsesto_predict_all_slots
-            WHERE {' AND '.join(conditions)}
+            WHERE Data = :day
             ORDER BY orario_inizio
         """
+        params = {"day": day}
+        
         self._logger.info(f"Query: {query} with params {params}")
 
         with self._connection.cursor() as cursor:
@@ -77,52 +52,28 @@ class DatabricksServiceSimulation(DatabricksService):
               ON sim.id_scenario = sce.id
             WHERE sim.id = :simulation_id
         """
-        self._logger.info("get_simulation_for_retry | id=%s", simulation_id)
-        with self._connection.cursor() as cursor:
-            cursor.execute(query, parameters={"simulation_id": simulation_id})
-            columns = [col[0] for col in cursor.description]
-            row = cursor.fetchone()
-        return dict(zip(columns, row)) if row else None
+        params = {"simulation_id": simulation_id}
 
-    def get_candidate_programs(
-        self,
-        program_name: str | None = None,
-        channel: str | None = None,
-        target_sex: str | None = None,
-        target_age: str | None = None,
-        min_share: float | None = None,
-    ) -> list[Program]:
-        """Fetch candidate replacement programs from output_lista_programmi_sostituzione."""
-        conditions: list[str] = []
-        params: dict = {}
-
-        if program_name:
-            conditions.append("LOWER(titolo) LIKE :program_name")
-            params["program_name"] = f"%{program_name.lower()}%"
-        if channel:
-            conditions.append("canale = :channel")
-            params["channel"] = channel
-        if target_sex:
-            conditions.append("genere = :target_sex")
-            params["target_sex"] = target_sex
-        if target_age:
-            conditions.append("eta = :target_age")
-            params["target_age"] = target_age
-        if min_share is not None and min_share > 0:
-            conditions.append("share_storico_pct > :min_share")
-            params["min_share"] = min_share
-
-        where_clause = ("WHERE " + " AND ".join(conditions)) if conditions else ""
-        query = f"""
-            SELECT titolo, canale, tipologia, genere, eta, share_storico_pct
-            FROM ta_coll.whatif.output_lista_programmi_sostituzione
-            {where_clause}
-            ORDER BY share_storico_pct DESC
-        """
-        self._logger.info("get_candidate_programs | params=%s", params)
+        self._logger.info(f"Query: {query} with params {params}")
 
         with self._connection.cursor() as cursor:
             cursor.execute(query, parameters=params)
+            columns = [col[0] for col in cursor.description]
+            row = cursor.fetchone()
+            
+        return dict(zip(columns, row)) if row else None
+
+    def get_candidate_programs(self) -> list[Program]:
+        """Fetch all candidate replacement programs (filtering done client-side)."""
+        query = """
+            SELECT titolo, canale, tipologia, genere, eta, share_storico_pct
+            FROM ta_coll.whatif.output_lista_programmi_sostituzione
+            ORDER BY share_storico_pct DESC
+        """
+        self._logger.info(f"Query: {query}")
+
+        with self._connection.cursor() as cursor:
+            cursor.execute(query, parameters={})
             rows = cursor.fetchall()
 
         return [Program.MapProgramFromCandidateRow(row) for row in rows]
@@ -172,12 +123,16 @@ class DatabricksServiceSimulation(DatabricksService):
             "program_from_time": program_from_time,
             "scenario_type": scenario_type,
         }
+        
         self._logger.info(f"Query: {query} with params {params}")
 
         with self._connection.cursor() as cursor:
             cursor.execute(query, parameters=params)
             columns = [col[0] for col in cursor.description]
-            return [dict(zip(columns, row)) for row in cursor.fetchall()]
+            rows = [dict(zip(columns, row)) for row in cursor.fetchall()]
+
+        return rows
+
 
     def insert_scenario(self, scenario: dict) -> None:
         """Insert a new row into webapp_scenarios."""
@@ -191,10 +146,11 @@ class DatabricksServiceSimulation(DatabricksService):
                  :program_share_predict, :program_date, :program_from_time,
                  :creation_date)
         """
-        self._logger.info("insert_scenario | id=%s", scenario.get("id"))
+        self._logger.info(f"Query: {query} with id {scenario.get('id')}")
 
         with self._connection.cursor() as cursor:
             cursor.execute(query, parameters=scenario)
+
 
     def insert_simulation(self, simulation: dict) -> None:
         """Insert a new row into webapp_simulations_sostituzione."""
@@ -208,10 +164,12 @@ class DatabricksServiceSimulation(DatabricksService):
                  :share_result, :status, :creation_date, :modified_date,
                  :last_error, :is_retry)
         """
-        self._logger.info("insert_simulation | id=%s id_scenario=%s", simulation.get("id"), simulation.get("id_scenario"))
+
+        self._logger.info(f"Query: {query} with id {simulation.get('id')}, scenario_id {simulation.get('id_scenario')}")
 
         with self._connection.cursor() as cursor:
             cursor.execute(query, parameters=simulation)
+
 
     def update_simulation(self, simulation_id: str, **fields) -> None:
         """Update specific fields on a webapp_simulations row.
@@ -237,7 +195,8 @@ class DatabricksServiceSimulation(DatabricksService):
             SET    {', '.join(set_parts)}
             WHERE  id = :simulation_id
         """
-        self._logger.info("update_simulation | id=%s fields=%s", simulation_id, list(fields.keys()))
+
+        self._logger.info(f"Query: {query} with id {simulation_id}")
 
         with self._connection.cursor() as cursor:
             cursor.execute(query, parameters=params)
@@ -283,7 +242,7 @@ class DatabricksServiceSimulation(DatabricksService):
             WHERE {' AND '.join(conditions)}
             ORDER BY start_time
         """
-        self._logger.info("get_programs | params=%s", params)
+        self._logger.info(f"Query: {query} with params {params}")
 
         with self._connection.cursor() as cursor:
             cursor.execute(query, parameters=params)
@@ -331,7 +290,7 @@ class DatabricksServiceSimulation(DatabricksService):
             WHERE {' AND '.join(conditions)}
             ORDER BY share DESC
         """
-        self._logger.info("get_candidates | params=%s", params)
+        self._logger.info(f"Query: {query} with params {params}")
 
         with self._connection.cursor() as cursor:
             cursor.execute(query, parameters=params)
@@ -349,7 +308,7 @@ class DatabricksServiceSimulation(DatabricksService):
             ORDER BY share DESC
             LIMIT 6
         """
-        self._logger.info("get_competitors | slot=%s", params["slot"])
+        self._logger.info(f"Query: {query} with params {params}")
 
         with self._connection.cursor() as cursor:
             cursor.execute(query, parameters=params)
@@ -377,7 +336,7 @@ class DatabricksServiceSimulation(DatabricksService):
         range_end   = f"{(dest_min + 120) // 60:02d}:{(dest_min + 120) % 60:02d}"
         params = {"ch": ch, "range_start": range_start, "range_end": range_end}
 
-        self._logger.info("get_channel_schedule | ch=%s dest_time=%s", ch, dest_time)
+        self._logger.info(f"Query: {query} with params {params}")
 
         with self._connection.cursor() as cursor:
             cursor.execute(query, parameters=params)

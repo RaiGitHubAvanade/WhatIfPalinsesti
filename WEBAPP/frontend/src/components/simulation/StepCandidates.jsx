@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useCallback } from 'react'
+﻿import { useState, useEffect, useMemo } from 'react'
 import { useApp } from '../../context/useApp'
 import { getCandidatePrograms } from '../../services/apiSimulation'
 import './StepCandidates.css'
@@ -18,41 +18,38 @@ export default function StepCandidates() {
   const [targetAge, setTargetAge] = useState('')
   const [shareMin, setShareMin] = useState('')
 
-  const [candidates, setCandidates] = useState(/** @type {OtherProgramViewModel[]} */ ([]))
-  const [loading, setLoading] = useState(false)
+  const [rawData, setRawData] = useState(/** @type {OtherProgramViewModel[]} */ ([]))
+  const [loading, setLoading] = useState(true)
   const [page, setPage] = useState(1)
 
-  const hasFilters = !!(ch || search || targetSex || targetAge || shareMin)
-
-  const fetchCandidates = useCallback(async () => {
-    if (!hasFilters) { setCandidates([]); return }
-    setLoading(true)
-    try {
-      const data = await getCandidatePrograms({
-        program_name: search,
-        channel: ch || null,
-        target_sex: targetSex,
-        target_age: targetAge,
-        min_share: shareMin,
-      })
-      setCandidates(data || [])
-    } catch (e) {
-      toast('Errore caricamento candidati: ' + e.message)
-    } finally {
-      setLoading(false)
-    }
-  }, [ch, search, targetSex, targetAge, shareMin]) // eslint-disable-line react-hooks/exhaustive-deps
-
+  // Fetch all candidates once on mount
   useEffect(() => {
-    const t = setTimeout(() => {
-      setPage(1)
-      fetchCandidates()
-    }, 200)
-    return () => clearTimeout(t)
-  }, [fetchCandidates])
+    let cancelled = false
+    getCandidatePrograms()
+      .then(data => { if (!cancelled) setRawData(data || []) })
+      .catch(e => { if (!cancelled) toast('Errore caricamento candidati: ' + e.message) })
+      .finally(() => { if (!cancelled) setLoading(false) })
+    return () => { cancelled = true }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const totalPages = Math.max(1, Math.ceil(candidates.length / PAGE_SIZE))
-  const pageItems = candidates.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+  // Client-side filtering
+  const candidates_filtered = useMemo(() => {
+    let result = rawData
+    if (ch) result = result.filter(p => p.channel === ch)
+    if (search) {
+      const q = search.toLowerCase()
+      result = result.filter(p => (p.program_name || '').toLowerCase().includes(q))
+    }
+    if (targetSex) result = result.filter(p => p.target_sex === targetSex)
+    if (targetAge) result = result.filter(p => p.target_age === targetAge)
+    if (shareMin) result = result.filter(p => typeof p.share_storico === 'number' && p.share_storico > parseFloat(shareMin))
+    return result
+  }, [rawData, ch, search, targetSex, targetAge, shareMin])
+
+  const displayed = candidates_filtered
+
+  const totalPages = Math.max(1, Math.ceil(displayed.length / PAGE_SIZE))
+  const pageItems = displayed.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
   const CH_CLS = { 'Rai 1': 'prow-r1', 'Rai 2': 'prow-r2', 'Rai 3': 'prow-r3' }
 
@@ -130,25 +127,18 @@ export default function StepCandidates() {
       </div>
 
       {/* Candidate list */}
-      {!hasFilters ? (
-        <div className="psel-empty-state">
-          <div className="psel-empty-title">Seleziona i filtri per cercare programmi sostitutivi</div>
-          <div className="psel-empty-desc">
-            Utilizza i filtri sopra per trovare programmi compatibili con il programma da sostituire.
-          </div>
-        </div>
-      ) : loading ? (
+      {loading ? (
         <div className="psel-loading">Caricamento...</div>
       ) : (
         <>
           <div className="psel-list-hdr psel-list-hdr-pad">
             <span className="psel-list-lbl">Programmi trovati</span>
             <span className="psel-list-cnt">
-              {candidates.length} programm{candidates.length === 1 ? 'a' : 'i'}
+              {displayed.length} programm{displayed.length === 1 ? 'a' : 'i'}
             </span>
           </div>
 
-          {candidates.length === 0 ? (
+          {displayed.length === 0 ? (
             <p className="psel-empty">
               Nessun programma trovato con questi filtri. Prova a rimuovere alcuni criteri.
             </p>
@@ -209,7 +199,7 @@ export default function StepCandidates() {
                 )}
               <button className="psel-pager-nav" disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)}>→</button>
               <span className="psel-pager-info">
-                {(page - 1) * PAGE_SIZE + 1}-{Math.min(page * PAGE_SIZE, candidates.length)} di {candidates.length}
+                {(page - 1) * PAGE_SIZE + 1}-{Math.min(page * PAGE_SIZE, displayed.length)} di {displayed.length}
               </span>
             </div>
           )}

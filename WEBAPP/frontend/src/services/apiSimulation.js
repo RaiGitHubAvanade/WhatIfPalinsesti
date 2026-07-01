@@ -82,12 +82,9 @@ export async function getSimulationSchedule(ch, dest_time) {
 }
 
 /** @returns {Promise<OtherProgramViewModel[]>} */
-export async function getTargetPrograms({ channel = '', day = '', from_time = '', to_time = '' } = {}) {
+export async function getTargetPrograms({ day = '' } = {}) {
   const params = new URLSearchParams()
-  if (channel)   params.set('channel', channel)
-  if (day)       params.set('day', day)
-  if (from_time) params.set('from_time', from_time)
-  if (to_time)   params.set('to_time', to_time)
+  if (day) params.set('day', day)
   const qs = params.toString()
   const result = await apiFetch(`/api/simulation/getTargetPrograms${qs ? '?' + qs : ''}`)
   if (!result.success) throw new Error(result.message || 'Errore caricamento programmi')
@@ -95,15 +92,8 @@ export async function getTargetPrograms({ channel = '', day = '', from_time = ''
 }
 
 /** @returns {Promise<OtherProgramViewModel[]>} */
-export async function getCandidatePrograms({ program_name = '', channel = '', target_sex = '', target_age = '', min_share = '' } = {}) {
-  const params = new URLSearchParams()
-  if (program_name) params.set('program_name', program_name)
-  if (channel)      params.set('channel', channel)
-  if (target_sex)   params.set('target_sex', target_sex)
-  if (target_age)   params.set('target_age', target_age)
-  if (min_share)    params.set('min_share', min_share)
-  const qs = params.toString()
-  const result = await apiFetch(`/api/simulation/getCandidatePrograms${qs ? '?' + qs : ''}`)
+export async function getCandidatePrograms() {
+  const result = await apiFetch('/api/simulation/getCandidatePrograms')
   if (!result.success) throw new Error(result.message || 'Errore caricamento candidati')
   return result.data
 }

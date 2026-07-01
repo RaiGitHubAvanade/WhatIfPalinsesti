@@ -29,6 +29,9 @@ class DatabricksServiceWeeklyProgramming(DatabricksService):
             "from_day": from_day,
             "to_day": to_day,
         }
+
+        self._logger.info(f"Query: {query} with params {params}")
+
         with self._connection.cursor() as cursor:
             cursor.execute(query, parameters=params)
             rows = cursor.fetchall()

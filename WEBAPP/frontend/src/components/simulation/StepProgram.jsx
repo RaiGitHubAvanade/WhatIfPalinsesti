@@ -35,6 +35,14 @@ function buildSlot(from, to) {
   return null
 }
 
+/** Convert HH:MM to minutes, adding 1440 for post-midnight hours (< 06:00). */
+function toMinutes(hhmm) {
+  if (!hhmm) return null
+  const [h, m] = hhmm.split(':').map(Number)
+  const base = h * 60 + m
+  return h < 6 ? base + 1440 : base
+}
+
 export default function StepProgram() {
   const { state, set, toast } = useApp()
   const { ch, date, slot, _search, prog } = state
@@ -50,31 +58,42 @@ export default function StepProgram() {
     setLoading(true)
     setPage(1)
     try {
-      const data = await getTargetPrograms({
-        channel: ch || '',
-        day: date || today,
-        from_time: fromTime,
-        to_time: toTime,
-      })
+      const data = await getTargetPrograms({ day: date || today })
       setRawData(data || [])
     } catch (e) {
       toast('Errore caricamento programmi: ' + e.message)
     } finally {
       setLoading(false)
     }
-  }, [ch, date, slot]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [date]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const t = setTimeout(fetchPrograms, 200)
     return () => clearTimeout(t)
   }, [fetchPrograms])
 
-  // Apply client-side text search directly on raw OtherProgramViewModel fields
+  // Client-side filtering: channel, time overlap, text search
   const programs = useMemo(() => {
-    if (!_search) return rawData
-    const q = _search.toLowerCase()
-    return rawData.filter(p => (p.program_name || '').toLowerCase().includes(q))
-  }, [rawData, _search])
+    let result = rawData
+    if (ch) result = result.filter(p => p.channel === ch)
+    if (fromTime || toTime) {
+      const ft = fromTime ? toMinutes(fromTime) : null
+      const tt = toTime ? toMinutes(toTime) : null
+      result = result.filter(p => {
+        if (!p.from_time || !p.to_time) return false
+        const ps = toMinutes(p.from_time)
+        const pe = toMinutes(p.to_time)
+        if (tt !== null && ps >= tt) return false
+        if (ft !== null && pe <= ft) return false
+        return true
+      })
+    }
+    if (_search) {
+      const q = _search.toLowerCase()
+      result = result.filter(p => (p.program_name || '').toLowerCase().includes(q))
+    }
+    return result
+  }, [rawData, ch, fromTime, toTime, _search])
 
   const totalPages = Math.max(1, Math.ceil(programs.length / PAGE_SIZE))
   const safePage = Math.min(page, totalPages)
@@ -100,7 +119,7 @@ export default function StepProgram() {
         />
         <ChannelSelector
           selected={ch}
-          onChange={c => set({ ch: ch === c ? null : c, prog: null, cand: null })}
+          onChange={c => { set({ ch: ch === c ? null : c, prog: null, cand: null }); setPage(1) }}
         />
         <DaySelector
           value={date || today}
@@ -109,8 +128,8 @@ export default function StepProgram() {
         <TimeSelector
           fromTime={fromTime}
           toTime={toTime}
-          onFromChange={val => set({ slot: buildSlot(val, toTime), prog: null, cand: null })}
-          onToChange={val => set({ slot: buildSlot(fromTime, val), prog: null, cand: null })}
+          onFromChange={val => { set({ slot: buildSlot(val, toTime), prog: null, cand: null }); setPage(1) }}
+          onToChange={val => { set({ slot: buildSlot(fromTime, val), prog: null, cand: null }); setPage(1) }}
           hasClear={!!slot}
           onClear={() => set({ slot: null, prog: null, cand: null })}
         />
@@ -143,7 +162,7 @@ export default function StepProgram() {
             if (p.target_sex && p.target_sex !== 'Tutti' && p.target_sex !== 'All') sub.push(p.target_sex)
             return (
               <div
-                key={`${p.channel}_${p.from_time}`}
+                key={`${p.channel || ''}_${p.from_time || ''}_${p.program_name || ''}`}
                 className={`prow${cc ? ' ' + cc : ''}${sel ? ' sel' : ''}${!hasShare ? ' prow-disabled' : ''}`}
                 tabIndex={hasShare ? 0 : -1}
                 onClick={() => hasShare && handleSelectProg(p)}

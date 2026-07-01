@@ -17,29 +17,21 @@ bp = Blueprint("simulation", __name__)
 # Step 1
 @bp.route("/simulation/getTargetPrograms")
 def get_target_programs():
-    channel   = request.args.get("channel")   or None
-    day_str   = request.args.get("day")       or None
-    from_time = request.args.get("from_time") or None
-    to_time   = request.args.get("to_time")   or None
+    day_str = request.args.get("day") or None
 
-    if day_str:
-        try:
-            day = date.fromisoformat(day_str)
-        except ValueError:
-            return error(message="Formato data non valido (atteso YYYY-MM-DD)", errors=["invalid_date"]), 400
-    else:
-        day = date.today()
+    if not day_str:
+        return error(message="Il parametro 'day' è obbligatorio", errors=["missing_day"]), 400
 
-    logger.info(
-        "getTargetPrograms | channel=%s day=%s from=%s to=%s",
-        channel, day, from_time, to_time,
-    )
+    try:
+        day = date.fromisoformat(day_str)
+    except ValueError:
+        return error(message="Formato data non valido (atteso YYYY-MM-DD)", errors=["invalid_date"]), 400
+
+    logger.info("getTargetPrograms | day=%s", day)
 
     try:
         logic = BusinessLogicSimulation(get_simulation_service())
-        result = logic.get_target_programs(
-            day=day, channel=channel, from_time=from_time, to_time=to_time
-        )
+        result = logic.get_target_programs(day=day)
     except RuntimeError as e:
         logger.error("getTargetPrograms RuntimeError: %s", e)
         return error(message=str(e), errors=["databricks_error"]), 502
@@ -53,33 +45,11 @@ def get_target_programs():
 # Step 3
 @bp.route("/simulation/getCandidatePrograms")
 def get_candidate_programs():
-    program_name = request.args.get("program_name") or None
-    channel      = request.args.get("channel")      or None
-    target_sex   = request.args.get("target_sex")   or None
-    target_age   = request.args.get("target_age")   or None
-    min_share_str = request.args.get("min_share")   or None
-
-    min_share: float | None = None
-    if min_share_str:
-        try:
-            min_share = float(min_share_str)
-        except ValueError:
-            return error(message="Valore min_share non valido", errors=["invalid_min_share"]), 400
-
-    logger.info(
-        "getCandidatePrograms | program_name=%s channel=%s target_sex=%s target_age=%s min_share=%s",
-        program_name, channel, target_sex, target_age, min_share,
-    )
+    logger.info("getCandidatePrograms")
 
     try:
         logic  = BusinessLogicSimulation(get_simulation_service())
-        result = logic.get_candidate_programs(
-            program_name=program_name,
-            channel=channel,
-            target_sex=target_sex,
-            target_age=target_age,
-            min_share=min_share,
-        )
+        result = logic.get_candidate_programs()
     except RuntimeError as e:
         logger.error("getCandidatePrograms RuntimeError: %s", e)
         return error(message=str(e), errors=["databricks_error"]), 502
