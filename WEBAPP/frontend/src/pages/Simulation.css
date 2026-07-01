@@ -61,13 +61,6 @@
 .c-delta.up { color: var(--success); }
 .c-delta.dn { color: var(--danger); }
 .c-badges { display: flex; gap: 6px; flex-wrap: wrap; }
-.c-bar-wrap { margin-top: 10px; }
-.c-bar-lbl { font-size: 11px; color: var(--muted); font-weight: 500; margin-bottom: 4px; display: flex; justify-content: space-between; }
-.c-bar { height: 6px; background: #EDF2F7; border-radius: 999px; overflow: hidden; }
-.c-bar-fill { height: 100%; border-radius: 999px; background: var(--rai); }
-.btn-sel { margin-top: 10px; width: 100%; background: var(--rai); color: #fff; border: none; border-radius: 10px; padding: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: .15s; font-family: inherit; }
-.btn-sel:hover { background: var(--rai-light); }
-.btn-sel.done { background: var(--success); }
 
 /* ─── SIMULATION RESULT ─── */
 .sim-verdict { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; border-radius: 14px; padding: 20px 24px; margin-bottom: 20px; text-align: center; border: 1.5px solid transparent; }
