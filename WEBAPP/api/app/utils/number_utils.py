@@ -19,3 +19,12 @@ class NumberUtils:
         if value is None:
             return None
         return round(value, 2)
+
+    @staticmethod
+    def format_age(age: str | None) -> str | None:
+        """Convert DB age codes to display labels: '75_plus' → '75+', '45_54' → '45-54'."""
+        if not age:
+            return None
+        if '_plus' in age:
+            return age.replace('_plus', '+')
+        return age.replace('_', '-')

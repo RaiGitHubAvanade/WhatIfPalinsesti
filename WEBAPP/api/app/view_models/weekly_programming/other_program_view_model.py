@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from datetime import date as date_type
 from app.models.program import Program
+from app.utils.number_utils import NumberUtils
 
 
 @dataclass
@@ -28,7 +29,7 @@ class OtherProgramViewModel:
             date=d.isoformat() if isinstance(d, date_type) else str(d) if d else None,
             share_predicted=row.share_predetto,
             target_sex=row.target_sesso,
-            target_age=row.target_eta,
+            target_age=NumberUtils.format_age(row.target_eta),
             genre=row.genere,
         )
 
@@ -44,6 +45,6 @@ class OtherProgramViewModel:
             date=d.isoformat() if isinstance(d, date_type) else str(d) if d else None,
             share_storico=row.share_storico,
             target_sex=row.target_sesso,
-            target_age=row.target_eta,
+            target_age=NumberUtils.format_age(row.target_eta),
             genre=row.genere,
         )
