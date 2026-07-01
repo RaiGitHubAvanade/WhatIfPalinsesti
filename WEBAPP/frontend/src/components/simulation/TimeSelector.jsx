@@ -1,12 +1,15 @@
 import { useState, useRef, useEffect } from 'react'
 import './TimeSelector.css'
 
-/** 00:00, 00:30, 01:00 … 23:30 */
-const SLOTS = Array.from({ length: 48 }, (_, i) => {
-  const h = Math.floor(i / 2)
-  const m = i % 2 === 0 ? '00' : '30'
-  return `${String(h).padStart(2, '0')}:${m}`
-})
+/** Broadcast day: 06:00, 06:30 … 23:30, 00:00, 00:30, 01:00, 01:30, 02:00 */
+const SLOTS = [
+  ...Array.from({ length: 36 }, (_, i) => {
+    const h = Math.floor(i / 2) + 6
+    const m = i % 2 === 0 ? '00' : '30'
+    return `${String(h).padStart(2, '0')}:${m}`
+  }),
+  '00:00', '00:30', '01:00', '01:30', '02:00',
+]
 
 export function TimePicker({ value, onChange }) {
   const [open, setOpen] = useState(false)

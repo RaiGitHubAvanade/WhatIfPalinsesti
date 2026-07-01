@@ -83,8 +83,8 @@ export default function StepProgram() {
         if (!p.from_time || !p.to_time) return false
         const ps = toMinutes(p.from_time)
         const pe = toMinutes(p.to_time)
-        if (tt !== null && ps >= tt) return false
-        if (ft !== null && pe <= ft) return false
+        if (ft !== null && ps <= ft) return false   // keep only programs starting after "Da"
+        if (tt !== null && pe >= tt) return false   // keep only programs ending before "A"
         return true
       })
     }
@@ -92,6 +92,12 @@ export default function StepProgram() {
       const q = _search.toLowerCase()
       result = result.filter(p => (p.program_name || '').toLowerCase().includes(q))
     }
+    // Sort by broadcast-day order: 06:00 → 23:30 → 00:00 → 02:00
+    result = [...result].sort((a, b) => {
+      const ta = a.from_time ? toMinutes(a.from_time) : Infinity
+      const tb = b.from_time ? toMinutes(b.from_time) : Infinity
+      return ta - tb
+    })
     return result
   }, [rawData, ch, fromTime, toTime, _search])
 
