@@ -8,8 +8,9 @@ import './DaySelector.css'
  * @param {string}    props.value    - ISO date string (YYYY-MM-DD) or ''
  * @param {function}  props.onChange - Called with new ISO date string
  * @param {string}   [props.maxDate] - Optional max attribute (YYYY-MM-DD)
+ * @param {string}   [props.minDate] - Optional min attribute (YYYY-MM-DD)
  */
-export default function DaySelector({ label = 'Data', value, onChange, maxDate }) {
+export default function DaySelector({ label = 'Data', value, onChange, maxDate, minDate }) {
   return (
     <div className="day-sel">
       <span className="day-sel__lbl">{label}</span>
@@ -17,6 +18,7 @@ export default function DaySelector({ label = 'Data', value, onChange, maxDate }
         type="date"
         className="day-sel__input"
         value={value || ''}
+        min={minDate}
         max={maxDate}
         onClick={e => e.target.showPicker?.()}
         onChange={e => onChange(e.target.value)}

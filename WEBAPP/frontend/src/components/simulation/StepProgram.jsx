@@ -53,6 +53,7 @@ export default function StepProgram() {
 
   const { fromTime, toTime } = parseSlot(slot)
   const today = new Date().toISOString().slice(0, 10)
+  const maxDay = new Date(new Date(today).getTime() + 6 * 86400000).toISOString().slice(0, 10)
 
   const fetchPrograms = useCallback(async () => {
     setLoading(true)
@@ -129,6 +130,8 @@ export default function StepProgram() {
         />
         <DaySelector
           value={date || today}
+          minDate={today}
+          maxDate={maxDay}
           onChange={val => { if (val) set({ date: val, prog: null, cand: null }) }}
         />
         <TimeSelector
