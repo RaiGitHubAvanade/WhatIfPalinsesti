@@ -1,6 +1,8 @@
 ﻿import { useState, useEffect, useMemo } from 'react'
 import { useApp } from '../../context/useApp'
 import { getCandidatePrograms } from '../../services/apiSimulation'
+import CustomSelect from '../shared/CustomSelect'
+import ChannelSelector from '../shared/ChannelSelector'
 import './StepCandidates.css'
 import TextInputFilter from '../shared/TextInputFilter'
 
@@ -66,63 +68,49 @@ export default function StepCandidates() {
         />
 
         {/* Channel */}
-        <div className="psel-fg">
-          <span className="psel-fg-lbl">Canale</span>
-          <select
-            className="psel-select"
-            value={ch}
-            onChange={(e) => { setCh(e.target.value); set({ cand: null }); setPage(1) }}
-          >
-            <option value="">Tutti</option>
-            {['Rai 1', 'Rai 2', 'Rai 3'].map((c) => (
-              <option key={c} value={c}>{c}</option>
-            ))}
-          </select>
-        </div>
+        <ChannelSelector
+          selected={ch}
+          onChange={c => { setCh(ch === c ? '' : c); set({ cand: null }); setPage(1) }}
+        />
 
         {/* Target sesso */}
         <div className="psel-fg">
           <span className="psel-fg-lbl">Genere target</span>
-          <select
-            className="psel-select"
+          <CustomSelect
             value={targetSex}
-            onChange={(e) => { setTargetSex(e.target.value); set({ cand: null }); setPage(1) }}
-          >
-            <option value="">Entrambi</option>
-            {['Uomo', 'Donna'].map((g) => (
-              <option key={g} value={g}>{g}</option>
-            ))}
-          </select>
+            onChange={v => { setTargetSex(v); set({ cand: null }); setPage(1) }}
+            options={[
+              { value: '', label: 'Entrambi' },
+              { value: 'Uomo', label: 'Uomo' },
+              { value: 'Donna', label: 'Donna' },
+            ]}
+          />
         </div>
 
         {/* Target età */}
         <div className="psel-fg">
           <span className="psel-fg-lbl">Età target</span>
-          <select
-            className="psel-select"
+          <CustomSelect
             value={targetAge}
-            onChange={(e) => { setTargetAge(e.target.value); set({ cand: null }); setPage(1) }}
-          >
-            <option value="">Tutte</option>
-            {['45+', '55+', '70+', '75+'].map((a) => (
-              <option key={a} value={a}>{a}</option>
-            ))}
-          </select>
+            onChange={v => { setTargetAge(v); set({ cand: null }); setPage(1) }}
+            options={[
+              { value: '', label: 'Tutte' },
+              ...['45+', '55+', '70+', '75+'].map(a => ({ value: a, label: a })),
+            ]}
+          />
         </div>
 
         {/* Share minima */}
         <div className="psel-fg">
           <span className="psel-fg-lbl">Share minima</span>
-          <select
-            className="psel-select"
+          <CustomSelect
             value={shareMin}
-            onChange={(e) => { setShareMin(e.target.value); set({ cand: null }); setPage(1) }}
-          >
-            <option value="">Nessuna</option>
-            {['10', '20', '30', '40', '50', '60', '70', '80'].map((s) => (
-              <option key={s} value={s}>{s}%</option>
-            ))}
-          </select>
+            onChange={v => { setShareMin(v); set({ cand: null }); setPage(1) }}
+            options={[
+              { value: '', label: 'Nessuna' },
+              ...['10', '20', '30', '40', '50', '60', '70', '80'].map(s => ({ value: s, label: s + '%' })),
+            ]}
+          />
         </div>
       </div>
 

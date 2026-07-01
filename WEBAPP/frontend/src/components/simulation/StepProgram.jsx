@@ -156,7 +156,7 @@ export default function StepProgram() {
             const sv = hasShare ? p.share_predicted.toFixed(1) + '%' : '–'
             const cc = CH_CLS[p.channel] || ''
             const sub = []
-            if (!ch) sub.push(p.channel)
+            if (p.genre) sub.push(p.channel)
             if (p.genre) sub.push(p.genre)
             if (p.target_age) sub.push(p.target_age)
             if (p.target_sex && p.target_sex !== 'Tutti' && p.target_sex !== 'All') sub.push(p.target_sex)
