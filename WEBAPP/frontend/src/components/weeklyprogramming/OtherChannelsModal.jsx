@@ -54,7 +54,7 @@ export default function OtherChannelsModal({ onClose, channel, day, from_time, t
                     {ch.programs.map((p, i) => (
                       <div key={i} className="ac-ch-program">
                         <span className="ac-ch-time">{p.from_time}–{p.to_time}</span>
-                        <span className="ac-ch-title">{p.program_name}</span>
+                        <span className="ac-ch-title" title={p.program_name}>{p.program_name}</span>
                       </div>
                     ))}
                   </div>

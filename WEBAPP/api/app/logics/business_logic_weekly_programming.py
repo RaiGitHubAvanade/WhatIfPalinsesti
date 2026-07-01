@@ -76,10 +76,7 @@ class BusinessLogicWeeklyProgramming:
         
         all_rows = []
         try:
-            if DateTimeUtils.is_current_week(day):
-                all_rows = self._databricks_service.get_vw_output_palinsesto_futuro(channel_order, day, from_time, to_time)
-            else:
-                all_rows = self._databricks_service.get_storico_programmi(channel_order, day, from_time, to_time)
+            all_rows = self._databricks_service.get_vw_output_palinsesto_futuro(channel_order, day, from_time, to_time)
         except Exception as e:
             raise RuntimeError(
                 f"Errore durante il recupero dei programmi concorrenti per il canale '{channel}' "

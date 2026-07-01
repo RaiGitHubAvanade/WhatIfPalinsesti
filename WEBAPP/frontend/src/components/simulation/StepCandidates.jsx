@@ -30,7 +30,7 @@ export default function StepCandidates() {
     try {
       const data = await getCandidatePrograms({
         program_name: search,
-        channel: ch,
+        channel: ch || null,
         target_sex: targetSex,
         target_age: targetAge,
         min_share: shareMin,
@@ -92,7 +92,7 @@ export default function StepCandidates() {
             onChange={(e) => { setTargetSex(e.target.value); set({ cand: null }); setPage(1) }}
           >
             <option value="">Entrambi</option>
-            {['Uomo', 'Donna', 'Tutti'].map((g) => (
+            {['Uomo', 'Donna'].map((g) => (
               <option key={g} value={g}>{g}</option>
             ))}
           </select>

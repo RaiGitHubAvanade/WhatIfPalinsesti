@@ -108,7 +108,7 @@ class DatabricksServiceSimulation(DatabricksService):
         if target_age:
             conditions.append("eta = :target_age")
             params["target_age"] = target_age
-        if min_share is not None:
+        if min_share is not None and min_share > 0:
             conditions.append("share_storico_pct > :min_share")
             params["min_share"] = min_share
 

@@ -99,42 +99,6 @@ class DatabricksServiceWeeklyProgramming(DatabricksService):
 
     ### --- Competitors --- ###
 
-    def get_storico_programmi(
-        self,
-        channel_order: list[str],
-        day: date,
-        from_time: str,
-        to_time: str,
-    ) -> list[Program]:
-        """Fetch past Rai and Competitor programs overlapping [from_time, to_time] on the given day."""
-        channel_params = {f"ch{i}": ch for i, ch in enumerate(channel_order)}
-        placeholders = ", ".join(f":ch{i}" for i in range(len(channel_order)))
-        query = f"""
-            SELECT Canale, Programma, ORA_INIZIO_TRX, ORA_FINE_TRX 
-            FROM ta_coll.whatif.storico_programmi 
-            WHERE Data = :day 
-            AND Canale IN ({placeholders}) 
-            AND ORA_INIZIO_TRX < :to_seconds 
-            AND ORA_FINE_TRX > :from_seconds 
-        """
-        params = {
-            "day": day,
-            **channel_params,
-            "to_seconds": DateTimeUtils.hhmm_to_seconds(to_time),
-            "from_seconds": DateTimeUtils.hhmm_to_seconds(from_time),
-        }
-        
-        self._logger.info(f"Query: {query} with params {params}")
-
-        with self._connection.cursor() as cursor:
-            cursor.execute(query, parameters=params)
-            rows = cursor.fetchall()
-
-        result = []
-        for row in rows:
-            result.append(Program.MapProgramFromRowTRX(row))
-        return result
-
     def get_vw_output_palinsesto_futuro(
         self,
         channel_order: list[str],
