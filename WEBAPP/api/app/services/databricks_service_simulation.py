@@ -1,4 +1,5 @@
 ﻿from datetime import date
+import json
 
 from app.models.program import Program
 from app.utils.date_time_utils import DateTimeUtils
@@ -186,6 +187,9 @@ class DatabricksServiceSimulation(DatabricksService):
         for key, value in fields.items():
             if value is None:
                 set_parts.append(f"{key} = NULL")
+            elif isinstance(value, dict):
+                set_parts.append(f"{key} = from_json(:{key}, 'MAP<STRING,DOUBLE>')")
+                params[key] = json.dumps(value)
             else:
                 set_parts.append(f"{key} = :{key}")
                 params[key] = value

@@ -24,4 +24,13 @@ class AiService:
         self._logger.info("AiService.call_sostituzione | payload=%s", payload)
         time.sleep(30)
         raw = random.uniform(0, 10)
-        return {"predicted_share_pct": NumberUtils.round_share(raw)}
+        return {
+            "predictions": {
+                "predicted_share_pct": NumberUtils.round_share(raw),
+                "shap_values": {
+                    "StoricoShare_precedente": round(random.uniform(-3, 3), 4),
+                    "TargetEta_vs_competitor": round(random.uniform(-2, 2), 4),
+                    "StoricoShare_competitor": round(random.uniform(-2, 2), 4),
+                },
+            }
+        }

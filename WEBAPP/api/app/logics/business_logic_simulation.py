@@ -229,13 +229,15 @@ class BusinessLogicSimulation:
         try:
             logger.info("_run_simulation_async | simulation_id=%s START", simulation_id)
             result = ai.call_sostituzione(payload)
+            predictions = result["predictions"]
             svc.update_simulation(
                 simulation_id,
-                share_result=result["predicted_share_pct"],
+                share_result=predictions["predicted_share_pct"],
+                shap_values=predictions.get("shap_values"),
                 status="Completed",
                 modified_date=datetime.now(timezone.utc),
             )
-            logger.info("_run_simulation_async | simulation_id=%s COMPLETED result=%s", simulation_id, result["predicted_share_pct"])
+            logger.info("_run_simulation_async | simulation_id=%s COMPLETED result=%s", simulation_id, predictions["predicted_share_pct"])
         except Exception as exc:
             logger.exception("_run_simulation_async | simulation_id=%s FAILED: %s", simulation_id, exc)
             svc.update_simulation(

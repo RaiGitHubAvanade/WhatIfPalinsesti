@@ -29,12 +29,15 @@ class SimulationSostRequest:
 
     def to_payload(self) -> dict:
         return {
-            "program_name":              self.program_name,
-            "program_channel":           self.program_channel,
-            "program_date":              self.program_date,
-            "program_from_time":         self.program_from_time,
-            "program_share_predict":     self.program_share_predict,
-            "scenario_type":             self.scenario_type,
-            "new_program_name":          self.new_program_name,
-            "new_program_share_storico": self.new_program_share_storico,
+            "inputs": {
+                "Programma_da_sostituire": {
+                    "data_str":     [self.program_date],
+                    "Canale":       [self.program_channel],
+                    "orario_inizio": [self.program_from_time],
+                    "Programma":    [self.program_name],
+                },
+                "Programma_proposto": {
+                    "Programma": [self.new_program_name],
+                },
+            }
         }
