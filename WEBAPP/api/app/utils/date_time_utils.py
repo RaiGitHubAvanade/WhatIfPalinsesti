@@ -51,3 +51,11 @@ class DateTimeUtils:
         h = seconds // 3600
         m = (seconds % 3600) // 60
         return f"{h:02d}:{m:02d}"
+
+    @staticmethod
+    def minutes_to_hhmm(minutes: int) -> str:
+        """Convert raw minutes (no overnight offset) to 'HH:MM', wrapping at midnight."""
+        minutes = minutes % 1440
+        h = minutes // 60
+        m = minutes % 60
+        return f"{h:02d}:{m:02d}"

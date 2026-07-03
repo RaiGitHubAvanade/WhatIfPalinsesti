@@ -1,4 +1,6 @@
 from app.services.databricks_service import DatabricksService
+from app.models.program import Program
+from app.utils.date_time_utils import DateTimeUtils
 
 
 class DatabricksServiceScenarios(DatabricksService):
@@ -186,3 +188,50 @@ class DatabricksServiceScenarios(DatabricksService):
             columns = [col[0] for col in cursor.description]
             rows = [dict(zip(columns, row)) for row in cursor.fetchall()]
         return rows
+
+
+    ### --- Competitors --- ###
+
+    def get_vw_output_palinsesto_futuro_detailed(
+        self,
+        channel_order: list[str],
+        day,
+        from_time: str,
+        to_time: str,
+    ) -> list[Program]:
+        """Fetch future programs overlapping [from_time, to_time] on the given day,
+        including ID, share_storico and evento_forte for competitor display."""
+        channel_params = {f"ch{i}": ch for i, ch in enumerate(channel_order)}
+        placeholders = ", ".join(f":ch{i}" for i in range(len(channel_order)))
+        query = f"""
+            SELECT Canale, Data, Programma, orario_inizio, orario_fine, ID, share_storico, evento_forte
+            FROM ta_coll.whatif.vw_output_palinsesto_futuro_ui
+            WHERE Data = :day
+            AND Canale IN ({placeholders})
+            AND (
+                CASE WHEN INT(split(orario_inizio, ':')[0]) < 6
+                    THEN INT(split(orario_inizio, ':')[0]) * 60 + INT(split(orario_inizio, ':')[1]) + 1440
+                    ELSE INT(split(orario_inizio, ':')[0]) * 60 + INT(split(orario_inizio, ':')[1])
+                END
+            ) < :overlap_to
+            AND (
+                CASE WHEN INT(split(orario_fine, ':')[0]) < 6
+                    THEN INT(split(orario_fine, ':')[0]) * 60 + INT(split(orario_fine, ':')[1]) + 1440
+                    ELSE INT(split(orario_fine, ':')[0]) * 60 + INT(split(orario_fine, ':')[1])
+                END
+            ) > :overlap_from
+        """
+        params = {
+            "day": day,
+            **channel_params,
+            "overlap_to": DateTimeUtils.hhmm_to_minutes(to_time),
+            "overlap_from": DateTimeUtils.hhmm_to_minutes(from_time),
+        }
+
+        self._logger.info(f"Query: {query} with params {params}")
+
+        with self._connection.cursor() as cursor:
+            cursor.execute(query, parameters=params)
+            rows = cursor.fetchall()
+
+        return [Program.MapProgramFromFutureRowDetailed(row) for row in rows]

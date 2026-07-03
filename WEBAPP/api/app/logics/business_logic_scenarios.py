@@ -1,4 +1,5 @@
 import logging
+from datetime import date
 
 from app.services.databricks_service_scenarios import DatabricksServiceScenarios
 from app.view_models.scenarios import (
@@ -6,7 +7,10 @@ from app.view_models.scenarios import (
     SimulationSpostViewModel,
     ScenarioViewModel,
     ScenarioListViewModel,
+    ScenCompetitorProgramsViewModel,
 )
+from app.config import Config
+from app.utils.date_time_utils import DateTimeUtils
 
 
 def _to_iso(val) -> str | None:
@@ -139,3 +143,42 @@ class BusinessLogicScenarios:
                 creation_date=_to_iso(row.get("scenario_creation_date")),
                 simulations=[],
             )
+
+
+    def get_competitor_programs(
+        self,
+        channel: str,
+        day: date,
+        from_time: str,
+    ) -> ScenCompetitorProgramsViewModel:
+        """Return competitor programs overlapping the slot starting at from_time.
+        to_time is computed as from_time + COMPETITORS_SLOT_DURATION_MINUTES."""
+        raw_minutes = int(from_time[:2]) * 60 + int(from_time[3:5])
+        to_time = DateTimeUtils.minutes_to_hhmm(raw_minutes + Config.COMPETITORS_SLOT_DURATION_MINUTES)
+
+        channel_order = [c for c in Config.CHANNEL_ORDER_SIMULATION_DETAIL]
+
+        try:
+            rows = self._service.get_vw_output_palinsesto_futuro_detailed(
+                channel_order, day, from_time, to_time
+            )
+        except Exception as e:
+            raise RuntimeError(
+                f"Errore durante il recupero dei competitor per '{channel}' in data {day.isoformat()}: {e}"
+            ) from e
+
+        def _sort_key(row):
+            try:
+                priority = (0, channel_order.index(row.canale))
+            except ValueError:
+                priority = (1, row.canale)
+            return (*priority, DateTimeUtils.hhmm_to_minutes(row.orario_inizio))
+
+        rows.sort(key=_sort_key)
+
+        return ScenCompetitorProgramsViewModel.MapFromRows(
+            channel=channel,
+            day=day.isoformat(),
+            from_time=from_time,
+            rows=rows,
+        )

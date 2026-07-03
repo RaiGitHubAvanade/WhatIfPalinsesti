@@ -28,6 +28,7 @@ class Program:
     target_sesso: str | None = None
     target_eta: str | None = None
     genere: str | None = None
+    evento_forte: bool | None = None
 
     @classmethod
     def MapProgramFromRow(cls, row) -> "Program":
@@ -69,6 +70,20 @@ class Program:
             programma=row.Programma,
             orario_inizio=row.orario_inizio,
             orario_fine=row.orario_fine,
+        )
+
+    @classmethod
+    def MapProgramFromFutureRowDetailed(cls, row) -> "Program":
+        """Future competitor overlap view with extended fields for scenario competitor display."""
+        return cls(
+            canale=row.Canale,
+            id=row.ID,
+            data=row.Data,
+            programma=row.Programma,
+            orario_inizio=row.orario_inizio,
+            orario_fine=row.orario_fine,
+            share_storico=row.share_storico,
+            evento_forte=bool(row.evento_forte),
         )
 
     @classmethod

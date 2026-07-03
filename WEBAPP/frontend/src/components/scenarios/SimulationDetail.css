@@ -199,7 +199,6 @@
   width: auto !important;
   white-space: nowrap;
 }
-.res-comp-section { border-bottom: 1.5px solid var(--border); background: #fff; }
 .res-comp-content { padding: 16px 20px; }
 
 /* Competitor cards */
@@ -394,7 +393,6 @@
   align-self: flex-start;
 }
 .res-comp-section { display: flex; flex-direction: column; gap: 10px; }
-.res-comp-content {}
 .comp-cards-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -538,3 +536,92 @@
 }
 .res-move-slot-key { color: var(--muted); font-weight: 600; min-width: 52px; }
 .res-move-slot-val { font-weight: 700; color: var(--text); }
+
+/* ── Competitor channel grid ───────────────────────────────────────── */
+.res-comp-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 10px;
+}
+
+.res-comp-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.res-comp-card--rai {
+  border-color: #bbd2ff;
+  background: #edf3ff;
+}
+
+.res-comp-card-hdr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+.res-comp-card-name {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--text);
+}
+.res-comp-card-type {
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 2px 7px;
+}
+.res-comp-card-type.rai  { background: #E8EFFE; color: var(--rai); }
+.res-comp-card-type.comp { background: #f0f0f0; color: var(--muted); }
+
+.res-comp-card-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.res-comp-row {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 3px 4px;
+  border-radius: 5px;
+  font-size: 12px;
+}
+.res-comp-row--evento {
+  background: #fff7ed;
+  outline: 1px solid #fed7aa;
+}
+.res-comp-time {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.res-comp-prog-name {
+  flex: 1;
+  font-weight: 600;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.res-comp-share {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--rai);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.res-comp-evento-btn {
+  font-size: 11px;
+  opacity: .35;
+  cursor: not-allowed;
+  flex-shrink: 0;
+  padding: 0 2px;
+}

@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { getSimulationCompetitors } from '../../services/apiSimulation'
+import { useState, useEffect } from 'react'
+import { getScenCompetitorPrograms } from '../../services/apiScenarios'
 import './SimulationDetail.css'
 
 function fmtDate(iso) {
@@ -34,31 +34,25 @@ function VerdictPill({ delta }) {
   )
 }
 
-function CompetitorSection({ slot }) {
-  const [competitors, setCompetitors] = useState([])
-  const [loaded, setLoaded] = useState(false)
-  const [loading, setLoading] = useState(false)
+function CompetitorSection({ channel, day, from_time }) {
+  const [data, setData] = useState(null)
+  const [visible, setVisible] = useState(false)
+  const [loading, setLoading] = useState(true)
 
-  const handleToggle = async () => {
-    if (!loaded) {
-      setLoading(true)
-      try {
-        const data = await getSimulationCompetitors(slot)
-        setCompetitors(data.competitors || [])
-        setLoaded(true)
-      } catch {
-        setLoaded(true)
-      } finally {
-        setLoading(false)
-      }
-    } else {
-      setLoaded(false)
-    }
-  }
+  useEffect(() => {
+    let cancelled = false
+    getScenCompetitorPrograms({ channel, day, from_time })
+      .then(result => { if (!cancelled) setData(result) })
+      .catch(() => {})
+      .finally(() => { if (!cancelled) setLoading(false) })
+    return () => { cancelled = true }
+  }, [channel, day, from_time])
+
+  const handleToggle = () => setVisible(v => !v)
 
   return (
     <div className="res-comp-cta">
-      {!loaded ? (
+      {!visible ? (
         <button className="btn-sec btn-comp-toggle" onClick={handleToggle} disabled={loading}>
           {loading ? 'Caricamento…' : 'Vedi Competitor'}
         </button>
@@ -67,21 +61,32 @@ function CompetitorSection({ slot }) {
           <button className="btn-sec btn-comp-toggle" onClick={handleToggle}>Nascondi Competitor</button>
           <div className="res-comp-section">
             <div className="res-comp-content">
-              {competitors.length === 0 ? (
+              {!data || data.other_channels.length === 0 ? (
                 <p style={{ color: 'var(--muted)', fontSize: 13 }}>Nessun competitor disponibile.</p>
               ) : (
-                <div className="comp-cards-grid">
-                  {competitors.map((co, i) => (
-                    <div key={i} className={`comp-card-item${co.evento ? ' comp-card-strong' : ''}`}>
-                      <div className="comp-card-top">
-                        <span className="comp-share-pill">{typeof co.share === 'number' ? `${co.share}%` : '—'}</span>
+                <div className="res-comp-grid">
+                  {data.other_channels.map((ch) => (
+                    <div key={ch.channel} className={`res-comp-card${ch.channel_type === 'RAI' ? ' res-comp-card--rai' : ''}`}>
+                      <div className="res-comp-card-hdr">
+                        <span className="res-comp-card-name">{ch.channel}</span>
+                        <span className={`res-comp-card-type${ch.channel_type === 'RAI' ? ' rai' : ' comp'}`}>{ch.channel_type}</span>
                       </div>
-                      <div className="comp-card-title">{co.title}</div>
-                      <div className="comp-card-labels">
-                        <span className="comp-label-pill comp-label-ch">{co.ch}</span>
-                        {co.tipo && <span className="comp-label-pill comp-label-tipo">{co.tipo}</span>}
+                      <div className="res-comp-card-rows">
+                        {ch.programs.map((p, i) => (
+                          <div
+                            key={i}
+                            className={`res-comp-row${p.evento_forte ? ' res-comp-row--evento' : ''}`}
+                            data-id={p.id}
+                          >
+                            <span className="res-comp-time">{p.from_time}–{p.to_time}</span>
+                            <span className="res-comp-prog-name" title={p.program_name}>{p.program_name}</span>
+                            {p.share_storico !== null && (
+                              <span className="res-comp-share">{p.share_storico.toFixed(1)}%</span>
+                            )}
+                            <button className="scen-icon-btn res-comp-evento-btn" disabled title="Segna come Evento Forte">⚡</button>
+                          </div>
+                        ))}
                       </div>
-                      {co.evento && <div className="comp-evento-badge">⚠️ Evento forte</div>}
                     </div>
                   ))}
                 </div>
@@ -94,7 +99,7 @@ function CompetitorSection({ slot }) {
   )
 }
 
-function DetailSostituzione({ result, prog, date, onClose }) {
+function DetailSostituzione({ result, date, onClose }) {
   const r = result
   const origShare = r.orig_share
   const predShare = r.predicted_share
@@ -139,7 +144,7 @@ function DetailSostituzione({ result, prog, date, onClose }) {
         </div>
         <VerdictPill delta={delta} />
       </div>
-      <CompetitorSection slot={prog?.slot || null} />
+      <CompetitorSection channel={r.orig_ch} day={date} from_time={r.orig_time} />
       <div className="psel-action-bar res-action-bar">
         <button className="btn-back" onClick={onClose}>← Torna agli Scenari</button>
       </div>
@@ -207,7 +212,7 @@ function DetailSpostamento({ result, onClose }) {
         </div>
         <VerdictPill delta={delta} />
       </div>
-      <CompetitorSection slot={r.dest_time} />
+      <CompetitorSection channel={r.dest_ch} day={r.dest_date} from_time={r.dest_time} />
       <div className="psel-action-bar res-action-bar">
         <button className="btn-back" onClick={onClose}>← Torna agli Scenari</button>
       </div>
