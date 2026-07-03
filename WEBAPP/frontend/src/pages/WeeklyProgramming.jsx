@@ -18,14 +18,23 @@ function getMondayISO(dayISO) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
 
-/** Return the ISO date string (YYYY-MM-DD) of the Sunday of the current week. */
-function getCurrentWeekSunday() {
-  const today = new Date()
-  const dow = today.getDay()
-  const daysToSunday = dow === 0 ? 0 : 7 - dow
-  const sunday = new Date(today)
-  sunday.setDate(today.getDate() + daysToSunday)
-  return `${sunday.getFullYear()}-${String(sunday.getMonth() + 1).padStart(2, '0')}-${String(sunday.getDate()).padStart(2, '0')}`
+// /** Return the ISO date string (YYYY-MM-DD) of the Sunday of the current week. */
+// function getCurrentWeekSunday() {
+//   const today = new Date()
+//   const dow = today.getDay()
+//   const daysToSunday = dow === 0 ? 0 : 7 - dow
+//   const sunday = new Date(today)
+//   sunday.setDate(today.getDate() + daysToSunday)
+//   return `${sunday.getFullYear()}-${String(sunday.getMonth() + 1).padStart(2, '0')}-${String(sunday.getDate()).padStart(2, '0')}`
+// }
+
+function getDatePlusDays(days) {
+  const today = new Date();
+  const target = new Date(today);
+
+  target.setDate(today.getDate() + days);
+
+  return `${target.getFullYear()}-${String(target.getMonth() + 1).padStart(2, '0')}-${String(target.getDate()).padStart(2, '0')}`;
 }
 
 export default function WeeklyProgramming() {
@@ -92,7 +101,7 @@ export default function WeeklyProgramming() {
               label="Settimana"
               value={selectedDay}
               onChange={setSelectedDay}
-              maxDate={getCurrentWeekSunday()}
+              maxDate={getDatePlusDays(6)}
             />
           </div>
 

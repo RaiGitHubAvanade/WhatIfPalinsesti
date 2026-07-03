@@ -35,13 +35,6 @@ def get_weekly_table():
             errors=["invalid day format"],
         ), 400
 
-    if DateTimeUtils.is_past_current_week_sunday(day):
-        logger.warning("getWeeklyTable: day exceeds current week | day=%s", day)
-        return error(
-            message="Non è possibile selezionare una data successiva alla domenica della settimana corrente",
-            errors=["day exceeds current week"],
-        ), 400
-
     try:
         logic = BusinessLogicWeeklyProgramming(get_databricks_service())
         result = logic.get_weekly_table(channel, day)
@@ -96,40 +89,6 @@ def get_competitor_programs():
 
     logger.info("getCompetitorPrograms: success | channel=%s day=%s", channel, day)
     return success(data=asdict(result), message="Programmi concorrenti Databricks ottenuti con successo")
-
-
-def _validate_edit_manual_share(channel, program_name, from_time, to_time, day_str, value):
-    """Validate fields; returns (day: date, value: float|None) or an error response tuple."""
-    if not channel or not program_name or not from_time or not to_time or not day_str:
-        return None, None, (error(
-            message="I parametri 'channel', 'program_name', 'from_time', 'to_time' e 'day' sono obbligatori",
-            errors=["missing required fields"],
-        ), 400)
-
-    try:
-        day = date.fromisoformat(day_str)
-    except ValueError:
-        return None, None, (error(
-            message="Formato data non valido (atteso YYYY-MM-DD)",
-            errors=["invalid day format"],
-        ), 400)
-
-    if DateTimeUtils.is_past_current_week_sunday(day):
-        return None, None, (error(
-            message="Non è possibile selezionare una data successiva alla domenica della settimana corrente",
-            errors=["day exceeds current week"],
-        ), 400)
-
-    if value is not None:
-        try:
-            value = float(value)
-        except (TypeError, ValueError):
-            return None, None, (error(
-                message="Il valore deve essere un numero o null",
-                errors=["invalid value"],
-            ), 400)
-
-    return day, value, None
 
 
 @bp.route("/weekly/editManualShare", methods=["POST"])

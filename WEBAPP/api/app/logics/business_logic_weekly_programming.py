@@ -13,6 +13,7 @@ class BusinessLogicWeeklyProgramming:
         self._databricks_service = databricks_service
         self._logger = logging.getLogger(__name__)
 
+
     def _in_prime_window(self, orario_inizio: str | None, orario_fine: str | None) -> bool:
         """Return True when the program falls within the configured prime-time window."""
         if not orario_inizio or not orario_fine:
@@ -29,6 +30,7 @@ class BusinessLogicWeeklyProgramming:
             or start < window_end - Config.WEEK_TABLE_END_OFFSET_MINUTES
         )
 
+
     def get_weekly_table(self, channel: str, day: date) -> WeeklyTableViewModel:
         """Return a WeeklyTableViewModel for the given channel and day.
 
@@ -41,10 +43,10 @@ class BusinessLogicWeeklyProgramming:
 
         all_rows = []
         try:
-            if DateTimeUtils.is_current_week(day):
-                all_rows = self._databricks_service.get_palinsesto_predict(channel, from_day, to_day)
-            else:
+            if DateTimeUtils.is_past_week(day):
                 all_rows = self._databricks_service.get_palinsesto_delta(channel, from_day, to_day)
+            else:
+                all_rows = self._databricks_service.get_palinsesto_predict(channel, from_day, to_day)
         except Exception as e:
             raise RuntimeError(
                 f"Errore durante il recupero dei dati Databricks per il canale '{channel}' nella settimana del {from_day.strftime('%d/%m/%Y')}: {e}"
@@ -61,6 +63,7 @@ class BusinessLogicWeeklyProgramming:
             channel=channel,
             rows=filtered,
         )
+
 
     def get_competitor_programs(
         self,
@@ -101,6 +104,7 @@ class BusinessLogicWeeklyProgramming:
             program_name=program_name,
             rows=all_rows,
         )
+
 
     def edit_manual_share(
         self,
