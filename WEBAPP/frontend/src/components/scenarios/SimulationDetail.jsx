@@ -83,7 +83,7 @@ function CompetitorSection({ channel, day, from_time }) {
                             {p.share_storico !== null && (
                               <span className="res-comp-share">{p.share_storico.toFixed(1)}%</span>
                             )}
-                            <button className="scen-icon-btn res-comp-evento-btn" disabled title="Segna come Evento Forte">⚡</button>
+                            <button className="res-comp-evento-btn" title="Seleziona/deseleziona come Evento Forte">⚡</button>
                           </div>
                         ))}
                       </div>
