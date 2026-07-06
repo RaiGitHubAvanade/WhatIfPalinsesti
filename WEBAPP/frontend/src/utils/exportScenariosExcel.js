@@ -1,22 +1,9 @@
 import ExcelJS from 'exceljs'
+import { sanitizeFilenameSegment, styleWorksheetHeader, downloadBuffer } from './exportExcel'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Filename builder
 // ─────────────────────────────────────────────────────────────────────────────
-
-/**
- * Sanitize a string so it is safe to use inside a filename.
- * @param {string} str
- * @returns {string}
- */
-function sanitizeFilenameSegment(str) {
-  return str
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, '-')
-    .replace(/[^a-z0-9\-_]/g, '')
-    .slice(0, 30)
-}
 
 /**
  * Build the xlsx filename encoding the active filters.
@@ -169,11 +156,7 @@ export async function exportScenariosToExcel(filtered, filters) {
   }))
 
   // Style header row
-  const headerRow = ws.getRow(1)
-  headerRow.font      = { bold: true, color: { argb: 'FFFFFFFF' } }
-  headerRow.fill      = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E3A5F' } }
-  headerRow.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true }
-  headerRow.height    = 36
+  styleWorksheetHeader(ws)
 
   // Add data rows
   rows.forEach(row => ws.addRow(row))
@@ -182,18 +165,7 @@ export async function exportScenariosToExcel(filtered, filters) {
   ws.views = [{ state: 'frozen', ySplit: 1 }]
 
   // ── 3. Write to buffer and trigger download ───────────────────────────────
-  const buffer = await wb.xlsx.writeBuffer()
-  const blob   = new Blob([buffer], {
-    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-  })
-  const url = URL.createObjectURL(blob)
-  const a   = document.createElement('a')
-  a.href     = url
-  a.download = buildExportFilename(filters)
-  document.body.appendChild(a)
-  a.click()
-  document.body.removeChild(a)
-  URL.revokeObjectURL(url)
+  downloadBuffer(await wb.xlsx.writeBuffer(), buildExportFilename(filters))
 
   return { ok: true }
 }

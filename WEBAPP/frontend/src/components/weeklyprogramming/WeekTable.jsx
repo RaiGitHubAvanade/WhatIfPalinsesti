@@ -38,9 +38,9 @@ function getCurrentWeekMondayISO() {
 }
 
 /**
- * @param {{ rows: ProgramViewModel[], loading: boolean, weekStart: string|null, weekLabel: string, wCh: string|null }} props
+ * @param {{ rows: ProgramViewModel[], loading: boolean, weekStart: string|null, weekLabel: string, wCh: string|null, onExport: () => void }} props
  */
-export default function WeekTable({ rows, loading, weekStart, weekLabel, wCh }) {
+export default function WeekTable({ rows, loading, weekStart, weekLabel, wCh, onExport }) {
   const groups = groupByDay(rows)
   const isCurrentWeek = weekStart === getCurrentWeekMondayISO()
 
@@ -64,6 +64,7 @@ export default function WeekTable({ rows, loading, weekStart, weekLabel, wCh }) 
             weekStart={weekStart}
             weekLabel={weekLabel}
             wCh={wCh}
+            onExport={onExport}
           />
     <div className="pw-weekly-wrap">
           <table>

@@ -8,10 +8,15 @@
   display: flex;
   flex-wrap: wrap;
   gap: 16px;
+  align-items: center;
   font-size: 13px;
   margin-bottom: 8px;
   padding: 8px 0;
   border-bottom: 1px solid var(--border);
+}
+
+.pw-export-btn {
+  margin-left: auto;
 }
 
 .pw-week-table-info-top span {
