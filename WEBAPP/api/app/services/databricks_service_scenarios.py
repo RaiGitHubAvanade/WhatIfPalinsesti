@@ -121,7 +121,7 @@ class DatabricksServiceScenarios(DatabricksService):
             cursor.execute(query, parameters=params)
 
 
-    def delete_scenario(self, scenario_id: str) -> None:
+    def delete_scenario_if_empty(self, scenario_id: str) -> None:
         """Delete the scenario if it has no remaining simulations in either table."""
         query = """
             DELETE FROM ta_coll.whatif.webapp_scenarios
@@ -136,6 +136,20 @@ class DatabricksServiceScenarios(DatabricksService):
                     FROM ta_coll.whatif.webapp_simulations_spostamento
                     WHERE id_scenario = :id_scenario
                 )
+        """
+        params = {"id_scenario": scenario_id}
+
+        self._logger.info(f"Query: {query} with params {params}")
+
+        with self._connection.cursor() as cursor:
+            cursor.execute(query, parameters=params)
+
+
+    def delete_scenario(self, scenario_id: str) -> None:
+        """Delete the scenario if it has no remaining simulations in either table."""
+        query = """
+            DELETE FROM ta_coll.whatif.webapp_scenarios
+            WHERE id = :id_scenario
         """
         params = {"id_scenario": scenario_id}
 

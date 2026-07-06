@@ -22,6 +22,12 @@ export async function deleteSimulation(simulationId) {
   if (!result.success) throw new Error(result.message || 'Errore eliminazione simulazione')
 }
 
+/** @returns {Promise<void>} */
+export async function deleteScenario(scenarioId) {
+  const result = await apiFetch(`/api/scenarios/${scenarioId}`, { method: 'DELETE' })
+  if (!result.success) throw new Error(result.message || 'Errore eliminazione scenario')
+}
+
 /** @returns {Promise<import('../models/scenarios/scenarioViewModels').ScenCompetitorProgramsViewModel>} */
 export async function getScenCompetitorPrograms({ channel, day, from_time }) {
   const params = new URLSearchParams({ channel, day, from_time })

@@ -122,10 +122,18 @@ class BusinessLogicScenarios:
             else:
                 raise ValueError(f"Tipo di scenario sconosciuto: {scenario_type}")
 
-            self._service.delete_scenario(id_scenario)
+            self._service.delete_scenario_if_empty(id_scenario)
         except Exception as e:
             raise RuntimeError(f"Errore nell'eliminazione della simulazione: {e}") from e
 
+
+    def delete_scenario(self, scenario_id: str) -> None:
+        try:
+            self._logger.info("delete_scenario | id=%s", scenario_id)
+
+            self._service.delete_scenario(scenario_id)
+        except Exception as e:
+            raise RuntimeError(f"Errore nell'eliminazione dello scenario: {e}") from e
 
 
     def _upsert_scenario(self, scenarios_map: dict, row: dict) -> None:

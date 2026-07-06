@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useApp } from '../context/useApp'
-import { getScenarios, deleteSimulation } from '../services/apiScenarios'
+import { getScenarios, deleteSimulation, deleteScenario } from '../services/apiScenarios'
 import { retrySimulation } from '../services/apiSimulation'
 import ScenCard from '../components/scenarios/ScenCard'
 import SimulationDetail from '../components/scenarios/SimulationDetail'
@@ -139,7 +139,13 @@ export default function Scenarios() {
 }
 
   // ── Local-only mutations (display state only — no DB writes) ──────────
-  function handleDelete(scenId) {
+  async function handleDeleteScen(scenId) {
+    try {
+      await deleteScenario(scenId)
+    } catch (e) {
+      toast('Errore eliminazione scenario: ' + e.message)
+      return
+    }
     setScenarios(prev => prev.filter(item => item.id !== scenId))
   }
 
@@ -303,7 +309,7 @@ export default function Scenarios() {
                   key={id}
                   scenId={id}
                   sc={sc}
-                  onDelete={() => handleDelete(id)}
+                  onDelete={() => handleDeleteScen(id)}
                   onRename={title => handleRename(id, title)}
                   onAddSim={() => {
                     set({

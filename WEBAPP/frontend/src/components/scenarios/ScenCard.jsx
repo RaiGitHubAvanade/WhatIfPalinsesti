@@ -27,6 +27,7 @@ export default function ScenCard({ scenId, sc, onDelete, onRename, onAddSim, onV
   const [titleInput, setTitleInput] = useState('')
   const [deletingSimId, setDeletingSimId] = useState(null)
   const [retryingSimId, setRetryingSimId] = useState(null)
+  const [deletingScen, setDeletingScen] = useState(false)
 
   const isFull = sc.items.length >= 3
   const typeCls = sc.type === 'spostamento' ? 'spostamento' : 'sostituzione'
@@ -216,7 +217,17 @@ export default function ScenCard({ scenId, sc, onDelete, onRename, onAddSim, onV
       <div className="scen-hcard-created">Creato: {createdTs}</div>
 
       <div className="scen-hcard-actions">
-        <button className="scen-clear-btn" onClick={onDelete}>Elimina Scenario</button>
+        <button
+          className="scen-clear-btn"
+          disabled={deletingScen}
+          onClick={async () => {
+            setDeletingScen(true)
+            try { await onDelete() }
+            finally { setDeletingScen(false) }
+          }}
+        >
+          {deletingScen ? <span className="scen-spinner" /> : 'Elimina Scenario'}
+        </button>
       </div>
 
     </div>
