@@ -11,6 +11,7 @@
     "api": "cd ../api && .venv\\Scripts\\flask --app app  run --no-debugger"
   },
   "dependencies": {
+    "exceljs": "^4.4.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "react-router-dom": "^7.17.0"

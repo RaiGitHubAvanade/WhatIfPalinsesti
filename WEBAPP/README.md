@@ -16,6 +16,7 @@ python -m venv api\.venv
 api\.venv\Scripts\activate
 api\.venv\Scripts\pip install --no-cache -r requirements.txt
 npm install --prefix frontend
+npm install xlsx --prefix frontend
 ```
 
 
