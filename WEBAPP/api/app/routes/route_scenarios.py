@@ -112,3 +112,26 @@ def get_competitor_programs():
 
     logger.info("getCompetitorPrograms: success | channel=%s day=%s", channel, day)
     return success(data=asdict(result), message="Competitor ottenuti con successo")
+
+
+@bp.route("/scenarios/simulation/toggle_evento_forte", methods=["POST"])
+def toggle_evento_forte():
+    body = request.get_json(silent=True) or {}
+    competitor_id = body.get("id")
+    logger.info("toggleEventoForte called | id=%s", competitor_id)
+
+    if not competitor_id:
+        return error(message="Il parametro 'id' è obbligatorio", errors=["missing id"]), 400
+
+    try:
+        logic = BusinessLogicScenarios(get_scenarios_service())
+        logic.toggle_evento_forte(competitor_id)
+    except RuntimeError as e:
+        logger.error("toggleEventoForte: Databricks error | id=%s error=%s", competitor_id, e)
+        return error(message=str(e), errors=["databricks_error"]), 502
+    except Exception as e:
+        logger.exception("toggleEventoForte: unexpected error | id=%s error=%s", competitor_id, e)
+        return error(message=f"Errore imprevisto: {e}", errors=["internal_error"]), 500
+
+    logger.info("toggleEventoForte: success | id=%s", competitor_id)
+    return success(message="Evento forte aggiornato con successo")

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { getScenCompetitorPrograms } from '../../services/apiScenarios'
+import { getScenCompetitorPrograms, toggleEventoForte } from '../../services/apiScenarios'
 import './SimulationDetail.css'
 
 function fmtDate(iso) {
@@ -38,6 +38,7 @@ function CompetitorSection({ channel, day, from_time }) {
   const [data, setData] = useState(null)
   const [visible, setVisible] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [togglingIds, setTogglingIds] = useState(new Set())
 
   useEffect(() => {
     let cancelled = false
@@ -49,6 +50,26 @@ function CompetitorSection({ channel, day, from_time }) {
   }, [channel, day, from_time])
 
   const handleToggle = () => setVisible(v => !v)
+
+  const handleEventoForte = async (id) => {
+    setTogglingIds(prev => new Set(prev).add(id))
+    try {
+      await toggleEventoForte(id)
+      setData(prev => ({
+        ...prev,
+        other_channels: prev.other_channels.map(ch => ({
+          ...ch,
+          programs: ch.programs.map(p =>
+            p.id === id ? { ...p, evento_forte: !p.evento_forte } : p
+          ),
+        })),
+      }))
+    } catch {
+      // leave state unchanged on error
+    } finally {
+      setTogglingIds(prev => { const s = new Set(prev); s.delete(id); return s })
+    }
+  }
 
   return (
     <div className="res-comp-cta">
@@ -83,7 +104,14 @@ function CompetitorSection({ channel, day, from_time }) {
                             {p.share_storico !== null && (
                               <span className="res-comp-share">{p.share_storico.toFixed(1)}%</span>
                             )}
-                            <button className="res-comp-evento-btn" title="Seleziona/deseleziona come Evento Forte">⚡</button>
+                            <button
+                              className={`res-comp-evento-btn${p.evento_forte ? ' active' : ''}`}
+                              disabled={togglingIds.has(p.id)}
+                              onClick={() => handleEventoForte(p.id)}
+                              title={p.evento_forte ? 'Rimuovi da Evento Forte' : 'Segna come Evento Forte'}
+                            >
+                              {togglingIds.has(p.id) ? <span className="scen-spinner" /> : '⚡'}
+                            </button>
                           </div>
                         ))}
                       </div>

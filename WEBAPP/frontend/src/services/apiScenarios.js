@@ -35,3 +35,13 @@ export async function getScenCompetitorPrograms({ channel, day, from_time }) {
   if (!result.success) throw new Error(result.message || 'Errore caricamento competitor')
   return result.data
 }
+
+/** @returns {Promise<void>} */
+export async function toggleEventoForte(id) {
+  const result = await apiFetch('/api/scenarios/simulation/toggle_evento_forte', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id }),
+  })
+  if (!result.success) throw new Error(result.message || 'Errore toggle evento forte')
+}

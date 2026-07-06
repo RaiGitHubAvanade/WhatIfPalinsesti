@@ -167,7 +167,7 @@ class BusinessLogicScenarios:
         channel_order = [c for c in Config.CHANNEL_ORDER_SIMULATION_DETAIL]
 
         try:
-            rows = self._service.get_vw_output_palinsesto_futuro_detailed(
+            rows = self._service.get_vw_output_palinsesto_futuro_ui(
                 channel_order, day, from_time, to_time
             )
         except Exception as e:
@@ -190,3 +190,11 @@ class BusinessLogicScenarios:
             from_time=from_time,
             rows=rows,
         )
+
+
+    def toggle_evento_forte(self, competitor_id: str) -> None:
+        """Toggle evento_forte on a competitor program row."""
+        try:
+            self._service.toggle_evento_forte(competitor_id)
+        except Exception as e:
+            raise RuntimeError(f"Errore durante il toggle di evento_forte per id '{competitor_id}': {e}") from e

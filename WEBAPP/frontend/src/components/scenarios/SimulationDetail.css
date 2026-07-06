@@ -636,3 +636,8 @@
   background: #ffedd5;
   border-color: #fb923c;
 }
+.res-comp-evento-btn.active {
+  background: #ffe0b7;
+  border-color: #fb923c;
+  color: #fff;
+}

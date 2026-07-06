@@ -206,19 +206,18 @@ class DatabricksServiceScenarios(DatabricksService):
 
     ### --- Competitors --- ###
 
-    def get_vw_output_palinsesto_futuro_detailed(
+    def get_vw_output_palinsesto_futuro_ui(
         self,
         channel_order: list[str],
         day,
         from_time: str,
         to_time: str,
     ) -> list[Program]:
-        """Fetch future programs overlapping [from_time, to_time] on the given day,
-        including ID, share_storico and evento_forte for competitor display."""
+        """Fetch future programs overlapping [from_time, to_time] on the given day"""
         channel_params = {f"ch{i}": ch for i, ch in enumerate(channel_order)}
         placeholders = ", ".join(f":ch{i}" for i in range(len(channel_order)))
         query = f"""
-            SELECT Canale, Data, Programma, orario_inizio, orario_fine, ID, share_storico, evento_forte
+            SELECT ID, Canale, Data, Programma, orario_inizio, orario_fine, share_storico, evento_forte
             FROM ta_coll.whatif.vw_output_palinsesto_futuro_ui
             WHERE Data = :day
             AND Canale IN ({placeholders})
@@ -249,3 +248,16 @@ class DatabricksServiceScenarios(DatabricksService):
             rows = cursor.fetchall()
 
         return [Program.MapProgramFromFutureRowDetailed(row) for row in rows]
+
+
+    def toggle_evento_forte(self, competitor_id: str) -> None:
+        """Toggle the evento_forte boolean on a single row in vw_output_palinsesto_futuro_ui."""
+        query = """
+            UPDATE ta_coll.whatif.output_palinsesto_competitor
+            SET evento_forte = NOT evento_forte
+            WHERE ID = :competitor_id
+        """
+        params = {"competitor_id": competitor_id}
+        self._logger.info(f"Query: {query} with params {params}")
+        with self._connection.cursor() as cursor:
+            cursor.execute(query, parameters=params)
