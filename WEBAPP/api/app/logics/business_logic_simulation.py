@@ -228,7 +228,7 @@ class BusinessLogicSimulation:
 
         try:
             logger.info("_run_simulation_async | simulation_id=%s START", simulation_id)
-            result = ai.call_sostituzione(payload)
+            result = ai.call_sostituzione_token(payload)
             predictions = result["predictions"]
             svc.update_simulation(
                 simulation_id,

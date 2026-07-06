@@ -1,27 +1,67 @@
+import logging
+import os
 import random
 import time
-import logging
 
+import requests
 from app.utils.number_utils import NumberUtils
+from databricks.sdk.core import Config as DatabricksConfig
+
+from app.config import Config
 
 
 class AiService:
     def __init__(self) -> None:
         self._logger = logging.getLogger(__name__)
+        self._db_config = DatabricksConfig()
 
     # ------------------------------------------------------------------ #
     # Sostituzione
     # ------------------------------------------------------------------ #
 
     def call_sostituzione(self, payload: dict) -> dict:
-        """Call the Serving Endpoint for a Sostituzione simulation.
-
-        Mock: sleeps 30 s, then returns {"result": 5.00}.
-
-        Production: POST to the Databricks Serving Endpoint with *payload*
+        """POST *payload* to the Databricks Serving Endpoint for Sostituzione
         and return the parsed JSON response.
         """
         self._logger.info("AiService.call_sostituzione | payload=%s", payload)
+        headers = {
+            **self._db_config.authenticate(),
+            "Content-Type": "application/json",
+        }
+        response = requests.post(
+            Config.DATABRICKS_SOSTITUZIONE_ENDPOINT,
+            headers=headers,
+            json=payload,
+            timeout=120,
+        )
+        response.raise_for_status()
+        return response.json()
+
+    def call_sostituzione_token(self, payload: dict) -> dict:
+        """Temporary: POST *payload* using a PAT from DATABRICKS_TOKEN env var."""
+        self._logger.info("AiService.call_sostituzione_token | payload=%s", payload)
+        token = Config.DATABRICKS_TOKEN_SIMULAZIONE
+        
+        if not token:
+            raise ValueError("DATABRICKS_TOKEN environment variable is not set")
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+        }
+        response = requests.post(
+            Config.DATABRICKS_SOSTITUZIONE_ENDPOINT,
+            headers=headers,
+            json=payload,
+            timeout=120,
+        )
+        response.raise_for_status()
+        return response.json()
+
+    def call_sostituzione_mocked(self, payload: dict) -> dict:
+        """Mocked version of call_sostituzione for testing purposes."""
+        self._logger.info("AiService.call_sostituzione_mocked | payload=%s", payload)
+        
+        # Return a mocked response
         time.sleep(30)
         raw = random.uniform(0, 10)
         return {

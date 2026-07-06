@@ -1,6 +1,7 @@
 flask==3.1.3
 python-dotenv==1.2.2
 flask-cors==6.0.2
+requests>=2.32
 
 # SQL Connector for Python
 databricks-sdk==0.33.0
