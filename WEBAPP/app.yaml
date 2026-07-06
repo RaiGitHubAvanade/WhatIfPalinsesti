@@ -15,3 +15,7 @@ env:
     value: "15"
   - name: "CHANNEL_ORDER"
     value: "Rai 1,Rai 2,Rai 3,Rete 4,Canale 5,Italia 1,La7,Tv8,Nove"
+  - name: "CHANNEL_ORDER_SIMULATION_DETAIL"
+    value: "Rete 4,Canale 5,Italia 1,La7,Tv8,Nove"
+  - name: "COMPETITORS_SLOT_DURATION_MINUTES"
+    value: "60"
