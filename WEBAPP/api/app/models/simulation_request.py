@@ -37,6 +37,7 @@ class SimulationSostRequest:
                 "scenario_type":             self.scenario_type,
                 "new_program_name":          self.new_program_name,
                 "new_program_share_storico": self.new_program_share_storico,
+                "program_share_predict":     self.program_share_predict,
             }.items()
             if val is None
         ]
