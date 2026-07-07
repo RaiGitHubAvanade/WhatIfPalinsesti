@@ -6,16 +6,6 @@ from datetime import datetime, timezone
 from app.utils.messages import Messages
 from app.services.databricks_service_simulation import DatabricksServiceSimulation
 from app.models.simulation_request import SimulationSostRequest
-from app.view_models.simulation import (
-    ProgramItemViewModel,
-    ProgramListViewModel,
-    CompetitorItemViewModel,
-    CompetitorListViewModel,
-    SimResultSostViewModel,
-    SimResultSpostaViewModel,
-    ScheduleItemViewModel,
-    ChannelScheduleViewModel,
-)
 from app.view_models.weekly_programming import OtherProgramViewModel
 
 

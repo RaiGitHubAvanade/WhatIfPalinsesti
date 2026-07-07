@@ -30,6 +30,21 @@ class SimulationSost:
             is_retry=bool(row.is_retry),
         )
 
+    @classmethod
+    def MapSimulationSostFromDict(cls, row: dict) -> "SimulationSost":
+        return cls(
+            id=str(row["simulation_id"]),
+            id_scenario=str(row["scenario_id"]),
+            new_program_name=row.get("new_program_name"),
+            new_program_share_storico=row.get("new_program_share_storico"),
+            share_result=row.get("share_result"),
+            status=row.get("status") or "Unknown",
+            creation_date=_to_iso(row.get("simulation_creation_date")),
+            modified_date=_to_iso(row.get("modified_date")),
+            last_error=row.get("last_error"),
+            is_retry=bool(row.get("is_retry", False)),
+        )
+
 
 @dataclass
 class SimulationSposta:
@@ -60,6 +75,22 @@ class SimulationSposta:
             modified_date=_to_iso(row.modified_date),
             last_error=row.last_error,
             is_retry=bool(row.is_retry),
+        )
+
+    @classmethod
+    def MapSimulationSpostaFromDict(cls, row: dict) -> "SimulationSposta":
+        return cls(
+            id=str(row["simulation_id"]),
+            id_scenario=str(row["scenario_id"]),
+            new_channel=row.get("new_channel"),
+            new_date=_to_iso(row.get("new_date")),
+            new_from_time=str(row["new_from_time"]) if row.get("new_from_time") else None,
+            share_result=row.get("share_result"),
+            status=row.get("status") or "Unknown",
+            creation_date=_to_iso(row.get("simulation_creation_date")),
+            modified_date=_to_iso(row.get("modified_date")),
+            last_error=row.get("last_error"),
+            is_retry=bool(row.get("is_retry", False)),
         )
 
 

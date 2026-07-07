@@ -1,5 +1,7 @@
 from app.services.databricks_service import DatabricksService
 from app.models.program import Program
+from app.models.scenario import Scenario
+from app.models.simulation import SimulationSost, SimulationSposta
 from app.utils.date_time_utils import DateTimeUtils
 
 
@@ -26,7 +28,7 @@ class DatabricksServiceScenarios(DatabricksService):
         self,
         search: str | None = None,
         program_date: str | None = None,
-    ) -> list[dict]:
+    ) -> list[Scenario]:
         """Return flat rows from webapp_scenarios LEFT JOIN webapp_simulations_sostituzione."""
         conditions, params = self._base_params(search, program_date)
         extra_where = (" AND " + " AND ".join(conditions)) if conditions else ""
@@ -64,7 +66,19 @@ class DatabricksServiceScenarios(DatabricksService):
             columns = [col[0] for col in cursor.description]
             rows = [dict(zip(columns, row)) for row in cursor.fetchall()]
 
-        return rows
+        scenarios: dict[str, Scenario] = {}
+        seen_sim_ids: set[str] = set()
+        for row in rows:
+            sce_id = str(row["scenario_id"])
+            if sce_id not in scenarios:
+                scenarios[sce_id] = Scenario.MapScenarioFromDict(row)
+            sim_id = row.get("simulation_id")
+            if sim_id is not None:
+                sim_key = str(sim_id)
+                if sim_key not in seen_sim_ids:
+                    seen_sim_ids.add(sim_key)
+                    scenarios[sce_id].simulations.append(SimulationSost.MapSimulationSostFromDict(row))
+        return list(scenarios.values())
 
 
     def get_delete_informations(self, simulation_id: str) -> tuple[str, str] | None:
@@ -163,7 +177,7 @@ class DatabricksServiceScenarios(DatabricksService):
         self,
         search: str | None = None,
         program_date: str | None = None,
-    ) -> list[dict]:
+    ) -> list[Scenario]:
         """Return flat rows from webapp_scenarios LEFT JOIN webapp_simulations_spostamento."""
         conditions, params = self._base_params(search, program_date)
         extra_where = (" AND " + " AND ".join(conditions)) if conditions else ""
@@ -201,7 +215,20 @@ class DatabricksServiceScenarios(DatabricksService):
             cursor.execute(query, parameters=params)
             columns = [col[0] for col in cursor.description]
             rows = [dict(zip(columns, row)) for row in cursor.fetchall()]
-        return rows
+
+        scenarios: dict[str, Scenario] = {}
+        seen_sim_ids: set[str] = set()
+        for row in rows:
+            sce_id = str(row["scenario_id"])
+            if sce_id not in scenarios:
+                scenarios[sce_id] = Scenario.MapScenarioFromDict(row)
+            sim_id = row.get("simulation_id")
+            if sim_id is not None:
+                sim_key = str(sim_id)
+                if sim_key not in seen_sim_ids:
+                    seen_sim_ids.add(sim_key)
+                    scenarios[sce_id].simulations.append(SimulationSposta.MapSimulationSpostaFromDict(row))
+        return list(scenarios.values())
 
 
     ### --- Competitors --- ###
