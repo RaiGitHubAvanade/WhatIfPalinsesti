@@ -1,0 +1,28 @@
+/** Abbreviazioni italiane dei giorni della settimana (indice 0 = domenica) */
+export const DAYS = ['dom', 'lun', 'mar', 'mer', 'gio', 'ven', 'sab']
+
+/** CSS class per canale RAI per i program rows */
+export const CH_CLS = { 'Rai 1': 'prow-r1', 'Rai 2': 'prow-r2', 'Rai 3': 'prow-r3' }
+
+/** Numero di programmi per pagina nelle liste di selezione */
+export const PROGRAM_PAGE_SIZE = 8
+
+/** Canali RAI disponibili */
+export const CHANNELS = ['Rai 1', 'Rai 2', 'Rai 3']
+
+/** Slot orari del giorno broadcast: 06:00, 06:30 … 23:30, 00:00, 00:30, 01:00, 01:30, 02:00 */
+export const TIME_SLOTS = [
+  ...Array.from({ length: 36 }, (_, i) => {
+    const h = Math.floor(i / 2) + 6
+    const m = i % 2 === 0 ? '00' : '30'
+    return `${String(h).padStart(2, '0')}:${m}`
+  }),
+  '00:00', '00:30', '01:00', '01:30', '02:00',
+]
+
+/** Tipi di simulazione disponibili */
+export const SIMULATION_TYPES = [
+  { value: '',             label: 'Tutti' },
+  { value: 'sostituzione', label: 'Sostituzione' },
+  { value: 'spostamento',  label: 'Spostamento' },
+]

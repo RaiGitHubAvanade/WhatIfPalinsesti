@@ -5,17 +5,9 @@ import ChannelSelector from '../shared/ChannelSelector'
 import DaySelector from '../shared/DaySelector'
 import TimeSelector from './TimeSelector'
 import TextInputFilter from '../shared/TextInputFilter'
+import { CH_CLS, PROGRAM_PAGE_SIZE as PAGE_SIZE } from '../../utils/constants'
+import { fmtDate } from '../../utils/dateUtils'
 import './StepProgram.css'
-
-const PAGE_SIZE = 8
-const CH_CLS = { 'Rai 1': 'prow-r1', 'Rai 2': 'prow-r2', 'Rai 3': 'prow-r3' }
-
-function fmtDate(iso) {
-  if (!iso) return '—'
-  const d = new Date(iso + 'T00:00:00')
-  const days = ['dom', 'lun', 'mar', 'mer', 'gio', 'ven', 'sab']
-  return `${days[d.getDay()]} ${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`
-}
 
 function parseSlot(slot) {
   if (!slot) return { fromTime: '', toTime: '' }

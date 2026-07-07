@@ -1,13 +1,7 @@
 import { useState, useEffect } from 'react'
 import { getScenCompetitorPrograms, toggleEventoForte } from '../../services/apiScenarios'
+import { fmtDate } from '../../utils/dateUtils'
 import './SimulationDetail.css'
-
-function fmtDate(iso) {
-  if (!iso) return '—'
-  const d = new Date(iso + 'T00:00:00')
-  const days = ['dom', 'lun', 'mar', 'mer', 'gio', 'ven', 'sab']
-  return `${days[d.getDay()]} ${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`
-}
 
 function VerdictPill({ delta }) {
   const isPos = delta !== null && delta > 0

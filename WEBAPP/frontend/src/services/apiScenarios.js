@@ -1,5 +1,6 @@
 /**
  * @typedef {import('../models/scenarios/scenarioViewModels').ScenarioListViewModel} ScenarioListViewModel
+ * @typedef {import('../models/scenarios/scenarioViewModels').ScenCompetitorProgramsViewModel} ScenCompetitorProgramsViewModel
  */
 
 import { apiFetch } from './apiService'
@@ -28,7 +29,7 @@ export async function deleteScenario(scenarioId) {
   if (!result.success) throw new Error(result.message || 'Errore eliminazione scenario')
 }
 
-/** @returns {Promise<import('../models/scenarios/scenarioViewModels').ScenCompetitorProgramsViewModel>} */
+/** @returns {Promise<ScenCompetitorProgramsViewModel>} */
 export async function getScenCompetitorPrograms({ channel, day, from_time }) {
   const params = new URLSearchParams({ channel, day, from_time })
   const result = await apiFetch(`/api/scenarios/simulation/getCompetitorPrograms?${params}`)

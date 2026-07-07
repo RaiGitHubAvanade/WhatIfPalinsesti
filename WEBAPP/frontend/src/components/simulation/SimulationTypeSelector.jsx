@@ -1,10 +1,5 @@
+import { SIMULATION_TYPES as TYPES } from '../../utils/constants'
 import './SimulationTypeSelector.css'
-
-const TYPES = [
-  { value: '',             label: 'Tutti' },
-  { value: 'sostituzione', label: 'Sostituzione' },
-  { value: 'spostamento',  label: 'Spostamento' },
-]
 
 /**
  * Toggle-pill simulation type selector (mirrors ChannelSelector pattern).

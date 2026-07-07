@@ -1,6 +1,5 @@
+import { CHANNELS } from '../../utils/constants'
 import './ChannelSelector.css'
-
-const CHANNELS = ['Rai 1', 'Rai 2', 'Rai 3']
 
 /**
  * Toggle-pill channel selector.

@@ -1,14 +1,13 @@
 ﻿import { useState, useEffect, useMemo } from 'react'
 import { useApp } from '../../context/useApp'
 import { getCandidatePrograms } from '../../services/apiSimulation'
+import { CH_CLS, PROGRAM_PAGE_SIZE as PAGE_SIZE } from '../../utils/constants'
 import CustomSelect from '../shared/CustomSelect'
 import ChannelSelector from '../shared/ChannelSelector'
-import './StepCandidates.css'
 import TextInputFilter from '../shared/TextInputFilter'
+import './StepCandidates.css'
 
 /** @typedef {import('../../models/weekly_programming/competitorProgramsViewModel').OtherProgramViewModel} OtherProgramViewModel */
-
-const PAGE_SIZE = 8
 
 export default function StepCandidates() {
   const { state, set, toast } = useApp()
@@ -52,8 +51,6 @@ export default function StepCandidates() {
 
   const totalPages = Math.max(1, Math.ceil(displayed.length / PAGE_SIZE))
   const pageItems = displayed.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
-
-  const CH_CLS = { 'Rai 1': 'prow-r1', 'Rai 2': 'prow-r2', 'Rai 3': 'prow-r3' }
 
   return (
     <div className="card psel-card">

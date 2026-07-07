@@ -1,12 +1,6 @@
 import { useApp } from '../../context/useApp'
+import { fmtDate } from '../../utils/dateUtils'
 import './SimRecap.css'
-
-function fmtDate(iso) {
-  if (!iso) return null
-  const d = new Date(iso + 'T00:00:00')
-  const days = ['dom', 'lun', 'mar', 'mer', 'gio', 'ven', 'sab']
-  return `${days[d.getDay()]} ${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`
-}
 
 export default function SimRecap() {
   const { state } = useApp()

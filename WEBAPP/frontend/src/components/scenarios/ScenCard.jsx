@@ -1,16 +1,6 @@
 import { useState } from 'react'
+import { fmtDateShort } from '../../utils/dateUtils'
 import './ScenCard.css'
-
-/**
- * @typedef {import('../../models/simulation/simResultViewModels').SimResultSost} SimResultSost
- * @typedef {import('../../models/simulation/simResultViewModels').SimResultSposta} SimResultSposta
- */
-
-function fmtDateShort(iso) {
-  if (!iso) return '—'
-  const d = new Date(iso + 'T00:00:00')
-  return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`
-}
 
 /**
  * @param {{
