@@ -26,6 +26,20 @@ class SimulationSostRequest:
             new_program_share_storico=body.get("new_program_share_storico"),
             program_share_predict=body.get("program_share_predict"),
         )
+    
+    def retrieve_missing_parameters(self) -> list[str]:
+        return [
+            name for name, val in {
+                "program_name":              self.program_name,
+                "program_channel":           self.program_channel,
+                "program_date":              self.program_date,
+                "program_from_time":         self.program_from_time,
+                "scenario_type":             self.scenario_type,
+                "new_program_name":          self.new_program_name,
+                "new_program_share_storico": self.new_program_share_storico,
+            }.items()
+            if val is None
+        ]
 
     def to_payload(self) -> dict:
         return {

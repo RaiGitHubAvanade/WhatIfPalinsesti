@@ -47,37 +47,15 @@ class BusinessLogicSimulation:
 
         Returns a (message, http_status) tuple.
         """
-        program_name     = req.program_name
-        program_channel  = req.program_channel
-        program_share_predict = req.program_share_predict
-        program_date     = req.program_date
-        program_from_time = req.program_from_time
-        scenario_type    = req.scenario_type
-        new_program_name = req.new_program_name
-        new_program_share_storico = req.new_program_share_storico
-
-        missing = [
-            k for k, v in {
-                "program_name": program_name,
-                "program_channel": program_channel,
-                "program_date": program_date,
-                "program_from_time": program_from_time,
-                "scenario_type": scenario_type,
-                "new_program_name": new_program_name,
-                "new_program_share_storico": new_program_share_storico,
-            }.items() if v is None
-        ]
-        if missing:
-            raise ValueError(f"Campi obbligatori mancanti: {', '.join(missing)}")
 
         now = datetime.now(timezone.utc)
 
         rows = self._service.get_scenario_simulations(
-            program_name=program_name,
-            program_channel=program_channel,
-            program_date=program_date,
-            program_from_time=program_from_time,
-            scenario_type=scenario_type,
+            program_name=req.program_name,
+            program_channel=req.program_channel,
+            program_date=req.program_date,
+            program_from_time=req.program_from_time,
+            scenario_type=req.scenario_type,
         )
 
         # ── Step 1: existing scenario? ────────────────────────────────
@@ -88,7 +66,7 @@ class BusinessLogicSimulation:
             sim_rows = [
                 r for r in rows
                 if r.get("sim_id") is not None
-                and r.get("new_program_name") == new_program_name
+                and r.get("new_program_name") == req.new_program_name
             ]
 
             if sim_rows:
@@ -124,8 +102,8 @@ class BusinessLogicSimulation:
                     self._service.insert_simulation({
                         "id": simulation_id,
                         "id_scenario": scenario_id,
-                        "new_program_name": new_program_name,
-                        "new_program_share_storico": new_program_share_storico,
+                        "new_program_name": req.new_program_name,
+                        "new_program_share_storico": req.new_program_share_storico,
                         "share_result": None,
                         "status": "Running",
                         "creation_date": now,
@@ -143,12 +121,12 @@ class BusinessLogicSimulation:
             scenario_id = str(uuid.uuid4())
             self._service.insert_scenario({
                 "id": scenario_id,
-                "scenario_type": scenario_type,
-                "program_name": program_name,
-                "program_channel": program_channel,
-                "program_share_predict": program_share_predict,
-                "program_date": program_date,
-                "program_from_time": program_from_time,
+                "scenario_type": req.scenario_type,
+                "program_name": req.program_name,
+                "program_channel": req.program_channel,
+                "program_share_predict": req.program_share_predict,
+                "program_date": req.program_date,
+                "program_from_time": req.program_from_time,
                 "creation_date": now,
             })
 
@@ -156,8 +134,8 @@ class BusinessLogicSimulation:
             self._service.insert_simulation({
                 "id": simulation_id,
                 "id_scenario": scenario_id,
-                "new_program_name": new_program_name,
-                "new_program_share_storico": new_program_share_storico,
+                "new_program_name": req.new_program_name,
+                "new_program_share_storico": req.new_program_share_storico,
                 "share_result": None,
                 "status": "Running",
                 "creation_date": now,
@@ -191,6 +169,11 @@ class BusinessLogicSimulation:
             new_program_share_storico=row.get("new_program_share_storico"),
             program_share_predict=row.get("program_share_predict"),
         )
+
+        missing = req.retrieve_missing_parameters()
+        if missing:
+            raise ValueError(f"Campi obbligatori mancanti: {', '.join(missing)}")
+
         return self.start_sostituzione(req)
 
 

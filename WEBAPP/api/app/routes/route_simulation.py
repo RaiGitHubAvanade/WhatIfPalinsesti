@@ -66,18 +66,7 @@ def start_sostituzione():
     body = request.get_json(silent=True) or {}
     req = SimulationSostRequest.from_body(body)
 
-    missing = [
-        name for name, val in {
-            "program_name":              req.program_name,
-            "program_channel":           req.program_channel,
-            "program_date":              req.program_date,
-            "program_from_time":         req.program_from_time,
-            "scenario_type":             req.scenario_type,
-            "new_program_name":          req.new_program_name,
-            "new_program_share_storico": req.new_program_share_storico,
-        }.items()
-        if val is None
-    ]
+    missing = req.retrieve_missing_parameters()
     if missing:
         return error(
             message=f"Parametri obbligatori mancanti: {', '.join(missing)}",

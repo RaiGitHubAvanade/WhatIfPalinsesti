@@ -31,38 +31,7 @@ class DatabricksServiceSimulation(DatabricksService):
             rows = cursor.fetchall()
 
         return [Program.MapProgramFromRaiPredictRow(row) for row in rows]
-
-    def get_simulation_for_retry(self, simulation_id: str) -> dict | None:
-        """Fetch simulation + parent scenario data needed to relaunch the async job."""
-        query = """
-            SELECT
-                sim.id               AS sim_id,
-                sim.new_program_name,
-                sim.new_program_share_storico,
-                sim.status,
-                sim.is_retry,
-                sce.id               AS sce_id,
-                sce.scenario_type,
-                sce.program_name,
-                sce.program_channel,
-                sce.program_date,
-                sce.program_from_time,
-                sce.program_share_predict
-            FROM ta_coll.whatif.webapp_simulations_sostituzione sim
-            JOIN ta_coll.whatif.webapp_scenarios sce
-              ON sim.id_scenario = sce.id
-            WHERE sim.id = :simulation_id
-        """
-        params = {"simulation_id": simulation_id}
-
-        self._logger.info(f"Query: {query} with params {params}")
-
-        with self._connection.cursor() as cursor:
-            cursor.execute(query, parameters=params)
-            columns = [col[0] for col in cursor.description]
-            row = cursor.fetchone()
-            
-        return dict(zip(columns, row)) if row else None
+    
 
     def get_candidate_programs(self) -> list[Program]:
         """Fetch all candidate replacement programs (filtering done client-side)."""
@@ -78,6 +47,7 @@ class DatabricksServiceSimulation(DatabricksService):
             rows = cursor.fetchall()
 
         return [Program.MapProgramFromCandidateRow(row) for row in rows]
+
 
     def get_scenario_simulations(
         self,
@@ -206,153 +176,34 @@ class DatabricksServiceSimulation(DatabricksService):
             cursor.execute(query, parameters=params)
 
 
-
-    # ------------------------------------------------------------------ #
-    # MOCKED
-    # ------------------------------------------------------------------ #
-
-    def get_programs(
-        self,
-        ch: str | None = None,
-        date: str | None = None,
-        from_time: str | None = None,
-        to_time: str | None = None,
-        search: str | None = None,
-    ) -> list[dict]:
-        # TODO: replace with actual table and column names
-        conditions = ["1=1"]
-        params: dict = {}
-
-        if ch:
-            conditions.append("channel = :ch")
-            params["ch"] = ch
-        if date:
-            conditions.append("program_date = :date")
-            params["date"] = date
-        if from_time:
-            conditions.append("end_time >= :from_time")
-            params["from_time"] = from_time
-        if to_time:
-            conditions.append("start_time <= :to_time")
-            params["to_time"] = to_time
-        if search:
-            conditions.append("(LOWER(title) LIKE :search OR LOWER(genre) LIKE :search)")
-            params["search"] = f"%{search.lower()}%"
-
-        query = f"""
-            SELECT id, title, genre, start_time, end_time, duration_min,
-                   channel, share, eta, sesso, tipo, slot
-            FROM ta_coll.whatif.programs
-            WHERE {' AND '.join(conditions)}
-            ORDER BY start_time
-        """
-        self._logger.info(f"Query: {query} with params {params}")
-
-        with self._connection.cursor() as cursor:
-            cursor.execute(query, parameters=params)
-            columns = [col[0] for col in cursor.description]
-            return [dict(zip(columns, row)) for row in cursor.fetchall()]
-
-
-    def get_candidates(
-        self,
-        exclude_id: str | None = None,
-        ch: str | None = None,
-        search: str | None = None,
-        genere: str | None = None,
-        eta: str | None = None,
-        share_min: float | None = None,
-        target_dur: int | None = None,
-    ) -> list[dict]:
-        # TODO: replace with actual table and column names
-        conditions = ["1=1"]
-        params: dict = {}
-
-        if exclude_id:
-            conditions.append("id != :exclude_id")
-            params["exclude_id"] = exclude_id
-        if ch:
-            conditions.append("channel = :ch")
-            params["ch"] = ch
-        if search:
-            conditions.append("(LOWER(title) LIKE :search OR LOWER(genre) LIKE :search)")
-            params["search"] = f"%{search.lower()}%"
-        if genere and genere not in ("Tutti", "All"):
-            conditions.append("sesso IN (:genere, 'All', 'Tutti')")
-            params["genere"] = genere
-        if share_min is not None:
-            conditions.append("share >= :share_min")
-            params["share_min"] = share_min
-        if target_dur is not None:
-            conditions.append("ABS(duration_min - :target_dur) <= 60")
-            params["target_dur"] = target_dur
-
-        query = f"""
-            SELECT id, title, genre, start_time, end_time, duration_min,
-                   channel, share, eta, sesso, tipo, slot
-            FROM ta_coll.whatif.programs
-            WHERE {' AND '.join(conditions)}
-            ORDER BY share DESC
-        """
-        self._logger.info(f"Query: {query} with params {params}")
-
-        with self._connection.cursor() as cursor:
-            cursor.execute(query, parameters=params)
-            columns = [col[0] for col in cursor.description]
-            return [dict(zip(columns, row)) for row in cursor.fetchall()]
-
-
-    def get_competitors(self, slot: str | None = None) -> list[dict]:
-        # TODO: replace with actual table and column names
-        params: dict = {"slot": slot or "prime"}
+    def get_simulation_for_retry(self, simulation_id: str) -> dict | None:
+        """Fetch simulation + parent scenario data needed to relaunch the async job."""
         query = """
-            SELECT title, channel, tipo, share, is_event
-            FROM ta_coll.whatif.competitors
-            WHERE slot = :slot
-            ORDER BY share DESC
-            LIMIT 6
+            SELECT
+                sim.id               AS sim_id,
+                sim.new_program_name,
+                sim.new_program_share_storico,
+                sim.status,
+                sim.is_retry,
+                sce.id               AS sce_id,
+                sce.scenario_type,
+                sce.program_name,
+                sce.program_channel,
+                sce.program_date,
+                sce.program_from_time,
+                sce.program_share_predict
+            FROM ta_coll.whatif.webapp_simulations_sostituzione sim
+            JOIN ta_coll.whatif.webapp_scenarios sce
+              ON sim.id_scenario = sce.id
+            WHERE sim.id = :simulation_id
         """
-        self._logger.info(f"Query: {query} with params {params}")
-
-        with self._connection.cursor() as cursor:
-            cursor.execute(query, parameters=params)
-            columns = [col[0] for col in cursor.description]
-            return [dict(zip(columns, row)) for row in cursor.fetchall()]
-
-
-    def get_channel_schedule(
-        self,
-        ch: str,
-        dest_time: str,
-    ) -> list[dict]:
-        # TODO: replace with actual table and column names
-        query = """
-            SELECT id, title, start_time, end_time, duration_min, share, tipo, genre
-            FROM ta_coll.whatif.programs
-            WHERE channel = :ch
-              AND start_time <= :range_end
-              AND end_time   >= :range_start
-            ORDER BY start_time
-        """
-        h, m = int(dest_time[:2]), int(dest_time[3:5])
-        dest_min = h * 60 + m
-        range_start = f"{(dest_min - 120) // 60:02d}:{(dest_min - 120) % 60:02d}"
-        range_end   = f"{(dest_min + 120) // 60:02d}:{(dest_min + 120) % 60:02d}"
-        params = {"ch": ch, "range_start": range_start, "range_end": range_end}
+        params = {"simulation_id": simulation_id}
 
         self._logger.info(f"Query: {query} with params {params}")
 
         with self._connection.cursor() as cursor:
             cursor.execute(query, parameters=params)
             columns = [col[0] for col in cursor.description]
-            return [dict(zip(columns, row)) for row in cursor.fetchall()]
-
-
-    def predict_sostituzione(self, orig_id: str, cand_id: str) -> dict:
-        # TODO: call Databricks Serving Endpoint or delegate to AiService
-        raise NotImplementedError("predict_sostituzione: migrate to AiService")
-
-
-    def predict_spostamento(self, prog_id: str, dest_ch: str, dest_time: str) -> dict:
-        # TODO: call Databricks Serving Endpoint or delegate to AiService
-        raise NotImplementedError("predict_spostamento: migrate to AiService")
+            row = cursor.fetchone()
+            
+        return dict(zip(columns, row)) if row else None
