@@ -44,8 +44,8 @@ export default function SimNav() {
       } else {
         throw new Error('Modalità di simulazione non valida')
       }
-      addToScenarioWithResult(result)
-      toast('Simulazione avviata. Puoi visualizzarla nella sezione "Scenario"')
+      addToScenarioWithResult(result.data)
+      toast(result.message || 'La simulazione è stata creata ed è disponibile nella sezione "Scenari". Seleziona un altro programma sostitutivo per eseguire una nuova simulazione.')
       set({ cand: null })
     } catch (e) {
       toast('Errore simulazione: ' + e.message)

@@ -13,26 +13,26 @@ export default function Home() {
 
       <div className="home-nav-grid">
         <div className="home-nav-card" onClick={() => navigate('/simulazione')}>
-          <div className="home-nav-ico">🔄</div>
-          <div className="home-nav-title">Simulazione WhatIF</div>
+          <div className="home-nav-ico">📈</div>
+          <div className="home-nav-title">Simulazione</div>
           <div className="home-sub-row">
             <span className="home-sub-tag">Sostituzione</span>
             <span className="home-sub-tag">Spostamento</span>
           </div>
           <div className="home-nav-desc">
-            Seleziona un programma, scegli un'alternativa e visualizza lo share previsto con grafico comparativo.
+            Seleziona un programma, scegli il tipo di simulazione da effettuare e usa l'AI per calcolare lo share previsto.
           </div>
         </div>
 
         <div className="home-nav-card" onClick={() => navigate('/scenari')}>
           <div className="home-nav-ico">📋</div>
-          <div className="home-nav-title">Scenari Salvati</div>
+          <div className="home-nav-title">Scenari</div>
           <div className="home-sub-row">
             <span className="home-sub-tag">4 scenari</span>
             <span className="home-sub-tag">Confronto</span>
           </div>
           <div className="home-nav-desc">
-            Gestisci fino a 4 scenari di simulazione salvati, con stampa e condivisione.
+            Simula modifiche alla programmazione attraverso sostituzioni e spostamenti di programma.
           </div>
         </div>
 

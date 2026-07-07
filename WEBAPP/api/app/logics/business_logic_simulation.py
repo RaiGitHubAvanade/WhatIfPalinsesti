@@ -3,6 +3,7 @@ import threading
 import uuid
 from datetime import datetime, timezone
 
+from app.utils.messages import Messages
 from app.services.databricks_service_simulation import DatabricksServiceSimulation
 from app.models.simulation_request import SimulationSostRequest
 from app.view_models.simulation import (
@@ -115,15 +116,15 @@ class BusinessLogicSimulation:
                         is_retry=False,
                     )
                     self._launch_thread(simulation_id, req.to_payload())
-                    return "Simulazione avviata. Lo stato può essere verificato nella pagina Scenari.", 202
+                    return Messages.SIMULATION_STARTED, 202
 
                 else:
                     # 3.N — check current status for a precise message
                     status = sim["status"]
                     if status == "Running":
-                        return "Simulazione già in corso.", 409
+                        return Messages.SIMULATION_ALREADY_RUNNING, 409
                     else:  # Completed
-                        return "Non è possibile ripetere una simulazione già completata.", 409
+                        return Messages.SIMULATION_ALREADY_COMPLETED, 409
 
             else:
                 # ── Step 4: fewer than 3 simulations on this scenario? ─
@@ -143,13 +144,9 @@ class BusinessLogicSimulation:
                         "is_retry": False,
                     })
                     self._launch_thread(simulation_id, req.to_payload())
-                    return "Simulazione avviata. Lo stato può essere verificato nella pagina Scenari.", 202
+                    return Messages.SIMULATION_STARTED, 202
                 else:
-                    return (
-                        "Impossibile avviare la simulazione: "
-                        "numero massimo di simulazioni raggiunto per questo scenario.",
-                        409,
-                    )
+                    return Messages.SIMULATION_SCENARIO_LIMIT_REACHED, 200
 
         else:
             # ── Step 1.N: create scenario + simulation ─────────────────
@@ -179,7 +176,7 @@ class BusinessLogicSimulation:
                 "is_retry": False,
             })
             self._launch_thread(simulation_id, req.to_payload())
-            return "Simulazione avviata. Lo stato può essere verificato nella pagina Scenari.", 202
+            return Messages.SIMULATION_STARTED, 202
 
 
     def retry_simulation(self, simulation_id: str) -> tuple[str, int]:
@@ -190,9 +187,9 @@ class BusinessLogicSimulation:
             raise RuntimeError(f"Errore nel recupero della simulazione: {e}") from e
 
         if row is None:
-            raise ValueError("Simulazione non trovata")
+            raise ValueError(Messages.SIMULATION_NOT_FOUND)
         if row.get("status") != "Failed" or not row.get("is_retry"):
-            raise ValueError("Solo le simulazioni fallite possono essere rilanciate")
+            raise ValueError(Messages.SIMULATION_RETRY_ON_NOT_FAILED)
 
         req = SimulationSostRequest(
             program_name=row.get("program_name"),
@@ -228,7 +225,7 @@ class BusinessLogicSimulation:
 
         try:
             logger.info("_run_simulation_async | simulation_id=%s START", simulation_id)
-            result = ai.call_sostituzione_token(payload)
+            result = ai.call_sostituzione(payload)
             predictions = result["predictions"]
             svc.update_simulation(
                 simulation_id,

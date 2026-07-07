@@ -5,7 +5,7 @@ import time
 
 import requests
 from app.utils.number_utils import NumberUtils
-from databricks.sdk.core import Config as DatabricksConfig
+from databricks.sdk import WorkspaceClient
 
 from app.config import Config
 
@@ -13,7 +13,7 @@ from app.config import Config
 class AiService:
     def __init__(self) -> None:
         self._logger = logging.getLogger(__name__)
-        self._db_config = DatabricksConfig()
+        self._databricks_client = WorkspaceClient()
 
     # ------------------------------------------------------------------ #
     # Sostituzione
@@ -25,7 +25,7 @@ class AiService:
         """
         self._logger.info("AiService.call_sostituzione | payload=%s", payload)
         headers = {
-            **self._db_config.authenticate(),
+            **self._databricks_client.config.authenticate(),
             "Content-Type": "application/json",
         }
         response = requests.post(
@@ -52,7 +52,7 @@ class AiService:
             Config.DATABRICKS_SOSTITUZIONE_ENDPOINT,
             headers=headers,
             json=payload,
-            timeout=120,
+            timeout=240,
         )
         response.raise_for_status()
         return response.json()

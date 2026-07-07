@@ -181,7 +181,7 @@ export default function ScenCard({ scenId, sc, onDelete, onRename, onAddSim, onV
                     >
                       {retryingSimId === item._sim_id
                         ? <span className="scen-spinner" />
-                        : '🔄'}
+                        : '⟳'}
                     </button>
                   )}
                   {item._status !== 'Running' && onDeleteSim && retryingSimId !== item._sim_id && (

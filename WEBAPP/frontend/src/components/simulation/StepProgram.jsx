@@ -164,11 +164,10 @@ export default function StepProgram() {
             const hasShare = typeof p.share_predicted === 'number'
             const sv = hasShare ? p.share_predicted.toFixed(1) + '%' : '–'
             const cc = CH_CLS[p.channel] || ''
-            const sub = []
-            if (p.genre) sub.push(p.channel)
-            if (p.genre) sub.push(p.genre)
-            if (p.target_age) sub.push(p.target_age)
-            if (p.target_sex && p.target_sex !== 'Tutti' && p.target_sex !== 'All') sub.push(p.target_sex)
+            const subMeta = []
+            if (p.genre) subMeta.push(p.genre)
+            if (p.target_age) subMeta.push(p.target_age)
+            if (p.target_sex && p.target_sex !== 'Tutti' && p.target_sex !== 'All') subMeta.push(p.target_sex)
             return (
               <div
                 key={`${p.channel || ''}_${p.from_time || ''}_${p.program_name || ''}`}
@@ -183,7 +182,10 @@ export default function StepProgram() {
                 </span>
                 <div className="prow-body">
                   <span className="prow-title">{p.program_name || '—'}</span>
-                  {sub.length > 0 && <span className="prow-sub">{sub.join(' · ')}</span>}
+                  <span className="prow-sub">
+                    <span className={`prow-ch-name${cc ? ' ' + cc : ''}`}>{p.channel}</span>
+                    {subMeta.length > 0 && ` · ${subMeta.join(' · ')}`}
+                  </span>
                 </div>
                 <span className="prow-share">{sv}</span>
               </div>

@@ -10,7 +10,7 @@ function fmtDate(iso) {
 
 export default function SimRecap() {
   const { state } = useApp()
-  const { prog, date, mode, cand, spDestCh, spDestDay, spDestTime } = state
+  const { prog, mode, cand, spDestCh, spDestDay, spDestTime } = state
 
   const hasProg = !!prog
   const hasMode = !!mode

@@ -102,9 +102,7 @@ def start_sostituzione():
         logger.exception("startSostituzione unexpected: %s", e)
         return error(message=f"Errore imprevisto: {e}", errors=["internal_error"]), 500
 
-    if status_code == 202:
-        return success(message=message), 202
-    return error(message=message, errors=["simulation_conflict"]), status_code
+    return success(message=message), status_code
 
 
 # Simulation: Retry Sostituzione

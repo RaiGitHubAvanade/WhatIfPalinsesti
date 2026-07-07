@@ -55,7 +55,7 @@ class Program:
             programma=row.Programma,
             orario_inizio=row.orario_inizio,
             orario_fine=row.orario_fine,
-            share_predetto=NumberUtils.float_to_percent(getattr(row, 'share_predetto', None)),
+            share_predetto=NumberUtils.float_to_percent(row.share_predetto),
             target_sesso=row.target_genere,
             target_eta=row.target_eta,
             genere=row.DES_GENERE_ESTESA_INT,
@@ -82,7 +82,7 @@ class Program:
             programma=row.Programma,
             orario_inizio=row.orario_inizio,
             orario_fine=row.orario_fine,
-            share_storico=row.share_storico,
+            share_storico=NumberUtils.float_to_percent(row.share_storico),
             evento_forte=bool(row.evento_forte),
         )
 

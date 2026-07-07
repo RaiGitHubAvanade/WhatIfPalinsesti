@@ -38,7 +38,7 @@ export async function startSostituzione(payload) {
     body: JSON.stringify(payload),
   })
   if (!result.success) throw new Error(result.message || 'Errore avvio simulazione sostituzione')
-  return result.data
+  return { data: result.data, message: result.message }
 }
 
 /** @returns {Promise<void>} */
@@ -49,7 +49,7 @@ export async function startSpostamento(payload) {
     body: JSON.stringify(payload),
   })
   if (!result.success) throw new Error(result.message || 'Errore avvio simulazione spostamento')
-  return result.data
+  return { data: result.data, message: result.message }
 }
 
 /** @returns {Promise<void>} */

@@ -75,12 +75,12 @@ export default function StepCandidates() {
 
         {/* Target sesso */}
         <div className="psel-fg">
-          <span className="psel-fg-lbl">Genere target</span>
+          <span className="psel-fg-lbl">Genere</span>
           <CustomSelect
             value={targetSex}
             onChange={v => { setTargetSex(v); set({ cand: null }); setPage(1) }}
             options={[
-              { value: '', label: 'Entrambi' },
+              { value: '', label: 'Tutti' },
               { value: 'Uomo', label: 'Uomo' },
               { value: 'Donna', label: 'Donna' },
             ]}
@@ -89,7 +89,7 @@ export default function StepCandidates() {
 
         {/* Target età */}
         <div className="psel-fg">
-          <span className="psel-fg-lbl">Età target</span>
+          <span className="psel-fg-lbl">Età</span>
           <CustomSelect
             value={targetAge}
             onChange={v => { setTargetAge(v); set({ cand: null }); setPage(1) }}
@@ -102,7 +102,7 @@ export default function StepCandidates() {
 
         {/* Share minima */}
         <div className="psel-fg">
-          <span className="psel-fg-lbl">Share minima</span>
+          <span className="psel-fg-lbl">Share minimo</span>
           <CustomSelect
             value={shareMin}
             onChange={v => { setShareMin(v); set({ cand: null }); setPage(1) }}
@@ -136,8 +136,7 @@ export default function StepCandidates() {
                 const sel = cand?.channel === p.channel && cand?.program_name === p.program_name
                 const sv = typeof p.share_storico === 'number' ? p.share_storico.toFixed(1) + '%' : '-'
                 const cc = CH_CLS[p.channel] || ''
-                const tags = [
-                  p.channel || 'N/A',
+                const subMeta = [
                   p.target_sex ? `Genere: ${p.target_sex}` : null,
                   p.target_age ? `Età: ${p.target_age}` : null,
                 ].filter(Boolean)
@@ -152,7 +151,10 @@ export default function StepCandidates() {
                   >
                     <div className="prow-body">
                       <span className="prow-title">{p.program_name}</span>
-                      <span className="prow-sub">{tags.join(' · ')}</span>
+                      <span className="prow-sub">
+                        <span className={`prow-ch-name${cc ? ' ' + cc : ''}`}>{p.channel || 'N/A'}</span>
+                        {subMeta.length > 0 && ` · ${subMeta.join(' · ')}`}
+                      </span>
                     </div>
                     <span className="prow-share">{sv}</span>
                   </div>
