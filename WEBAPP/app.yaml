@@ -19,3 +19,7 @@ env:
     value: "Rete 4,Canale 5,Italia 1,La7,Tv8,Nove"
   - name: "COMPETITORS_SLOT_DURATION_MINUTES"
     value: "60"
+  - name: "DATABRICKS_SOSTITUZIONE_ENDPOINT"
+    valueFrom: "https://adb-2148885194133801.1.azuredatabricks.net/serving-endpoints/simulazione-sostituzione/invocations"
+  - name: "DATABRICKS_SPOSTAMENTO_ENDPOINT"
+    valueFrom: "https://adb-2148885194133801.1.azuredatabricks.net/serving-endpoints/simulazione-spostamento/invocations"
