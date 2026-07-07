@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom'
 import { useApp } from '../../context/useApp'
+import raiLogo from '../../assets/rai_logo.svg'
 import './Sidebar.css'
 
 const NAV_ITEMS = [
@@ -16,7 +17,9 @@ export default function Sidebar() {
   return (
     <nav className="sidebar">
       <div className="sb-logo">
-        <div className="sb-badge">RAI</div>
+        <div className="sb-badge">
+          <img src={raiLogo} alt="RAI" className="sb-badge-logo" />
+        </div>
         <div>
           <div className="sb-name">WhatIF</div>
           <div className="sb-sub">Palinsesti</div>
