@@ -41,22 +41,37 @@ def get_scenarios():
     return success(data=asdict(result), message="Scenari ottenuti con successo")
 
 
-@bp.route("/scenarios/simulation/<simulation_id>", methods=["DELETE"])
-def delete_simulation(simulation_id):
-    logger.info("deleteSimulation | id=%s", simulation_id)
+@bp.route("/scenarios/simulation/sostituzione/<simulation_id>/delete", methods=["DELETE"])
+def delete_simulation_sostituzione(simulation_id):
+    logger.info("deleteSimulationSostituzione | id=%s", simulation_id)
     try:
         logic = BusinessLogicScenarios(get_scenarios_service())
-        logic.delete_simulation(simulation_id)
+        logic.delete_simulation_sostituzione(simulation_id)
     except RuntimeError as e:
-        logger.error("deleteSimulation RuntimeError: %s", e)
+        logger.error("deleteSimulationSostituzione RuntimeError: %s", e)
         return error(message=str(e), errors=["databricks_error"]), 502
     except Exception as e:
-        logger.exception("deleteSimulation unexpected: %s", e)
+        logger.exception("deleteSimulationSostituzione unexpected: %s", e)
         return error(message=f"Errore imprevisto: {e}", errors=["internal_error"]), 500
     return success(message="Simulazione eliminata con successo")
 
 
-@bp.route("/scenarios/<scenario_id>", methods=["DELETE"])
+@bp.route("/scenarios/simulation/spostamento/<simulation_id>/delete", methods=["DELETE"])
+def delete_simulation_spostamento(simulation_id):
+    logger.info("deleteSimulationSpostamento | id=%s", simulation_id)
+    try:
+        logic = BusinessLogicScenarios(get_scenarios_service())
+        logic.delete_simulation_spostamento(simulation_id)
+    except RuntimeError as e:
+        logger.error("deleteSimulationSpostamento RuntimeError: %s", e)
+        return error(message=str(e), errors=["databricks_error"]), 502
+    except Exception as e:
+        logger.exception("deleteSimulationSpostamento unexpected: %s", e)
+        return error(message=f"Errore imprevisto: {e}", errors=["internal_error"]), 500
+    return success(message="Simulazione eliminata con successo")
+
+
+@bp.route("/scenarios/<scenario_id>/delete", methods=["DELETE"])
 def delete_scenario(scenario_id):
     logger.info("deleteScenario | id=%s", scenario_id)
     try:

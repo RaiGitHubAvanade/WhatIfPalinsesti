@@ -81,18 +81,11 @@ class DatabricksServiceScenarios(DatabricksService):
         return list(scenarios.values())
 
 
-    def get_delete_informations(self, simulation_id: str) -> tuple[str, str] | None:
-        """Return (id_scenario, scenario_type) for the given simulation_id, searching both tables."""
+    def get_scenario_id_for_sostituzione_simulation(self, simulation_id: str) -> str | None:
         query = """
-            SELECT sim.id_scenario, sce.scenario_type
-            FROM ta_coll.whatif.webapp_simulations_sostituzione sim
-            JOIN ta_coll.whatif.webapp_scenarios sce ON sce.id = sim.id_scenario
-            WHERE sim.id = :simulation_id
-            UNION ALL
-            SELECT sim.id_scenario, sce.scenario_type
-            FROM ta_coll.whatif.webapp_simulations_spostamento sim
-            JOIN ta_coll.whatif.webapp_scenarios sce ON sce.id = sim.id_scenario
-            WHERE sim.id = :simulation_id
+            SELECT id_scenario
+            FROM ta_coll.whatif.webapp_simulations_sostituzione
+            WHERE id = :simulation_id
         """
         params = {"simulation_id": simulation_id}
 
@@ -102,9 +95,24 @@ class DatabricksServiceScenarios(DatabricksService):
             cursor.execute(query, parameters=params)
             row = cursor.fetchone()
 
-        if row is None:
-            return None
-        return str(row[0]), str(row[1])
+        return str(row[0]) if row else None
+
+
+    def get_scenario_id_for_spostamento_simulation(self, simulation_id: str) -> str | None:
+        query = """
+            SELECT id_scenario
+            FROM ta_coll.whatif.webapp_simulations_spostamento
+            WHERE id = :simulation_id
+        """
+        params = {"simulation_id": simulation_id}
+
+        self._logger.info(f"Query: {query} with params {params}")
+
+        with self._connection.cursor() as cursor:
+            cursor.execute(query, parameters=params)
+            row = cursor.fetchone()
+
+        return str(row[0]) if row else None
 
 
     def delete_simulation_sostituzione(self, simulation_id: str) -> None:

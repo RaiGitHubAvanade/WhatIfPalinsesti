@@ -53,7 +53,13 @@ export async function startSpostamento(payload) {
 }
 
 /** @returns {Promise<void>} */
-export async function retrySimulation(simulationId) {
-  const result = await apiFetch(`/api/simulation/${simulationId}/retry`, { method: 'POST' })
+export async function retrySostituzione(simulationId) {
+  const result = await apiFetch(`/api/simulation/sostituzione/${simulationId}/retry`, { method: 'POST' })
+  if (!result.success) throw new Error(result.message || 'Errore rilancio simulazione')
+}
+
+/** @returns {Promise<void>} */
+export async function retrySpostamento(simulationId) {
+  const result = await apiFetch(`/api/simulation/spostamento/${simulationId}/retry`, { method: 'POST' })
   if (!result.success) throw new Error(result.message || 'Errore rilancio simulazione')
 }

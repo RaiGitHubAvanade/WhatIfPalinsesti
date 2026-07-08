@@ -56,3 +56,64 @@ class SimulationSostRequest:
                 },
             }
         }
+
+
+@dataclass
+class SimulationSpostRequest:
+    """Input data for starting or retrying a spostamento simulation."""
+    program_name: str | None
+    program_channel: str | None
+    program_date: str | None
+    program_from_time: str | None
+    scenario_type: str | None
+    new_channel: str | None
+    new_date: str | None
+    new_from_time: str | None
+    program_share_predict: float | None = None
+
+    @classmethod
+    def from_body(cls, body: dict) -> "SimulationSpostRequest":
+        return cls(
+            program_name=body.get("program_name"),
+            program_channel=body.get("program_channel"),
+            program_date=body.get("program_date"),
+            program_from_time=body.get("program_from_time"),
+            scenario_type=body.get("scenario_type"),
+            new_channel=body.get("new_channel"),
+            new_date=body.get("new_date"),
+            new_from_time=body.get("new_from_time"),
+            program_share_predict=body.get("program_share_predict"),
+        )
+
+    def retrieve_missing_parameters(self) -> list[str]:
+        return [
+            name for name, val in {
+                "program_name": self.program_name,
+                "program_channel": self.program_channel,
+                "program_date": self.program_date,
+                "program_from_time": self.program_from_time,
+                "scenario_type": self.scenario_type,
+                "new_channel": self.new_channel,
+                "new_date": self.new_date,
+                "new_from_time": self.new_from_time,
+                "program_share_predict": self.program_share_predict,
+            }.items()
+            if val is None
+        ]
+
+    def to_payload(self) -> dict:
+        return {
+            "inputs": {
+                "Programma_da_sostituire": {
+                    "data_str": [self.program_date],
+                    "Canale": [self.program_channel],
+                    "orario_inizio": [self.program_from_time],
+                    "Programma": [self.program_name],
+                },
+                "Destinazione": {
+                    "Canale": [self.new_channel],
+                    "Data": [self.new_date],
+                    "Ora": [self.new_from_time],
+                },
+            }
+        }

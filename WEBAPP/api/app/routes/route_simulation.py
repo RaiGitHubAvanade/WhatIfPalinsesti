@@ -4,10 +4,9 @@ from datetime import date
 
 from flask import Blueprint, request
 
-from app.container import get_simulation_service
-from app.logics.business_logic_simulation import BusinessLogicSimulation
+from app.container import get_simulation_logic
 from app.models.api_response import error, success
-from app.models.simulation_request import SimulationSostRequest
+from app.models.simulation_request import SimulationSostRequest, SimulationSpostRequest
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +29,7 @@ def get_target_programs():
     logger.info("getTargetPrograms | day=%s", day)
 
     try:
-        logic = BusinessLogicSimulation(get_simulation_service())
+        logic = get_simulation_logic()
         result = logic.get_target_programs(day=day)
     except RuntimeError as e:
         logger.error("getTargetPrograms RuntimeError: %s", e)
@@ -48,7 +47,7 @@ def get_candidate_programs():
     logger.info("getCandidatePrograms")
 
     try:
-        logic  = BusinessLogicSimulation(get_simulation_service())
+        logic  = get_simulation_logic()
         result = logic.get_candidate_programs()
     except RuntimeError as e:
         logger.error("getCandidatePrograms RuntimeError: %s", e)
@@ -80,7 +79,7 @@ def start_sostituzione():
     )
 
     try:
-        logic = BusinessLogicSimulation(get_simulation_service())
+        logic = get_simulation_logic()
         message, status_code = logic.start_sostituzione(req)
     except ValueError as e:
         return error(message=str(e), errors=["missing_params"]), 400
@@ -94,19 +93,75 @@ def start_sostituzione():
     return success(message=message), status_code
 
 
-# Simulation: Retry Sostituzione
-@bp.route("/simulation/<simulation_id>/retry", methods=["POST"])
-def retry_simulation(simulation_id):
-    logger.info("retrySimulation | id=%s", simulation_id)
+# Simulation: Spostamento
+@bp.route("/simulation/spostamento/start", methods=["POST"])
+def start_spostamento():
+    body = request.get_json(silent=True) or {}
+    req = SimulationSpostRequest.from_body(body)
+
+    missing = req.retrieve_missing_parameters()
+    if missing:
+        return error(
+            message=f"Parametri obbligatori mancanti: {', '.join(missing)}",
+            errors=["missing_params"],
+        ), 400
+
+    logger.info(
+        "startSpostamento | scenario_type=%s program=%s channel=%s date=%s from=%s destination=%s %s %s",
+        req.scenario_type,
+        req.program_name,
+        req.program_channel,
+        req.program_date,
+        req.program_from_time,
+        req.new_channel,
+        req.new_date,
+        req.new_from_time,
+    )
+
     try:
-        logic = BusinessLogicSimulation(get_simulation_service())
-        message, status_code = logic.retry_simulation(simulation_id)
+        logic = get_simulation_logic()
+        message, status_code = logic.start_spostamento(req)
+    except ValueError as e:
+        return error(message=str(e), errors=["missing_params"]), 400
+    except RuntimeError as e:
+        logger.error("startSpostamento RuntimeError: %s", e)
+        return error(message=str(e), errors=["databricks_error"]), 502
+    except Exception as e:
+        logger.exception("startSpostamento unexpected: %s", e)
+        return error(message=f"Errore imprevisto: {e}", errors=["internal_error"]), 500
+
+    return success(message=message), status_code
+
+
+@bp.route("/simulation/sostituzione/<simulation_id>/retry", methods=["POST"])
+def retry_sostituzione(simulation_id):
+    logger.info("retrySostituzione | id=%s", simulation_id)
+    try:
+        logic = get_simulation_logic()
+        message, status_code = logic.retry_sostituzione(simulation_id)
     except ValueError as e:
         return error(message=str(e), errors=["invalid_state"]), 400
     except RuntimeError as e:
-        logger.error("retrySimulation RuntimeError: %s", e)
+        logger.error("retrySostituzione RuntimeError: %s", e)
         return error(message=str(e), errors=["databricks_error"]), 502
     except Exception as e:
-        logger.exception("retrySimulation unexpected: %s", e)
+        logger.exception("retrySostituzione unexpected: %s", e)
+        return error(message=f"Errore imprevisto: {e}", errors=["internal_error"]), 500
+    return success(message=message), status_code
+
+
+@bp.route("/simulation/spostamento/<simulation_id>/retry", methods=["POST"])
+def retry_spostamento(simulation_id):
+    logger.info("retrySpostamento | id=%s", simulation_id)
+    try:
+        logic = get_simulation_logic()
+        message, status_code = logic.retry_spostamento(simulation_id)
+    except ValueError as e:
+        return error(message=str(e), errors=["invalid_state"]), 400
+    except RuntimeError as e:
+        logger.error("retrySpostamento RuntimeError: %s", e)
+        return error(message=str(e), errors=["databricks_error"]), 502
+    except Exception as e:
+        logger.exception("retrySpostamento unexpected: %s", e)
         return error(message=f"Errore imprevisto: {e}", errors=["internal_error"]), 500
     return success(message=message), status_code

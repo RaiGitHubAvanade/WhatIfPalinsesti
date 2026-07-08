@@ -48,25 +48,37 @@ class BusinessLogicScenarios:
         return ScenarioListViewModel(scenarios=sorted_list, total=len(sorted_list))
 
 
-    def delete_simulation(self, simulation_id: str) -> None:
+    def delete_simulation_sostituzione(self, simulation_id: str) -> None:
         try:
-            info = self._service.get_delete_informations(simulation_id)
-            if info is None:
+            id_scenario = self._service.get_scenario_id_for_sostituzione_simulation(simulation_id)
+            if id_scenario is None:
                 raise ValueError(f"Simulazione non trovata: {simulation_id}")
-            id_scenario, scenario_type = info
 
             self._logger.info(
-                "delete_simulation | id=%s id_scenario=%s scenario_type=%s",
-                simulation_id, id_scenario, scenario_type,
+                "delete_simulation_sostituzione | id=%s id_scenario=%s",
+                simulation_id,
+                id_scenario,
             )
 
-            if scenario_type == "sostituzione":
-                self._service.delete_simulation_sostituzione(simulation_id)
-            elif scenario_type == "spostamento":
-                self._service.delete_simulation_spostamento(simulation_id)
-            else:
-                raise ValueError(f"Tipo di scenario sconosciuto: {scenario_type}")
+            self._service.delete_simulation_sostituzione(simulation_id)
+            self._service.delete_scenario_if_empty(id_scenario)
+        except Exception as e:
+            raise RuntimeError(f"Errore nell'eliminazione della simulazione: {e}") from e
 
+
+    def delete_simulation_spostamento(self, simulation_id: str) -> None:
+        try:
+            id_scenario = self._service.get_scenario_id_for_spostamento_simulation(simulation_id)
+            if id_scenario is None:
+                raise ValueError(f"Simulazione non trovata: {simulation_id}")
+
+            self._logger.info(
+                "delete_simulation_spostamento | id=%s id_scenario=%s",
+                simulation_id,
+                id_scenario,
+            )
+
+            self._service.delete_simulation_spostamento(simulation_id)
             self._service.delete_scenario_if_empty(id_scenario)
         except Exception as e:
             raise RuntimeError(f"Errore nell'eliminazione della simulazione: {e}") from e

@@ -36,3 +36,20 @@ class AiService:
         )
         response.raise_for_status()
         return response.json()
+
+    # ------------------------------------------------------------------ #
+    # Spostamento
+    # ------------------------------------------------------------------ #
+
+    def call_spostamento(self, payload: dict) -> dict:
+        """POST *payload* to the Databricks Serving Endpoint for Spostamento
+        and return the parsed JSON response.
+        """
+        self._logger.info("AiService.call_spostamento | payload=%s", payload)
+        # Temporary mock for smoke tests until DATABRICKS_SPOSTAMENTO_ENDPOINT is available.
+        return {
+            "predictions": {
+                "predicted_share_pct": 0.0,
+                "shap_values": {},
+            }
+        }

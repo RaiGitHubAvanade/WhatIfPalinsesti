@@ -18,14 +18,20 @@ export async function getScenarios({ search = '', type = '', date = '' } = {}) {
 }
 
 /** @returns {Promise<void>} */
-export async function deleteSimulation(simulationId) {
-  const result = await apiFetch(`/api/scenarios/simulation/${simulationId}`, { method: 'DELETE' })
+export async function deleteSimulationSostituzione(simulationId) {
+  const result = await apiFetch(`/api/scenarios/simulation/sostituzione/${simulationId}/delete`, { method: 'DELETE' })
+  if (!result.success) throw new Error(result.message || 'Errore eliminazione simulazione')
+}
+
+/** @returns {Promise<void>} */
+export async function deleteSimulationSpostamento(simulationId) {
+  const result = await apiFetch(`/api/scenarios/simulation/spostamento/${simulationId}/delete`, { method: 'DELETE' })
   if (!result.success) throw new Error(result.message || 'Errore eliminazione simulazione')
 }
 
 /** @returns {Promise<void>} */
 export async function deleteScenario(scenarioId) {
-  const result = await apiFetch(`/api/scenarios/${scenarioId}`, { method: 'DELETE' })
+  const result = await apiFetch(`/api/scenarios/${scenarioId}/delete`, { method: 'DELETE' })
   if (!result.success) throw new Error(result.message || 'Errore eliminazione scenario')
 }
 

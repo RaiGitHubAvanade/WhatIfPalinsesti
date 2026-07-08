@@ -1,8 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useApp } from '../context/useApp'
-import { getScenarios, deleteSimulation, deleteScenario } from '../services/apiScenarios'
-import { retrySimulation } from '../services/apiSimulation'
+import {
+  getScenarios,
+  deleteSimulationSostituzione,
+  deleteSimulationSpostamento,
+  deleteScenario,
+} from '../services/apiScenarios'
+import { retrySostituzione, retrySpostamento } from '../services/apiSimulation'
 import ScenCard from '../components/scenarios/ScenCard'
 import SimulationDetail from '../components/scenarios/SimulationDetail'
 import DaySelector from '../components/shared/DaySelector'
@@ -156,9 +161,13 @@ export default function Scenarios() {
     ))
   }
 
-  async function handleDeleteSim(scenId, simId, idx) {
+  async function handleDeleteSim(scenId, simId, idx, scenarioType) {
     try {
-      await deleteSimulation(simId)
+      if (scenarioType === 'sostituzione') {
+        await deleteSimulationSostituzione(simId)
+      } else {
+        await deleteSimulationSpostamento(simId)
+      }
       setScenarios(prev => prev
         .map(item =>
           item.id === scenId
@@ -172,9 +181,13 @@ export default function Scenarios() {
     }
   }
 
-  async function handleRetrySim(simId) {
+  async function handleRetrySim(simId, scenarioType) {
     try {
-      await retrySimulation(simId)
+      if (scenarioType === 'sostituzione') {
+        await retrySostituzione(simId)
+      } else {
+        await retrySpostamento(simId)
+      }
       toast('Simulazione rilanciata.')
       // Refresh to show updated Running status
       await handleRefresh()
@@ -339,8 +352,8 @@ export default function Scenarios() {
                     navigate('/simulazione', { state: { prefilled: true } })
                   }}
                   onViewDetail={item => setSelectedItem(item)}
-                  onDeleteSim={(simId, idx) => handleDeleteSim(id, simId, idx)}
-                  onRetrySim={simId => handleRetrySim(simId)}
+                  onDeleteSim={(simId, idx) => handleDeleteSim(id, simId, idx, sc.type)}
+                  onRetrySim={simId => handleRetrySim(simId, sc.type)}
                 />
               ))}
             </div>
