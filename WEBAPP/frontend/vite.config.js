@@ -4,6 +4,10 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  build: {
+    // The only large chunk is the on-demand Excel export module (exceljs).
+    chunkSizeWarningLimit: 1000,
+  },
   server: {
     proxy: {
       '/api': 'http://localhost:5000',

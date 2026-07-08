@@ -7,7 +7,6 @@ import { getWeeklyTable } from '../services/apiWeeklyProgramming'
 import ChannelSelector from '../components/shared/ChannelSelector'
 import DaySelector from '../components/shared/DaySelector'
 import WeekTable from '../components/weeklyprogramming/WeekTable'
-import { exportWeeklyToExcel } from '../utils/exportWeeklyExcel'
 import './WeeklyProgramming.css'
 
 /** Return the ISO date string (YYYY-MM-DD) of the Monday of the week containing dayISO. */
@@ -138,10 +137,15 @@ export default function WeeklyProgramming() {
         weekLabel={weekLabel}
         wCh={loadedChannel}
         onExport={async () => {
-          await exportWeeklyToExcel(rows, state.wOverrides, {
-            channel: loadedChannel,
-            weekStart,
-          })
+          try {
+            const { exportWeeklyToExcel } = await import('../utils/exportWeeklyExcel')
+            await exportWeeklyToExcel(rows, state.wOverrides, {
+              channel: loadedChannel,
+              weekStart,
+            })
+          } catch (e) {
+            toast('Errore esportazione: ' + e.message)
+          }
         }}
       />
     </div>

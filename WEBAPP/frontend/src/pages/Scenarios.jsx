@@ -13,7 +13,6 @@ import SimulationDetail from '../components/scenarios/SimulationDetail'
 import DaySelector from '../components/shared/DaySelector'
 import SimulationTypeSelector from '../components/simulation/SimulationTypeSelector'
 import TextInputFilter from '../components/shared/TextInputFilter'
-import { exportScenariosToExcel } from '../utils/exportScenariosExcel'
 import './Scenarios.css'
 
 const SCEN_PER_PAGE = 3
@@ -297,16 +296,21 @@ export default function Scenarios() {
             <button
               className="scen-export-btn"
               onClick={async () => {
-                const result = await exportScenariosToExcel(
-                  filtered,
-                  { typeFilter, dateFilter, search },
-                )
-                if (!result.ok) {
-                  if (result.reason === 'no_scenarios') {
-                    toast('Nessuno scenario da esportare con i filtri selezionati.')
-                  } else {
-                    toast('Nessuna simulazione completata da esportare. Le simulazioni in corso potrebbero non essere ancora disponibili.')
+                try {
+                  const { exportScenariosToExcel } = await import('../utils/exportScenariosExcel')
+                  const result = await exportScenariosToExcel(
+                    filtered,
+                    { typeFilter, dateFilter, search },
+                  )
+                  if (!result.ok) {
+                    if (result.reason === 'no_scenarios') {
+                      toast('Nessuno scenario da esportare con i filtri selezionati.')
+                    } else {
+                      toast('Nessuna simulazione completata da esportare. Le simulazioni in corso potrebbero non essere ancora disponibili.')
+                    }
                   }
+                } catch (e) {
+                  toast('Errore esportazione: ' + e.message)
                 }
               }}
             >
