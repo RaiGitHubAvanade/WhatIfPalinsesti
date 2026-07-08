@@ -1,4 +1,3 @@
-
 class Messages:
     SIMULATION_STARTED = "La simulazione è stata creata ed è disponibile nella sezione \"Scenari\". Seleziona un altro programma sostitutivo per eseguire una nuova simulazione."
     SIMULATION_ALREADY_RUNNING = "Simulazione identica già in corso. Attendi il completamento della simulazione prima di avviarne un'altra."

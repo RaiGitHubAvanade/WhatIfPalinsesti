@@ -1,12 +1,7 @@
 import logging
-import os
-import random
-import time
-
 import requests
-from app.utils.number_utils import NumberUtils
-from databricks.sdk import WorkspaceClient
 
+from databricks.sdk import WorkspaceClient
 from app.config import Config
 
 
