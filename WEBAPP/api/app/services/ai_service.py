@@ -32,7 +32,7 @@ class AiService:
             Config.DATABRICKS_SOSTITUZIONE_ENDPOINT,
             headers=headers,
             json=payload,
-            timeout=120,
+            timeout=Config.DATABRICKS_SOSTITUZIONE_TIMEOUT_SECONDS,
         )
         response.raise_for_status()
         return response.json()
@@ -46,7 +46,19 @@ class AiService:
         and return the parsed JSON response.
         """
         self._logger.info("AiService.call_spostamento | payload=%s", payload)
-        # Temporary mock for smoke tests until DATABRICKS_SPOSTAMENTO_ENDPOINT is available.
+        
+        # headers = {
+        #     **self._databricks_client.config.authenticate(),
+        #     "Content-Type": "application/json",
+        # }
+        # response = requests.post(
+        #     Config.DATABRICKS_SPOSTAMENTO_ENDPOINT,
+        #     headers=headers,
+        #     json=payload,
+        #     timeout=Config.DATABRICKS_SPOSTAMENTO_TIMEOUT_SECONDS,
+        # )
+        # response.raise_for_status()
+        
         return {
             "predictions": {
                 "predicted_share_pct": 0.0,
