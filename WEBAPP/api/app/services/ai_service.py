@@ -1,14 +1,20 @@
 import logging
 import requests
 
-from databricks.sdk import WorkspaceClient
 from app.config import Config
-
+from databricks.sdk.core import Config as DatabricksConfig
 
 class AiService:
     def __init__(self) -> None:
         self._logger = logging.getLogger(__name__)
-        self._databricks_client = WorkspaceClient()
+        
+        cfg = DatabricksConfig()
+        self._host = cfg.host
+        self._headers = {
+            **cfg.authenticate(),
+            "Content-Type": "application/json",
+        }
+        self._session = requests.Session()
 
     # ------------------------------------------------------------------ #
     # Sostituzione
@@ -19,16 +25,14 @@ class AiService:
         and return the parsed JSON response.
         """
         self._logger.info("AiService.call_sostituzione | payload=%s", payload)
-        headers = {
-            **self._databricks_client.config.authenticate(),
-            "Content-Type": "application/json",
-        }
-        response = requests.post(
-            Config.DATABRICKS_SOSTITUZIONE_ENDPOINT,
-            headers=headers,
+        
+        response = self._session.post(
+            f"{self._host}/serving-endpoints/{Config.SOSTITUZIONE_ENDPOINT}/invocations",
+            headers=self._headers,
             json=payload,
-            timeout=Config.DATABRICKS_SOSTITUZIONE_TIMEOUT_SECONDS,
+            timeout=Config.SOSTITUZIONE_TIMEOUT_SECONDS,
         )
+
         response.raise_for_status()
         return response.json()
 
@@ -41,22 +45,20 @@ class AiService:
         and return the parsed JSON response.
         """
         self._logger.info("AiService.call_spostamento | payload=%s", payload)
-        
-        # headers = {
-        #     **self._databricks_client.config.authenticate(),
-        #     "Content-Type": "application/json",
-        # }
-        # response = requests.post(
-        #     Config.DATABRICKS_SPOSTAMENTO_ENDPOINT,
-        #     headers=headers,
+
+        # response = self._session.post(
+        #     f"{self._host}/serving-endpoints/{Config.SPOSTAMENTO_ENDPOINT}/invocations",
+        #     headers=self._headers,
         #     json=payload,
-        #     timeout=Config.DATABRICKS_SPOSTAMENTO_TIMEOUT_SECONDS,
+        #     timeout=Config.SPOSTAMENTO_TIMEOUT_SECONDS,
         # )
+
         # response.raise_for_status()
+        # return response.json()
         
         return {
             "predictions": {
-                "predicted_share_pct": 0.0,
+                "predicted_share_pct": 5.0,
                 "shap_values": {},
             }
         }
