@@ -12,6 +12,7 @@ class SimulationSostRequest:
     scenario_type: str | None
     new_program_name: str | None
     new_program_share_storico: float | None
+    program_to_time: str | None = None
     program_share_predict: float | None = None
 
     @classmethod
@@ -21,6 +22,7 @@ class SimulationSostRequest:
             program_channel=body.get("program_channel"),
             program_date=body.get("program_date"),
             program_from_time=body.get("program_from_time"),
+            program_to_time=body.get("program_to_time"),
             scenario_type=body.get("scenario_type"),
             new_program_name=body.get("new_program_name"),
             new_program_share_storico=body.get("new_program_share_storico"),
@@ -34,9 +36,9 @@ class SimulationSostRequest:
                 "program_channel":           self.program_channel,
                 "program_date":              self.program_date,
                 "program_from_time":         self.program_from_time,
+                "program_to_time":           self.program_to_time,
                 "scenario_type":             self.scenario_type,
                 "new_program_name":          self.new_program_name,
-                "new_program_share_storico": self.new_program_share_storico,
                 "program_share_predict":     self.program_share_predict,
             }.items()
             if val is None
@@ -69,6 +71,7 @@ class SimulationSpostRequest:
     new_channel: str | None
     new_date: str | None
     new_from_time: str | None
+    program_to_time: str | None = None
     program_share_predict: float | None = None
 
     @classmethod
@@ -78,6 +81,7 @@ class SimulationSpostRequest:
             program_channel=body.get("program_channel"),
             program_date=body.get("program_date"),
             program_from_time=body.get("program_from_time"),
+            program_to_time=body.get("program_to_time"),
             scenario_type=body.get("scenario_type"),
             new_channel=body.get("new_channel"),
             new_date=body.get("new_date"),
@@ -92,6 +96,7 @@ class SimulationSpostRequest:
                 "program_channel": self.program_channel,
                 "program_date": self.program_date,
                 "program_from_time": self.program_from_time,
+                "program_to_time": self.program_to_time,
                 "scenario_type": self.scenario_type,
                 "new_channel": self.new_channel,
                 "new_date": self.new_date,

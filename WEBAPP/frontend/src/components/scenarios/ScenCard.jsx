@@ -28,11 +28,12 @@ export default function ScenCard({ scenId, sc, onDelete, onRename, onAddSim, onV
   let anchorDateTime = '—'
   if (sc.anchor?.from_time) {
     const time = sc.anchor.from_time.slice(0, 5)
-    anchorDateTime = sc.anchor.date ? `${sc.anchor.date} ${time}` : time
+    const end = sc.anchor?.to_time ? sc.anchor.to_time.slice(0, 5) : null
+    anchorDateTime =  `${sc.anchor.date} · ${time}–${end}`
   }
 
-  const createdTs = sc.createdAt
-    ? new Date(sc.createdAt).toLocaleString('it-IT', {
+  const modifiedTs = sc.modifiedAt
+    ? new Date(sc.modifiedAt).toLocaleString('it-IT', {
         day: '2-digit', month: '2-digit', year: 'numeric',
         hour: '2-digit', minute: '2-digit',
       })
@@ -89,7 +90,7 @@ export default function ScenCard({ scenId, sc, onDelete, onRename, onAddSim, onV
             )}
           </div>
         )}
-        <div className="scen-hcard-date">📅 {anchorDateTime}</div>
+        <div className="scen-hcard-date">📺 {sc.anchor?.channel || '—'} 📅 {anchorDateTime}</div>
       </div>
 
       <div className="scen-hcard-count">{sc.items.length} / 3 simulazioni</div>
@@ -109,7 +110,8 @@ export default function ScenCard({ scenId, sc, onDelete, onRename, onAddSim, onV
           if (isSpost) {
             const destDate = item.result?.dest_date || item.spDestDay || null
             const destTime = item.result?.dest_time || item.spDestTime || null
-            candName = `→ ${fmtDateShort(destDate)}${destTime ? ' · ' + destTime : ''}`
+            const destCh = item.result?.dest_ch || item.spDestCh || '—'
+            candName = `→ ${destCh} · ${fmtDateShort(destDate)}${destTime ? ' · ' + destTime : ''}`
             candShare = null
             predicted = item.result?.dest_slot_share ?? null
           } else {
@@ -204,7 +206,7 @@ export default function ScenCard({ scenId, sc, onDelete, onRename, onAddSim, onV
         </button>
       )}
 
-      <div className="scen-hcard-created">Creato: {createdTs}</div>
+      <div className="scen-hcard-created">Ultimo aggiornamento: {modifiedTs}</div>
 
       <div className="scen-hcard-actions">
         <button

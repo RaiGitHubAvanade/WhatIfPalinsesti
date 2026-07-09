@@ -44,7 +44,7 @@ class BusinessLogicScenarios:
             for s in sost_scenarios + sposta_scenarios
         ]
 
-        sorted_list = sorted(view_models, key=lambda s: s.creation_date or "", reverse=True)
+        sorted_list = sorted(view_models, key=lambda s: s.modified_date or "", reverse=True)
         return ScenarioListViewModel(scenarios=sorted_list, total=len(sorted_list))
 
 

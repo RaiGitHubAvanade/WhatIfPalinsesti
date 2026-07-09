@@ -12,6 +12,7 @@ class DatabricksServiceSimulationSpostamento(DatabricksServiceSimulation):
         program_channel: str,
         program_date: str,
         program_from_time: str,
+        program_to_time: str | None,
         scenario_type: str,
     ) -> list[dict]:
         query = """
@@ -22,6 +23,7 @@ class DatabricksServiceSimulationSpostamento(DatabricksServiceSimulation):
                 sce.program_channel,
                 sce.program_date,
                 sce.program_from_time,
+                sce.program_to_time,
                 sce.program_share_predict,
                 sce.creation_date    AS sce_creation_date,
                 sim.id               AS sim_id,
@@ -42,6 +44,7 @@ class DatabricksServiceSimulationSpostamento(DatabricksServiceSimulation):
               AND sce.program_channel   = :program_channel
               AND sce.program_date      = :program_date
               AND sce.program_from_time = :program_from_time
+              AND sce.program_to_time   = :program_to_time
               AND sce.scenario_type     = :scenario_type
         """
         params = {
@@ -49,6 +52,7 @@ class DatabricksServiceSimulationSpostamento(DatabricksServiceSimulation):
             "program_channel": program_channel,
             "program_date": program_date,
             "program_from_time": program_from_time,
+            "program_to_time": program_to_time,
             "scenario_type": scenario_type,
         }
 
@@ -104,6 +108,7 @@ class DatabricksServiceSimulationSpostamento(DatabricksServiceSimulation):
                 sce.program_channel,
                 sce.program_date,
                 sce.program_from_time,
+                sce.program_to_time,
                 sce.program_share_predict
             FROM ta_coll.whatif.webapp_simulations_spostamento sim
             JOIN ta_coll.whatif.webapp_scenarios sce

@@ -97,6 +97,7 @@ class BusinessLogicSimulation:
             if sim_count < 3:
                 simulation_id = str(uuid.uuid4())
                 handler.insert_simulation(simulation_id, scenario_id, req, now)
+                self._base_service.update_scenario(scenario_id, modified_date=now)
                 self._launch_thread(simulation_id, req.to_payload(), simulation_type)
                 return Messages.SIMULATION_STARTED, 202
             return Messages.SIMULATION_SCENARIO_LIMIT_REACHED, 200
@@ -110,7 +111,9 @@ class BusinessLogicSimulation:
             "program_share_predict": req.program_share_predict,
             "program_date": req.program_date,
             "program_from_time": req.program_from_time,
+            "program_to_time": req.program_to_time,
             "creation_date": now,
+            "modified_date": now,
         })
 
         simulation_id = str(uuid.uuid4())

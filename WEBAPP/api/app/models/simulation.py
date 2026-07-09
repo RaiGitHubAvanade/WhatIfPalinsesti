@@ -40,7 +40,7 @@ class SimulationSost:
             share_result=row.get("share_result"),
             status=row.get("status") or "Unknown",
             creation_date=_to_iso(row.get("simulation_creation_date")),
-            modified_date=_to_iso(row.get("modified_date")),
+            modified_date=_to_iso(row.get("simulation_modified_date")),
             last_error=row.get("last_error"),
             is_retry=bool(row.get("is_retry", False)),
         )
@@ -88,7 +88,7 @@ class SimulationSposta:
             share_result=row.get("share_result"),
             status=row.get("status") or "Unknown",
             creation_date=_to_iso(row.get("simulation_creation_date")),
-            modified_date=_to_iso(row.get("modified_date")),
+            modified_date=_to_iso(row.get("simulation_modified_date")),
             last_error=row.get("last_error"),
             is_retry=bool(row.get("is_retry", False)),
         )

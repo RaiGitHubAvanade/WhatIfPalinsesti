@@ -21,6 +21,7 @@ class SostituzioneSimulationHandler:
             program_channel=req.program_channel,
             program_date=req.program_date,
             program_from_time=req.program_from_time,
+            program_to_time=req.program_to_time,
             scenario_type=req.scenario_type,
         )
 
@@ -53,6 +54,7 @@ class SostituzioneSimulationHandler:
             program_channel=row.get("program_channel"),
             program_date=str(row.get("program_date")) if row.get("program_date") else None,
             program_from_time=row.get("program_from_time"),
+            program_to_time=row.get("program_to_time"),
             scenario_type=row.get("scenario_type"),
             new_program_name=row.get("new_program_name"),
             new_program_share_storico=row.get("new_program_share_storico"),
@@ -98,6 +100,7 @@ class SpostamentoSimulationHandler:
             program_channel=req.program_channel,
             program_date=req.program_date,
             program_from_time=req.program_from_time,
+            program_to_time=req.program_to_time,
             scenario_type=req.scenario_type,
         )
 
@@ -135,6 +138,7 @@ class SpostamentoSimulationHandler:
             program_channel=row.get("program_channel"),
             program_date=str(row.get("program_date")) if row.get("program_date") else None,
             program_from_time=row.get("program_from_time"),
+            program_to_time=row.get("program_to_time"),
             scenario_type=row.get("scenario_type"),
             new_channel=row.get("new_channel"),
             new_date=str(row.get("new_date")) if row.get("new_date") else None,

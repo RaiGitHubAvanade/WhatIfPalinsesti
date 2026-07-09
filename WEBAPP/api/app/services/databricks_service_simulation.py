@@ -1,4 +1,4 @@
-﻿from datetime import date
+﻿from datetime import date, datetime
 
 from app.models.program import Program
 from app.services.databricks_service import DatabricksService
@@ -52,14 +52,28 @@ class DatabricksServiceSimulation(DatabricksService):
         query = """
             INSERT INTO ta_coll.whatif.webapp_scenarios
                 (id, scenario_type, program_name, program_channel,
-                 program_share_predict, program_date, program_from_time,
-                 creation_date)
+                 program_share_predict, program_date, program_from_time, program_to_time,
+                 creation_date, modified_date)
             VALUES
                 (:id, :scenario_type, :program_name, :program_channel,
-                 :program_share_predict, :program_date, :program_from_time,
-                 :creation_date)
+                 :program_share_predict, :program_date, :program_from_time, :program_to_time,
+                 :creation_date, :modified_date)
         """
         self._logger.info(f"Query: {query} with id {scenario.get('id')}")
 
         with self._connection.cursor() as cursor:
             cursor.execute(query, parameters=scenario)
+
+    def update_scenario(self, scenario_id: str, modified_date: datetime) -> None:
+        """Update an existing row in webapp_scenarios."""
+        
+        query = f"""
+            UPDATE ta_coll.whatif.webapp_scenarios
+            SET modified_date = :modified_date
+            WHERE id = :scenario_id
+        """
+        params = {"scenario_id": scenario_id, "modified_date": modified_date}
+        self._logger.info(f"Query: {query} with params {params}")
+
+        with self._connection.cursor() as cursor:
+            cursor.execute(query, parameters=params)

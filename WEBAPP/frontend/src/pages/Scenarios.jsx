@@ -25,8 +25,8 @@ const SCEN_PER_PAGE = 3
 function mapToDisplay(apiScen) {
   const {
     id, scenario_type, program_name, program_channel,
-    program_date, program_from_time, program_share_predict,
-    creation_date, simulations,
+    program_date, program_from_time, program_to_time, program_share_predict,
+    creation_date, modified_date, simulations,
   } = apiScen
 
   const prog = {
@@ -34,6 +34,7 @@ function mapToDisplay(apiScen) {
     channel: program_channel,
     share_predicted: program_share_predict,
     from_time: program_from_time,
+    to_time: program_to_time,
     date: program_date,
   }
 
@@ -53,7 +54,7 @@ function mapToDisplay(apiScen) {
           orig_share: program_share_predict,
           orig_ch: program_channel,
           orig_time: program_from_time,
-          orig_end: null,
+          orig_end: program_to_time,
           cand_title: sim.new_program_name,
           cand_share: sim.new_program_share_storico,
           predicted_share: predicted,
@@ -75,7 +76,7 @@ function mapToDisplay(apiScen) {
           orig_ch: program_channel,
           orig_date: program_date,
           orig_time: program_from_time,
-          orig_end: null,
+          orig_end: program_to_time,
           orig_slot_share: program_share_predict,
           dest_ch: sim.new_channel,
           dest_date: sim.new_date,
@@ -102,6 +103,7 @@ function mapToDisplay(apiScen) {
       anchor: prog,
       type: scenario_type,
       createdAt: creation_date,
+      modifiedAt: modified_date,
       title: null,
     },
   }
@@ -349,7 +351,9 @@ export default function Scenarios() {
                       prog: sc.anchor,
                       ch: sc.anchor.channel,
                       date: sc.anchor.date || '',
-                      slot: sc.anchor.from_time ? `${sc.anchor.from_time.slice(0, 5)}-` : null,
+                      slot: sc.anchor.from_time
+                        ? `${sc.anchor.from_time.slice(0, 5)}-${sc.anchor.to_time ? sc.anchor.to_time.slice(0, 5) : ''}`
+                        : null,
                       mode: sc.type,
                       step: 2,
                     })

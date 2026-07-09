@@ -11,8 +11,10 @@
  * @property {string} program_channel
  * @property {string|null} program_date
  * @property {string|null} program_from_time
+ * @property {string|null} program_to_time
  * @property {number|null} program_share_predict
  * @property {string|null} creation_date
+ * @property {string|null} modified_date
  * @property {(SimulationSost|SimulationSposta)[]} simulations
  */
 

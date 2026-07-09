@@ -41,22 +41,24 @@ class DatabricksServiceScenarios(DatabricksService):
                 sce.program_channel,
                 sce.program_date,
                 sce.program_from_time,
+                sce.program_to_time,
                 sce.program_share_predict,
                 sce.creation_date            AS scenario_creation_date,
+                sce.modified_date            AS scenario_modified_date,
                 sim.id                       AS simulation_id,
                 sim.new_program_name,
                 sim.new_program_share_storico,
                 sim.share_result,
                 sim.status,
                 sim.creation_date            AS simulation_creation_date,
-                sim.modified_date,
+                sim.modified_date            AS simulation_modified_date,
                 sim.last_error,
                 sim.is_retry
             FROM ta_coll.whatif.webapp_scenarios sce
             LEFT JOIN ta_coll.whatif.webapp_simulations_sostituzione sim
                    ON sce.id = sim.id_scenario
             WHERE sce.scenario_type = 'sostituzione'{extra_where}
-            ORDER BY sce.creation_date DESC, sim.creation_date ASC
+            ORDER BY sce.modified_date DESC, sim.creation_date ASC
         """
 
         self._logger.info(f"Query: {query} with params {params}")
@@ -198,8 +200,10 @@ class DatabricksServiceScenarios(DatabricksService):
                 sce.program_channel,
                 sce.program_date,
                 sce.program_from_time,
+                sce.program_to_time,
                 sce.program_share_predict,
                 sce.creation_date            AS scenario_creation_date,
+                sce.modified_date            AS scenario_modified_date,
                 sim.id                       AS simulation_id,
                 sim.new_channel,
                 sim.new_date,
@@ -207,14 +211,14 @@ class DatabricksServiceScenarios(DatabricksService):
                 sim.share_result,
                 sim.status,
                 sim.creation_date            AS simulation_creation_date,
-                sim.modified_date,
+                sim.modified_date            AS simulation_modified_date,
                 sim.last_error,
                 sim.is_retry
             FROM ta_coll.whatif.webapp_scenarios sce
             LEFT JOIN ta_coll.whatif.webapp_simulations_spostamento sim
                    ON sce.id = sim.id_scenario
             WHERE sce.scenario_type = 'spostamento'{extra_where}
-            ORDER BY sce.creation_date DESC, sim.creation_date ASC
+            ORDER BY sce.modified_date DESC, sim.creation_date ASC
         """
         
         self._logger.info(f"Query: {query} with params {params}")

@@ -21,8 +21,10 @@ CREATE TABLE IF NOT EXISTS ta_coll.whatif.webapp_scenarios (
     program_channel       STRING     NOT NULL,
     program_date          DATE       NOT NULL,
     program_from_time     STRING     NOT NULL,
-    program_share_predict DOUBLE,
+    program_to_time       STRING     NOT NULL,
+    program_share_predict DOUBLE     NOT NULL,
     creation_date         TIMESTAMP  NOT NULL,
+    modified_date         TIMESTAMP  NOT NULL,
 
     CONSTRAINT pk_webapp_scenarios PRIMARY KEY (id)
 )
@@ -30,16 +32,16 @@ USING DELTA;
 
 -- 3. Simulations table for Sostituzione
 CREATE TABLE IF NOT EXISTS ta_coll.whatif.webapp_simulations_sostituzione (
-    id                        STRING   NOT NULL,
-    id_scenario               STRING   NOT NULL,
-    new_program_name          STRING   NOT NULL,
+    id                        STRING    NOT NULL,
+    id_scenario               STRING    NOT NULL,
+    new_program_name          STRING    NOT NULL,
     new_program_share_storico DOUBLE,
     share_result              DOUBLE,
-    status                    STRING   NOT NULL,
+    status                    STRING    NOT NULL,
     creation_date             TIMESTAMP NOT NULL,
     modified_date             TIMESTAMP NOT NULL,
     last_error                STRING,
-    is_retry                  BOOLEAN  NOT NULL,
+    is_retry                  BOOLEAN   NOT NULL,
     shap_values               MAP<STRING, DOUBLE>,
 
     CONSTRAINT pk_webapp_simulations_sostituzione           PRIMARY KEY (id),
@@ -50,17 +52,17 @@ USING DELTA;
 
 -- 4. Simulations table for Spostamento
 CREATE TABLE IF NOT EXISTS ta_coll.whatif.webapp_simulations_spostamento (
-    id                        STRING   NOT NULL,
-    id_scenario               STRING   NOT NULL,
-    new_channel               STRING   NOT NULL,
-    new_date                  DATE     NOT NULL,
-    new_from_time             STRING   NOT NULL,
+    id                        STRING    NOT NULL,
+    id_scenario               STRING    NOT NULL,
+    new_channel               STRING    NOT NULL,
+    new_date                  DATE      NOT NULL,
+    new_from_time             STRING    NOT NULL,
     share_result              DOUBLE,
-    status                    STRING   NOT NULL,
+    status                    STRING    NOT NULL,
     creation_date             TIMESTAMP NOT NULL,
     modified_date             TIMESTAMP NOT NULL,
     last_error                STRING,
-    is_retry                  BOOLEAN  NOT NULL,
+    is_retry                  BOOLEAN   NOT NULL,
     shap_values               MAP<STRING, DOUBLE>,
 
     CONSTRAINT pk_webapp_simulations_spostamento            PRIMARY KEY (id),
