@@ -20,6 +20,8 @@ function toMinutes(hhmm) {
 export default function StepDestination() {
   const { state, set, toast } = useApp()
   const { spDestCh, spDestDay, spDestTime } = state
+  const today = new Date().toISOString().slice(0, 10)
+  const maxDay = new Date(new Date(today).getTime() + 6 * 86400000).toISOString().slice(0, 10)
 
   const [schedule, setSchedule] = useState(/** @type {OtherProgramViewModel[]} */ ([]))
   const [loading, setLoading] = useState(false)
@@ -81,6 +83,8 @@ export default function StepDestination() {
         {/* Date */}
         <DaySelector
           value={spDestDay || ''}
+          minDate={today}
+          maxDate={maxDay}
           onChange={val => set({ spDestDay: val })}
         />
 
