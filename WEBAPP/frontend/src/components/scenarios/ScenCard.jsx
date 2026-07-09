@@ -8,13 +8,10 @@ import './ScenCard.css'
  *   sc: { items: any[], anchor: any, type: string|null, createdAt: string|null, title: string|null },
  *   onRemoveItem: (idx: number) => void,
  *   onDelete: () => void,
- *   onRename: (title: string) => void,
  *   onAddSim: () => void,
  * }} props
  */
-export default function ScenCard({ scenId, sc, onDelete, onRename, onAddSim, onViewDetail, onDeleteSim, onRetrySim }) {
-  const [editing, setEditing] = useState(false)
-  const [titleInput, setTitleInput] = useState('')
+export default function ScenCard({ scenId, sc, onDelete, onAddSim, onViewDetail, onDeleteSim, onRetrySim }) {
   const [deletingSimId, setDeletingSimId] = useState(null)
   const [retryingSimId, setRetryingSimId] = useState(null)
   const [deletingScen, setDeletingScen] = useState(false)
@@ -39,41 +36,13 @@ export default function ScenCard({ scenId, sc, onDelete, onRename, onAddSim, onV
       })
     : '—'
 
-  function startEdit() {
-    setTitleInput(displayTitle)
-    setEditing(true)
-  }
-
-  function commitEdit() {
-    const val = titleInput.trim()
-    if (val && val !== displayTitle) onRename(val)
-    setEditing(false)
-  }
-
   return (
     <div className={`scen-hcard ${typeCls}`}>
 
       {/* ── Head: title + type badge ── */}
       <div className="scen-hcard-head">
         <div className="scen-hcard-title">
-          {editing ? (
-            <input
-              className="scen-title-inp"
-              value={titleInput}
-              onChange={e => setTitleInput(e.target.value)}
-              onBlur={commitEdit}
-              onKeyDown={e => {
-                if (e.key === 'Enter') commitEdit()
-                if (e.key === 'Escape') setEditing(false)
-              }}
-              autoFocus
-            />
-          ) : (
-            <>
-              <span>{displayTitle}</span>
-              <button className="scen-icon-btn" onClick={startEdit} title="Rinomina scenario">✏️</button>
-            </>
-          )}
+          <span>{displayTitle}</span>
         </div>
         <div className="scen-hcard-badges">
           {typeLabel && <span className={`sc-type-badge ${typeCls}`}>{typeLabel}</span>}
