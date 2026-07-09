@@ -20,6 +20,7 @@ export default function SimNav() {
       let result
       if (mode === 'sostituzione') {
         result = await startSostituzione({
+          program_id: prog.id,
           program_name: prog.program_name,
           program_channel: prog.channel,
           program_share_predict: prog.share_predicted,
@@ -32,6 +33,7 @@ export default function SimNav() {
         })
       } else if (mode === 'spostamento') {
         result = await startSpostamento({
+          program_id: prog.id,
           program_name: prog.program_name,
           program_channel: prog.channel,
           program_share_predict: prog.share_predicted,

@@ -51,6 +51,7 @@ class Program:
         """RAI predict schedule (out_palinsesto_predict_all_slots)."""
         return cls(
             canale=row.Canale,
+            id=row.ID,
             data=row.Data,
             programma=row.Programma,
             orario_inizio=row.orario_inizio,

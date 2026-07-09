@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from app.models.simulation_request import SimulationSostRequest, SimulationSpostRequest
+from app.models.serving_endpoint_sostituzione_request import ServingEndpointSostituzioneRequest
+from app.models.serving_endpoint_spostamento_request import ServingEndpointSpostamentoRequest
 from app.services.ai_service import AiService
 from app.services.databricks_service_simulation_sostituzione import DatabricksServiceSimulationSostituzione
 from app.services.databricks_service_simulation_spostamento import DatabricksServiceSimulationSpostamento
@@ -15,7 +16,7 @@ class SostituzioneSimulationHandler:
         self._service = service
         self._ai_service = ai_service
 
-    def get_scenario_simulations(self, req: SimulationSostRequest) -> list[dict]:
+    def get_scenario_simulations(self, req: ServingEndpointSostituzioneRequest) -> list[dict]:
         return self._service.get_scenario_simulations(
             program_name=req.program_name,
             program_channel=req.program_channel,
@@ -25,10 +26,10 @@ class SostituzioneSimulationHandler:
             scenario_type=req.scenario_type,
         )
 
-    def is_same_simulation(self, row: dict, req: SimulationSostRequest) -> bool:
+    def is_same_simulation(self, row: dict, req: ServingEndpointSostituzioneRequest) -> bool:
         return row.get("new_program_name") == req.new_program_name
 
-    def insert_simulation(self, simulation_id: str, scenario_id: str, req: SimulationSostRequest, now: datetime) -> None:
+    def insert_simulation(self, simulation_id: str, scenario_id: str, req: ServingEndpointSostituzioneRequest, now: datetime) -> None:
         self._service.insert_simulation({
             "id": simulation_id,
             "id_scenario": scenario_id,
@@ -48,8 +49,9 @@ class SostituzioneSimulationHandler:
     def get_simulation_for_retry(self, simulation_id: str) -> dict | None:
         return self._service.get_simulation_for_retry(simulation_id)
 
-    def build_retry_request(self, row: dict) -> SimulationSostRequest:
-        return SimulationSostRequest(
+    def build_retry_request(self, row: dict) -> ServingEndpointSostituzioneRequest:
+        return ServingEndpointSostituzioneRequest(
+            program_id=None,
             program_name=row.get("program_name"),
             program_channel=row.get("program_channel"),
             program_date=str(row.get("program_date")) if row.get("program_date") else None,
@@ -94,7 +96,7 @@ class SpostamentoSimulationHandler:
         self._service = service
         self._ai_service = ai_service
 
-    def get_scenario_simulations(self, req: SimulationSpostRequest) -> list[dict]:
+    def get_scenario_simulations(self, req: ServingEndpointSpostamentoRequest) -> list[dict]:
         return self._service.get_scenario_simulations(
             program_name=req.program_name,
             program_channel=req.program_channel,
@@ -104,14 +106,14 @@ class SpostamentoSimulationHandler:
             scenario_type=req.scenario_type,
         )
 
-    def is_same_simulation(self, row: dict, req: SimulationSpostRequest) -> bool:
+    def is_same_simulation(self, row: dict, req: ServingEndpointSpostamentoRequest) -> bool:
         return (
             row.get("new_channel") == req.new_channel
             and str(row.get("new_date")) == str(req.new_date)
             and row.get("new_from_time") == req.new_from_time
         )
 
-    def insert_simulation(self, simulation_id: str, scenario_id: str, req: SimulationSpostRequest, now: datetime) -> None:
+    def insert_simulation(self, simulation_id: str, scenario_id: str, req: ServingEndpointSpostamentoRequest, now: datetime) -> None:
         self._service.insert_simulation({
             "id": simulation_id,
             "id_scenario": scenario_id,
@@ -132,8 +134,9 @@ class SpostamentoSimulationHandler:
     def get_simulation_for_retry(self, simulation_id: str) -> dict | None:
         return self._service.get_simulation_for_retry(simulation_id)
 
-    def build_retry_request(self, row: dict) -> SimulationSpostRequest:
-        return SimulationSpostRequest(
+    def build_retry_request(self, row: dict) -> ServingEndpointSpostamentoRequest:
+        return ServingEndpointSpostamentoRequest(
+            program_id=None,
             program_name=row.get("program_name"),
             program_channel=row.get("program_channel"),
             program_date=str(row.get("program_date")) if row.get("program_date") else None,

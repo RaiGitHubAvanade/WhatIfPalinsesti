@@ -6,7 +6,8 @@ from flask import Blueprint, request
 
 from app.container import get_simulation_logic
 from app.models.api_response import error, success
-from app.models.simulation_request import SimulationSostRequest, SimulationSpostRequest
+from app.models.serving_endpoint_sostituzione_request import ServingEndpointSostituzioneRequest
+from app.models.serving_endpoint_spostamento_request import ServingEndpointSpostamentoRequest
 
 logger = logging.getLogger(__name__)
 
@@ -63,7 +64,7 @@ def get_candidate_programs():
 @bp.route("/simulation/sostituzione/start", methods=["POST"])
 def start_sostituzione():
     body = request.get_json(silent=True) or {}
-    req = SimulationSostRequest.from_body(body)
+    req = ServingEndpointSostituzioneRequest.from_body(body)
 
     missing = req.retrieve_missing_parameters()
     if missing:
@@ -97,7 +98,7 @@ def start_sostituzione():
 @bp.route("/simulation/spostamento/start", methods=["POST"])
 def start_spostamento():
     body = request.get_json(silent=True) or {}
-    req = SimulationSpostRequest.from_body(body)
+    req = ServingEndpointSpostamentoRequest.from_body(body)
 
     missing = req.retrieve_missing_parameters()
     if missing:

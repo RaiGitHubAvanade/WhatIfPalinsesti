@@ -7,6 +7,7 @@ from app.utils.number_utils import NumberUtils
 @dataclass
 class OtherProgramViewModel:
     channel: str
+    id: str | None = None
     program_name: str | None = None
     from_time: str | None = None
     to_time: str | None = None
@@ -22,6 +23,7 @@ class OtherProgramViewModel:
         """For get_palinsesto_futuro_rai — populates share_predicted from share_predetto."""
         d = row.data
         return cls(
+            id=row.id,
             channel=row.canale,
             program_name=row.programma,
             from_time=row.orario_inizio,
@@ -38,6 +40,7 @@ class OtherProgramViewModel:
         """For get_candidate_programs and weekly competitors — populates share_storico."""
         d = row.data
         return cls(
+            id=row.id,
             channel=row.canale,
             program_name=row.programma,
             from_time=row.orario_inizio,

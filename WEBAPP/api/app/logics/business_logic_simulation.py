@@ -7,7 +7,8 @@ from datetime import datetime, timezone
 from app.logics.simulation_handlers import SimulationHandlerFactory
 from app.utils.messages import Messages
 from app.services.databricks_service_simulation import DatabricksServiceSimulation
-from app.models.simulation_request import SimulationSostRequest, SimulationSpostRequest
+from app.models.serving_endpoint_sostituzione_request import ServingEndpointSostituzioneRequest
+from app.models.serving_endpoint_spostamento_request import ServingEndpointSpostamentoRequest
 from app.view_models.weekly_programming import OtherProgramViewModel
 
 
@@ -29,7 +30,7 @@ class BusinessLogicSimulation:
         day,
     ) -> list[OtherProgramViewModel]:
         try:
-            rows = self._base_service.get_out_palinsesto_predict_all_slots(day=day)
+            rows = self._base_service.get_target_programs(day=day)
         except Exception as e:
             raise RuntimeError(f"Errore nel recupero del palinsesto RAI: {e}") from e
 
@@ -51,15 +52,15 @@ class BusinessLogicSimulation:
         ]
 
 
-    def start_sostituzione(self, req: SimulationSostRequest) -> tuple[str, int]:
+    def start_sostituzione(self, req: ServingEndpointSostituzioneRequest) -> tuple[str, int]:
         return self.start_simulation(req, "sostituzione")
 
 
-    def start_spostamento(self, req: SimulationSpostRequest) -> tuple[str, int]:
+    def start_spostamento(self, req: ServingEndpointSpostamentoRequest) -> tuple[str, int]:
         return self.start_simulation(req, "spostamento")
 
 
-    def start_simulation(self, req: SimulationSostRequest | SimulationSpostRequest, simulation_type: str) -> tuple[str, int]:
+    def start_simulation(self, req: ServingEndpointSostituzioneRequest | ServingEndpointSpostamentoRequest, simulation_type: str) -> tuple[str, int]:
         now = datetime.now(timezone.utc)
         handler = self._handler_factory.get_handler(simulation_type)
 

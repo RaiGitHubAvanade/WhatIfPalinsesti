@@ -1,5 +1,6 @@
 /**
  * @typedef {Object} OtherProgramViewModel
+ * @property {string|null} id
  * @property {string} channel
  * @property {string|null} program_name
  * @property {string|null} from_time

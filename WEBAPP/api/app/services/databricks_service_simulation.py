@@ -8,13 +8,13 @@ class DatabricksServiceSimulation(DatabricksService):
     """Production simulation service backed by real Databricks SQL."""
 
 
-    def get_out_palinsesto_predict_all_slots(
+    def get_target_programs(
         self,
         day: date,
     ) -> list[Program]:
         """Fetch all programs for the given day (channel/time filtering done client-side)."""
         query = """
-            SELECT Canale, Data, Programma, orario_inizio, orario_fine,
+            SELECT ID, Canale, Data, Programma, orario_inizio, orario_fine,
                    share_predetto, target_genere, target_eta, DES_GENERE_ESTESA_INT
             FROM ta_coll.whatif.out_palinsesto_predict_all_slots
             WHERE Data = :day
@@ -63,6 +63,7 @@ class DatabricksServiceSimulation(DatabricksService):
 
         with self._connection.cursor() as cursor:
             cursor.execute(query, parameters=scenario)
+
 
     def update_scenario(self, scenario_id: str, modified_date: datetime) -> None:
         """Update an existing row in webapp_scenarios."""
