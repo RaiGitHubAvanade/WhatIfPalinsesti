@@ -143,6 +143,7 @@
 .psel-list-lbl     { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; }
 .psel-list-cnt     { font-size: 12px; color: var(--muted); }
 .psel-list-body    { display: flex; flex-direction: column; }
+.psel-list-body--paged { min-height: 372px; }
 
 /* ── Pagination ────────────────────────────────────────────────────── */
 .psel-pager {

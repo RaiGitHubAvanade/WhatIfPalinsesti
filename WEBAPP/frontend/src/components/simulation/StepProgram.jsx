@@ -150,7 +150,7 @@ export default function StepProgram() {
       ) : programs.length === 0 ? (
         <p className="psel-empty">Nessun programma trovato. Prova a modificare i filtri.</p>
       ) : (
-        <div className="psel-list-body">
+        <div className={`psel-list-body${totalPages > 1 ? ' psel-list-body--paged' : ''}`}>
           {pageItems.map((p) => {
             const sel = prog?.channel === p.channel && prog?.from_time === p.from_time
             const hasShare = typeof p.share_predicted === 'number'

@@ -102,9 +102,14 @@ def start_sostituzione():
         ), 400
 
     logger.info(
-        "startSostituzione | scenario_type=%s program=%s channel=%s date=%s from=%s new_program=%s",
-        req.scenario_type, req.program_name, req.program_channel,
-        req.program_date, req.program_from_time, req.new_program_name,
+        "startSostituzione | scenario_type=%s program=%s channel=%s date=%s from=%s to=%s new_program=%s",
+        req.scenario_type,
+        req.program_name,
+        req.program_channel,
+        req.program_date,
+        req.program_from_time,
+        req.program_to_time,
+        req.new_program_name,
     )
 
     try:
@@ -136,12 +141,13 @@ def start_spostamento():
         ), 400
 
     logger.info(
-        "startSpostamento | scenario_type=%s program=%s channel=%s date=%s from=%s destination=%s %s %s",
+        "startSpostamento | scenario_type=%s program=%s channel=%s date=%s from=%s to=%s destination=%s %s %s",
         req.scenario_type,
         req.program_name,
         req.program_channel,
         req.program_date,
         req.program_from_time,
+        req.program_to_time,
         req.new_channel,
         req.new_date,
         req.new_from_time,

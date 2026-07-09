@@ -56,7 +56,7 @@ class DatabricksServiceSimulationSpostamento(DatabricksServiceSimulation):
             "scenario_type": scenario_type,
         }
 
-        self._logger.info(f"Query: {query} with params {params}")
+        self._logger.info(f"get_scenario_simulations | with params {params}")
 
         with self._connection.cursor() as cursor:
             cursor.execute(query, parameters=params)
@@ -77,7 +77,7 @@ class DatabricksServiceSimulationSpostamento(DatabricksServiceSimulation):
                  :last_error, :is_retry)
         """
 
-        self._logger.info(f"Query: {query} with id {simulation.get('id')}, scenario_id {simulation.get('id_scenario')}")
+        self._logger.info(f"insert_simulation | with id {simulation.get('id')}, scenario_id {simulation.get('id_scenario')}")
 
         with self._connection.cursor() as cursor:
             cursor.execute(query, parameters=simulation)
@@ -87,11 +87,32 @@ class DatabricksServiceSimulationSpostamento(DatabricksServiceSimulation):
         if "shap_values" in fields:
             fields = {k: v for k, v in fields.items() if k != "shap_values"}
 
-        self._update_simulation_table(
-            "ta_coll.whatif.webapp_simulations_spostamento",
-            simulation_id,
-            **fields,
-        )
+        if not fields:
+            return
+
+        set_parts: list[str] = []
+        params: dict = {"simulation_id": simulation_id}
+
+        for key, value in fields.items():
+            if value is None:
+                set_parts.append(f"{key} = NULL")
+            elif isinstance(value, dict):
+                set_parts.append(f"{key} = from_json(:{key}, 'MAP<STRING,DOUBLE>')")
+                params[key] = json.dumps(value)
+            else:
+                set_parts.append(f"{key} = :{key}")
+                params[key] = value
+
+        query = f"""
+            UPDATE ta_coll.whatif.webapp_simulations_spostamento
+            SET    {', '.join(set_parts)}
+            WHERE  id = :simulation_id
+        """
+
+        self._logger.info(f"update_simulation | with id {simulation_id}")
+
+        with self._connection.cursor() as cursor:
+            cursor.execute(query, parameters=params)
 
     def get_simulation_for_retry(self, simulation_id: str) -> dict | None:
         query = """
@@ -117,7 +138,7 @@ class DatabricksServiceSimulationSpostamento(DatabricksServiceSimulation):
         """
         params = {"simulation_id": simulation_id}
 
-        self._logger.info(f"Query: {query} with params {params}")
+        self._logger.info(f"get_simulation_for_retry | with params {params}")
 
         with self._connection.cursor() as cursor:
             cursor.execute(query, parameters=params)
@@ -126,30 +147,3 @@ class DatabricksServiceSimulationSpostamento(DatabricksServiceSimulation):
 
         return dict(zip(columns, row)) if row else None
 
-    def _update_simulation_table(self, table_name: str, simulation_id: str, **fields) -> None:
-        if not fields:
-            return
-
-        set_parts: list[str] = []
-        params: dict = {"simulation_id": simulation_id}
-
-        for key, value in fields.items():
-            if value is None:
-                set_parts.append(f"{key} = NULL")
-            elif isinstance(value, dict):
-                set_parts.append(f"{key} = from_json(:{key}, 'MAP<STRING,DOUBLE>')")
-                params[key] = json.dumps(value)
-            else:
-                set_parts.append(f"{key} = :{key}")
-                params[key] = value
-
-        query = f"""
-            UPDATE {table_name}
-            SET    {', '.join(set_parts)}
-            WHERE  id = :simulation_id
-        """
-
-        self._logger.info(f"Query: {query} with id {simulation_id}")
-
-        with self._connection.cursor() as cursor:
-            cursor.execute(query, parameters=params)

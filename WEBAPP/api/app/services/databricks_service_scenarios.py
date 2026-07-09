@@ -61,7 +61,7 @@ class DatabricksServiceScenarios(DatabricksService):
             ORDER BY sce.modified_date DESC, sim.creation_date ASC
         """
 
-        self._logger.info(f"Query: {query} with params {params}")
+        self._logger.info(f"get_sostituzione_scenarios | with params {params}")
 
         with self._connection.cursor() as cursor:
             cursor.execute(query, parameters=params)
@@ -91,7 +91,7 @@ class DatabricksServiceScenarios(DatabricksService):
         """
         params = {"simulation_id": simulation_id}
 
-        self._logger.info(f"Query: {query} with params {params}")
+        self._logger.info(f"get_scenario_id_for_sostituzione_simulation | with params {params}")
 
         with self._connection.cursor() as cursor:
             cursor.execute(query, parameters=params)
@@ -108,7 +108,7 @@ class DatabricksServiceScenarios(DatabricksService):
         """
         params = {"simulation_id": simulation_id}
 
-        self._logger.info(f"Query: {query} with params {params}")
+        self._logger.info(f"get_scenario_id_for_spostamento_simulation | with params {params}")
 
         with self._connection.cursor() as cursor:
             cursor.execute(query, parameters=params)
@@ -125,7 +125,7 @@ class DatabricksServiceScenarios(DatabricksService):
         """
         params = {"simulation_id": simulation_id}
 
-        self._logger.info(f"Query: {query} with params {params}")
+        self._logger.info(f"delete_simulation_sostituzione | with params {params}")
 
         with self._connection.cursor() as cursor:
             cursor.execute(query, parameters=params)
@@ -139,7 +139,7 @@ class DatabricksServiceScenarios(DatabricksService):
         """
         params = {"simulation_id": simulation_id}
 
-        self._logger.info(f"Query: {query} with params {params}")
+        self._logger.info(f"delete_simulation_spostamento | with params {params}")
 
         with self._connection.cursor() as cursor:
             cursor.execute(query, parameters=params)
@@ -163,7 +163,7 @@ class DatabricksServiceScenarios(DatabricksService):
         """
         params = {"id_scenario": scenario_id}
 
-        self._logger.info(f"Query: {query} with params {params}")
+        self._logger.info(f"delete_scenario_if_empty | with params {params}")
 
         with self._connection.cursor() as cursor:
             cursor.execute(query, parameters=params)
@@ -177,7 +177,7 @@ class DatabricksServiceScenarios(DatabricksService):
         """
         params = {"id_scenario": scenario_id}
 
-        self._logger.info(f"Query: {query} with params {params}")
+        self._logger.info(f"delete_scenario | with params {params}")
 
         with self._connection.cursor() as cursor:
             cursor.execute(query, parameters=params)
@@ -221,7 +221,7 @@ class DatabricksServiceScenarios(DatabricksService):
             ORDER BY sce.modified_date DESC, sim.creation_date ASC
         """
         
-        self._logger.info(f"Query: {query} with params {params}")
+        self._logger.info(f"get_spostamento_scenarios | with params {params}")
 
         with self._connection.cursor() as cursor:
             cursor.execute(query, parameters=params)
@@ -280,7 +280,7 @@ class DatabricksServiceScenarios(DatabricksService):
             "overlap_from": DateTimeUtils.hhmm_to_minutes(from_time),
         }
 
-        self._logger.info(f"Query: {query} with params {params}")
+        self._logger.info(f"get_vw_output_palinsesto_futuro_ui | with params {params}")
 
         with self._connection.cursor() as cursor:
             cursor.execute(query, parameters=params)
@@ -297,6 +297,6 @@ class DatabricksServiceScenarios(DatabricksService):
             WHERE ID = :competitor_id
         """
         params = {"competitor_id": competitor_id}
-        self._logger.info(f"Query: {query} with params {params}")
+        self._logger.info(f"toggle_evento_forte | with params {params}")
         with self._connection.cursor() as cursor:
             cursor.execute(query, parameters=params)

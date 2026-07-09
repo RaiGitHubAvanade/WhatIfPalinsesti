@@ -22,7 +22,7 @@ class DatabricksServiceSimulation(DatabricksService):
         """
         params = {"day": day}
         
-        self._logger.info(f"Query: {query} with params {params}")
+        self._logger.info(f"get_target_programs | with params {params}")
 
         with self._connection.cursor() as cursor:
             cursor.execute(query, parameters=params)
@@ -45,7 +45,7 @@ class DatabricksServiceSimulation(DatabricksService):
         """
         params = {"day": day}
 
-        self._logger.info(f"Query: {query} with params {params}")
+        self._logger.info(f"get_schedule_programs | with params {params}")
 
         with self._connection.cursor() as cursor:
             cursor.execute(query, parameters=params)
@@ -61,7 +61,7 @@ class DatabricksServiceSimulation(DatabricksService):
             FROM ta_coll.whatif.output_lista_programmi_sostituzione
             ORDER BY share_storico_pct DESC
         """
-        self._logger.info(f"Query: {query}")
+        self._logger.info(f"get_candidate_programs | Query: {query}")
 
         with self._connection.cursor() as cursor:
             cursor.execute(query, parameters={})
@@ -82,7 +82,7 @@ class DatabricksServiceSimulation(DatabricksService):
                  :program_share_predict, :program_date, :program_from_time, :program_to_time,
                  :creation_date, :modified_date)
         """
-        self._logger.info(f"Query: {query} with id {scenario.get('id')}")
+        self._logger.info(f"insert_scenario | with id {scenario.get('id')}")
 
         with self._connection.cursor() as cursor:
             cursor.execute(query, parameters=scenario)
@@ -97,7 +97,7 @@ class DatabricksServiceSimulation(DatabricksService):
             WHERE id = :scenario_id
         """
         params = {"scenario_id": scenario_id, "modified_date": modified_date}
-        self._logger.info(f"Query: {query} with params {params}")
+        self._logger.info(f"update_scenario | with params {params}")
 
         with self._connection.cursor() as cursor:
             cursor.execute(query, parameters=params)

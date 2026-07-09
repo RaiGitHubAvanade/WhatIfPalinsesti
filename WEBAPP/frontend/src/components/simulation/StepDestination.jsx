@@ -64,7 +64,8 @@ export default function StepDestination() {
   }, [filteredSchedule, set])
 
   const totalPages = Math.max(1, Math.ceil(filteredSchedule.length / PAGE_SIZE))
-  const pageItems = filteredSchedule.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+  const safePage = Math.min(page, totalPages)
+  const pageItems = filteredSchedule.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE)
 
   return (
     <div className="card psel-card">
@@ -114,7 +115,7 @@ export default function StepDestination() {
           {filteredSchedule.length === 0 ? (
             <p className="psel-empty">Nessun programma trovato in questo intervallo.</p>
           ) : (
-            <div className="psel-list-body psel-list-readonly">
+            <div className={`psel-list-body psel-list-readonly${totalPages > 1 ? ' psel-list-body--paged' : ''}`}>
               <div className="psel-readonly-hint">
                 ℹ️ Visualizzazione informativa del palinsesto per l&apos;intervallo selezionato
               </div>
@@ -144,9 +145,9 @@ export default function StepDestination() {
           {/* Pagination */}
           {totalPages > 1 && (
             <div className="psel-pager">
-              <button className="psel-pager-nav" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>←</button>
+              <button className="psel-pager-nav" disabled={safePage <= 1} onClick={() => setPage((p) => p - 1)}>←</button>
               {Array.from({ length: totalPages }, (_, i) => i + 1)
-                .filter((n) => n === 1 || n === totalPages || Math.abs(n - page) <= 2)
+                .filter((n) => n === 1 || n === totalPages || Math.abs(n - safePage) <= 2)
                 .reduce((acc, n, i, arr) => {
                   if (i > 0 && n - arr[i - 1] > 1) acc.push('…')
                   acc.push(n)
@@ -158,14 +159,14 @@ export default function StepDestination() {
                     : (
                       <button
                         key={item}
-                        className={`psel-pager-num${page === item ? ' active' : ''}`}
+                        className={`psel-pager-num${safePage === item ? ' active' : ''}`}
                         onClick={() => setPage(item)}
                       >
                         {item}
                       </button>
                     )
                 )}
-              <button className="psel-pager-nav" disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)}>→</button>
+              <button className="psel-pager-nav" disabled={safePage >= totalPages} onClick={() => setPage((p) => p + 1)}>→</button>
             </div>
           )}
         </>

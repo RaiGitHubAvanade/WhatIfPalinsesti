@@ -30,7 +30,7 @@ class DatabricksServiceWeeklyProgramming(DatabricksService):
             "to_day": to_day,
         }
 
-        self._logger.info(f"Query: {query} with params {params}")
+        self._logger.info(f"get_palinsesto_delta | with params {params}")
 
         with self._connection.cursor() as cursor:
             cursor.execute(query, parameters=params)
@@ -62,7 +62,7 @@ class DatabricksServiceWeeklyProgramming(DatabricksService):
             "to_day": to_day,
         }
         
-        self._logger.info(f"Query: {query} with params {params}")
+        self._logger.info(f"get_palinsesto_predict | with params {params}")
 
         with self._connection.cursor() as cursor:
             cursor.execute(query, parameters=params)
@@ -93,7 +93,7 @@ class DatabricksServiceWeeklyProgramming(DatabricksService):
         if db_value is not None:
             params["db_value"] = db_value
 
-        self._logger.info(f"Query: {query} with params {params}")
+        self._logger.info(f"edit_manual_share_predict | with params {params}")
 
         with self._connection.cursor() as cursor:
             cursor.execute(query, parameters=params)
@@ -137,7 +137,7 @@ class DatabricksServiceWeeklyProgramming(DatabricksService):
             "overlap_from": DateTimeUtils.hhmm_to_minutes(from_time),
         }
 
-        self._logger.info(f"Query: {query} with params {params}")
+        self._logger.info(f"get_vw_output_palinsesto_futuro | with params {params}")
 
         with self._connection.cursor() as cursor:
             cursor.execute(query, parameters=params)
