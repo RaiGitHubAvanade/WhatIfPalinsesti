@@ -8,7 +8,7 @@ export default function Home() {
     <div className="home-wrap">
       <h1 className="home-title">Benvenuto nel sistema di simulazione</h1>
       <p className="home-subtitle">
-        Analizza l'impatto di cambiamenti nel palinsesto RAI prima di metterli in onda.
+        Valuta gli effetti di modifiche alla programmazione RAI attraverso simulazioni comparative e analisi di scenari alternativi.
       </p>
 
       <div className="home-nav-grid">
@@ -20,7 +20,7 @@ export default function Home() {
             <span className="home-sub-tag">Spostamento</span>
           </div>
           <div className="home-nav-desc">
-            Seleziona un programma, scegli il tipo di simulazione da effettuare e usa l'AI per calcolare lo share previsto.
+            Simula modifiche alla programmazione attraverso sostituzioni e spostamenti di programma.
           </div>
         </div>
 
@@ -28,11 +28,11 @@ export default function Home() {
           <div className="home-nav-ico">📋</div>
           <div className="home-nav-title">Scenari</div>
           <div className="home-sub-row">
-            <span className="home-sub-tag">4 scenari</span>
+            <span className="home-sub-tag">Simulazioni</span>
             <span className="home-sub-tag">Confronto</span>
           </div>
           <div className="home-nav-desc">
-            Simula modifiche alla programmazione attraverso sostituzioni e spostamenti di programma.
+            Consulta l'elenco delle simulazioni effettuate, analizzane i risultati e confronta scenari alternativi.
           </div>
         </div>
 
@@ -45,7 +45,7 @@ export default function Home() {
             <span className="home-sub-tag">Rai 3</span>
           </div>
           <div className="home-nav-desc">
-            Visualizza e modifica il palinsesto settimanale dei canali RAI, confronta con i risultati Auditel.
+            Accedi alla pianficazione settimanale dei canali RAI, confrontala con l'offerta dei competitor e con i dati Auditel disponibili.
           </div>
         </div>
 

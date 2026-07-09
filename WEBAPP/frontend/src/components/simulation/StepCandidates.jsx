@@ -104,7 +104,7 @@ export default function StepCandidates() {
             value={shareMin}
             onChange={v => { setShareMin(v); set({ cand: null }); setPage(1) }}
             options={[
-              { value: '', label: 'Nessuna' },
+              { value: '', label: 'Nessuno' },
               ...['10', '20', '30', '40', '50', '60', '70', '80'].map(s => ({ value: s, label: s + '%' })),
             ]}
           />
