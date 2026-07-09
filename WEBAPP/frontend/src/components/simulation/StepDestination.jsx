@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useApp } from '../../context/useApp'
-import { getSimulationSchedule } from '../../services/apiSimulation'
+import { getSchedulePrograms } from '../../services/apiSimulation'
 import ChannelSelector from '../shared/ChannelSelector'
 import DaySelector from '../shared/DaySelector'
 import { TimePicker } from './TimeSelector'
@@ -8,37 +8,63 @@ import { CH_CLS, PROGRAM_PAGE_SIZE as PAGE_SIZE } from '../../utils/constants'
 import { fmtDate } from '../../utils/dateUtils'
 import './StepDestination.css'
 
-/** @typedef {import('../../models/simulation/channelScheduleViewModel').ScheduleItem} ScheduleItem */
+/** @typedef {import('../../models/weekly_programming/competitorProgramsViewModel').OtherProgramViewModel} OtherProgramViewModel */
+
+function toMinutes(hhmm) {
+  if (!hhmm) return null
+  const [h, m] = hhmm.split(':').map(Number)
+  const base = h * 60 + m
+  return h < 6 ? base + 1440 : base
+}
 
 export default function StepDestination() {
   const { state, set, toast } = useApp()
   const { spDestCh, spDestDay, spDestTime } = state
 
-  const [schedule, setSchedule] = useState(/** @type {ScheduleItem[]} */ ([]))
+  const [schedule, setSchedule] = useState(/** @type {OtherProgramViewModel[]} */ ([]))
   const [loading, setLoading] = useState(false)
   const [page, setPage] = useState(1)
 
   const fetchSchedule = useCallback(async () => {
-    if (!spDestCh || !spDestTime) { setPage(1); setSchedule([]); return }
+    if (!spDestDay) {
+      setPage(1)
+      setSchedule([])
+      set({ spScheduleIds: [] })
+      return
+    }
     setLoading(true)
     try {
-      const data = await getSimulationSchedule(spDestCh, spDestTime)
-      setSchedule(data.programs || [])
+      const data = await getSchedulePrograms({ day: spDestDay })
+      setSchedule(data || [])
       setPage(1)
     } catch (e) {
       toast('Errore caricamento palinsesto: ' + e.message)
     } finally {
       setLoading(false)
     }
-  }, [spDestCh, spDestTime]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [spDestDay]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const t = setTimeout(fetchSchedule, 0)
     return () => clearTimeout(t)
   }, [fetchSchedule])
 
-  const totalPages = Math.max(1, Math.ceil(schedule.length / PAGE_SIZE))
-  const pageItems = schedule.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+  const filteredSchedule = schedule
+    .filter((p) => !spDestCh || p.channel === spDestCh)
+    .filter((p) => {
+      if (!spDestTime) return true
+      const selected = toMinutes(spDestTime)
+      const from = toMinutes(p.from_time)
+      if (selected === null || from === null) return false
+      return from >= (selected - 120) && from <= (selected + 120)
+    })
+
+  useEffect(() => {
+    set({ spScheduleIds: filteredSchedule.map(p => p.id).filter(Boolean) })
+  }, [filteredSchedule, set])
+
+  const totalPages = Math.max(1, Math.ceil(filteredSchedule.length / PAGE_SIZE))
+  const pageItems = filteredSchedule.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
   return (
     <div className="card psel-card">
@@ -68,7 +94,7 @@ export default function StepDestination() {
       </div>
 
       {/* Schedule preview */}
-      {!spDestCh || !spDestTime ? (
+      {!spDestCh || !spDestDay || !spDestTime ? (
         <div className="dest-placeholder">
           Seleziona <strong>canale</strong>, <strong>data</strong> e <strong>orario</strong> di destinazione.
         </div>
@@ -81,11 +107,11 @@ export default function StepDestination() {
               Palinsesto · {spDestCh}{spDestDay ? ` · ${fmtDate(spDestDay)}` : ''}
             </span>
             <span className="psel-list-cnt">
-              {schedule.length} programm{schedule.length === 1 ? 'a' : 'i'}
+              {filteredSchedule.length} programm{filteredSchedule.length === 1 ? 'a' : 'i'}
             </span>
           </div>
 
-          {schedule.length === 0 ? (
+          {filteredSchedule.length === 0 ? (
             <p className="psel-empty">Nessun programma trovato in questo intervallo.</p>
           ) : (
             <div className="psel-list-body psel-list-readonly">
@@ -93,19 +119,19 @@ export default function StepDestination() {
                 ℹ️ Visualizzazione informativa del palinsesto per l&apos;intervallo selezionato
               </div>
               {pageItems.map((p) => {
-                const sv = typeof p.share === 'number' ? p.share.toFixed(1) + '%' : '–'
+                const sv = typeof p.share_predicted === 'number' ? p.share_predicted.toFixed(1) + '%' : '–'
                 const cc = CH_CLS[spDestCh] || ''
-                const sub = [p.tipo, p.genre !== p.tipo ? p.genre : null, p.dur ? `${p.dur} min` : null]
+                const sub = [p.genre, p.target_age, p.target_sex]
                   .filter(Boolean)
 
                 return (
                   <div key={p.id} className={`prow prow-readonly${cc ? ' ' + cc : ''}`}>
                     <span className="prow-time">
-                      {p.time}
-                      {p.end && <span className="prow-end">–{p.end}</span>}
+                      {p.from_time}
+                      {p.to_time && <span className="prow-end">–{p.to_time}</span>}
                     </span>
                     <div className="prow-body">
-                      <span className="prow-title">{p.title}</span>
+                      <span className="prow-title">{p.program_name}</span>
                       {sub.length > 0 && <span className="prow-sub">{sub.join(' · ')}</span>}
                     </div>
                     <span className="prow-share">{sv}</span>

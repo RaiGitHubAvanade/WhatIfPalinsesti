@@ -19,6 +19,7 @@ const INITIAL_STATE = {
   spSrcDay: '',
   spDestTime: null,
   spDestCh: null,
+  spScheduleIds: [],
 
   // simulation result overlay
   _viewSim: false,
@@ -67,6 +68,7 @@ function reducer(state, action) {
         spSrcDay: '',
         spDestTime: null,
         spDestCh: null,
+        spScheduleIds: [],
         _viewSim: false,
         _simResult: null,
         _simSaved: false,

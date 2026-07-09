@@ -29,6 +29,29 @@ class DatabricksServiceSimulation(DatabricksService):
             rows = cursor.fetchall()
 
         return [Program.MapProgramFromRaiPredictRow(row) for row in rows]
+
+
+    def get_schedule_programs(
+        self,
+        day: date,
+    ) -> list[Program]:
+        """Fetch schedule programs for a specific day (client-side channel/time filtering)."""
+        query = """
+            SELECT ID, Canale, Data, Programma, orario_inizio, orario_fine,
+                   share_predetto, target_genere, target_eta, DES_GENERE_ESTESA_INT
+            FROM ta_coll.whatif.out_palinsesto_predict_all_slots
+            WHERE Data = :day
+            ORDER BY orario_inizio
+        """
+        params = {"day": day}
+
+        self._logger.info(f"Query: {query} with params {params}")
+
+        with self._connection.cursor() as cursor:
+            cursor.execute(query, parameters=params)
+            rows = cursor.fetchall()
+
+        return [Program.MapProgramFromRaiPredictRow(row) for row in rows]
     
 
     def get_candidate_programs(self) -> list[Program]:

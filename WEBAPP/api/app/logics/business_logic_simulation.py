@@ -52,6 +52,21 @@ class BusinessLogicSimulation:
         ]
 
 
+    def get_schedule_programs(
+        self,
+        day,
+    ) -> list[OtherProgramViewModel]:
+        try:
+            rows = self._base_service.get_schedule_programs(day=day)
+        except Exception as e:
+            raise RuntimeError(f"Errore nel recupero del palinsesto destinazione: {e}") from e
+
+        return [
+            OtherProgramViewModel.MapRaiProgramViewModelFromProgram(row)
+            for row in rows
+        ]
+
+
     def start_sostituzione(self, req: ServingEndpointSostituzioneRequest) -> tuple[str, int]:
         return self.start_simulation(req, "sostituzione")
 

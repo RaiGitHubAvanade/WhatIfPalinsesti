@@ -15,6 +15,7 @@ class ServingEndpointSpostamentoRequest:
     new_channel: str | None
     new_date: str | None
     new_from_time: str | None
+    schedule: list[str] | None
     program_to_time: str | None = None
     program_share_predict: float | None = None
 
@@ -31,6 +32,7 @@ class ServingEndpointSpostamentoRequest:
             new_channel=body.get("new_channel"),
             new_date=body.get("new_date"),
             new_from_time=body.get("new_from_time"),
+            schedule=body.get("schedule"),
             program_share_predict=body.get("program_share_predict"),
         )
 
@@ -46,6 +48,7 @@ class ServingEndpointSpostamentoRequest:
                 "new_channel": self.new_channel,
                 "new_date": self.new_date,
                 "new_from_time": self.new_from_time,
+                "schedule": self.schedule,
                 "program_share_predict": self.program_share_predict,
             }.items()
             if val is None
@@ -64,6 +67,7 @@ class ServingEndpointSpostamentoRequest:
                     "Canale": [self.new_channel],
                     "Data": [self.new_date],
                     "Ora": [self.new_from_time],
+                    "schedule": self.schedule,
                 },
             }
         }

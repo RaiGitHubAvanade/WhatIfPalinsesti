@@ -4,7 +4,7 @@ import { startSostituzione, startSpostamento } from '../../services/apiSimulatio
 
 export default function SimNav() {
   const { state, set, toast, addToScenarioWithResult } = useApp()
-  const { step, mode, prog, cand, spDestCh, spDestDay, spDestTime } = state
+  const { step, mode, prog, cand, spDestCh, spDestDay, spDestTime, spScheduleIds } = state
   const [loading, setLoading] = useState(false)
 
   const readyToLaunch = step === 2 && (
@@ -44,6 +44,7 @@ export default function SimNav() {
           new_channel: spDestCh,
           new_date: spDestDay,
           new_from_time: spDestTime,
+          schedule: spScheduleIds,
         })
       } else {
         throw new Error('Modalità di simulazione non valida')

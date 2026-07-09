@@ -23,9 +23,10 @@ export async function getCandidatePrograms() {
 }
 
 /** @returns {Promise<ChannelScheduleViewModel>} */
-export async function getSimulationSchedule(ch, dest_time) {
-  const params = new URLSearchParams({ ch, dest_time })
-  const result = await apiFetch(`/api/simulation/schedule?${params}`)
+export async function getSchedulePrograms({ day = '' } = {}) {
+  const params = new URLSearchParams()
+  if (day) params.set('day', day)
+  const result = await apiFetch(`/api/simulation/getSchedulePrograms?${params}`)
   if (!result.success) throw new Error(result.message || 'Errore caricamento palinsesto')
   return result.data
 }

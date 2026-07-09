@@ -60,6 +60,34 @@ def get_candidate_programs():
     return success(data=[asdict(p) for p in result], message="Programmi candidati ottenuti con successo")
 
 
+# Step 3 (Spostamento destination schedule)
+@bp.route("/simulation/getSchedulePrograms")
+def get_schedule_programs():
+    day_str = request.args.get("day") or None
+
+    if not day_str:
+        return error(message="Il parametro 'day' è obbligatorio", errors=["missing_day"]), 400
+
+    try:
+        day = date.fromisoformat(day_str)
+    except ValueError:
+        return error(message="Formato data non valido (atteso YYYY-MM-DD)", errors=["invalid_date"]), 400
+
+    logger.info("getSchedulePrograms | day=%s", day)
+
+    try:
+        logic = get_simulation_logic()
+        result = logic.get_schedule_programs(day=day)
+    except RuntimeError as e:
+        logger.error("getSchedulePrograms RuntimeError: %s", e)
+        return error(message=str(e), errors=["databricks_error"]), 502
+    except Exception as e:
+        logger.exception("getSchedulePrograms unexpected: %s", e)
+        return error(message=f"Errore imprevisto: {e}", errors=["internal_error"]), 500
+
+    return success(data=[asdict(p) for p in result], message="Palinsesto destinazione ottenuto con successo")
+
+
 # Simulation: Sostituzione
 @bp.route("/simulation/sostituzione/start", methods=["POST"])
 def start_sostituzione():
