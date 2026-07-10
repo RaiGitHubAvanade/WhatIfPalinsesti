@@ -1,4 +1,6 @@
 import logging
+import random
+import time
 import requests
 
 from app.config import Config
@@ -26,6 +28,15 @@ class AiService:
         """
         self._logger.info("AiService.call_sostituzione | payload=%s", payload)
         
+        if(Config.MOCK_SIMULATION_SOSTITUZIONE_RESULT):
+            time.sleep(30)
+            return {
+                "predictions": {
+                    "predicted_share_pct": round(random.uniform(0, 20), 1),
+                    "shap_values": {},
+                }
+            }
+
         response = self._session.post(
             f"{self._host}/serving-endpoints/{Config.SOSTITUZIONE_ENDPOINT}/invocations",
             headers=self._headers,
@@ -46,19 +57,21 @@ class AiService:
         """
         self._logger.info("AiService.call_spostamento | payload=%s", payload)
 
-        # response = self._session.post(
-        #     f"{self._host}/serving-endpoints/{Config.SPOSTAMENTO_ENDPOINT}/invocations",
-        #     headers=self._headers,
-        #     json=payload,
-        #     timeout=Config.SPOSTAMENTO_TIMEOUT_SECONDS,
-        # )
-
-        # response.raise_for_status()
-        # return response.json()
-        
-        return {
-            "predictions": {
-                "predicted_share_pct": 5.0,
-                "shap_values": {},
+        if(Config.MOCK_SIMULATION_SPOSTAMENTO_RESULT):
+            time.sleep(30)
+            return {
+                "predictions": {
+                    "predicted_share_pct": round(random.uniform(0, 20), 1),
+                    "shap_values": {},
+                }
             }
-        }
+
+        response = self._session.post(
+            f"{self._host}/serving-endpoints/{Config.SPOSTAMENTO_ENDPOINT}/invocations",
+            headers=self._headers,
+            json=payload,
+            timeout=Config.SPOSTAMENTO_TIMEOUT_SECONDS,
+        )
+
+        response.raise_for_status()
+        return response.json()

@@ -27,3 +27,7 @@ env:
     value: "simulazione-spostamento"
   - name: "SPOSTAMENTO_TIMEOUT_SECONDS"
     value: "120"
+  - name: "MOCK_SIMULATION_SOSTITUZIONE_RESULT"
+    value: "false"
+  - name: "MOCK_SIMULATION_SPOSTAMENTO_RESULT"
+    value: "true"

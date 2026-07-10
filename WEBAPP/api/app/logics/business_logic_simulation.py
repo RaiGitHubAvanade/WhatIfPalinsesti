@@ -106,8 +106,8 @@ class BusinessLogicSimulation:
 
                 status = sim["status"]
                 if status == "Running":
-                    return Messages.SIMULATION_ALREADY_RUNNING, 409
-                return Messages.SIMULATION_ALREADY_COMPLETED, 409
+                    return Messages.SIMULATION_ALREADY_RUNNING, 200
+                return Messages.SIMULATION_ALREADY_COMPLETED, 200
 
             sim_count = len([r for r in rows if r.get("sim_id") is not None])
             if sim_count < 3:
