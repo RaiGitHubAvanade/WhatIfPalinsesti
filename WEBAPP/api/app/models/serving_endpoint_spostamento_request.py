@@ -39,6 +39,7 @@ class ServingEndpointSpostamentoRequest:
     def retrieve_missing_parameters(self) -> list[str]:
         return [
             name for name, val in {
+                "program_id": self.program_id,
                 "program_name": self.program_name,
                 "program_channel": self.program_channel,
                 "program_date": self.program_date,
@@ -57,17 +58,12 @@ class ServingEndpointSpostamentoRequest:
     def to_payload(self) -> dict:
         return {
             "inputs": {
-                "Programma_da_sostituire": {
-                    "data_str": [self.program_date],
-                    "Canale": [self.program_channel],
-                    "orario_inizio": [self.program_from_time],
-                    "Programma": [self.program_name],
-                },
+                "Programma_da_sostituire": [self.program_id],
                 "Destinazione": {
                     "Canale": [self.new_channel],
-                    "Data": [self.new_date],
-                    "Ora": [self.new_from_time],
-                    "schedule": self.schedule,
+                    "data_str": [self.new_date],
+                    "orario": [self.new_from_time],
+                    "programmi_contesto": self.schedule,
                 },
             }
         }

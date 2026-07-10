@@ -8,6 +8,7 @@ class DatabricksServiceSimulationSpostamento(DatabricksServiceSimulation):
 
     def get_scenario_simulations(
         self,
+        program_id: str,
         program_name: str,
         program_channel: str,
         program_date: str,
@@ -19,6 +20,7 @@ class DatabricksServiceSimulationSpostamento(DatabricksServiceSimulation):
             SELECT
                 sce.id               AS sce_id,
                 sce.scenario_type,
+                sce.program_id,
                 sce.program_name,
                 sce.program_channel,
                 sce.program_date,
@@ -31,6 +33,7 @@ class DatabricksServiceSimulationSpostamento(DatabricksServiceSimulation):
                 sim.new_channel,
                 sim.new_date,
                 sim.new_from_time,
+                sim.schedule,
                 sim.share_result,
                 sim.status,
                 sim.creation_date    AS sim_creation_date,
@@ -40,7 +43,8 @@ class DatabricksServiceSimulationSpostamento(DatabricksServiceSimulation):
             FROM ta_coll.whatif.webapp_scenarios sce
             LEFT JOIN ta_coll.whatif.webapp_simulations_spostamento sim
                    ON sce.id = sim.id_scenario
-            WHERE sce.program_name      = :program_name
+                        WHERE sce.program_id        = :program_id
+                            AND sce.program_name      = :program_name
               AND sce.program_channel   = :program_channel
               AND sce.program_date      = :program_date
               AND sce.program_from_time = :program_from_time
@@ -48,6 +52,7 @@ class DatabricksServiceSimulationSpostamento(DatabricksServiceSimulation):
               AND sce.scenario_type     = :scenario_type
         """
         params = {
+                        "program_id": program_id,
             "program_name": program_name,
             "program_channel": program_channel,
             "program_date": program_date,
@@ -68,11 +73,11 @@ class DatabricksServiceSimulationSpostamento(DatabricksServiceSimulation):
     def insert_simulation(self, simulation: dict) -> None:
         query = """
             INSERT INTO ta_coll.whatif.webapp_simulations_spostamento
-                (id, id_scenario, new_channel, new_date, new_from_time,
+                (id, id_scenario, new_channel, new_date, new_from_time, schedule,
                  share_result, status, creation_date, modified_date,
                  last_error, is_retry)
             VALUES
-                (:id, :id_scenario, :new_channel, :new_date, :new_from_time,
+                (:id, :id_scenario, :new_channel, :new_date, :new_from_time, :schedule,
                  :share_result, :status, :creation_date, :modified_date,
                  :last_error, :is_retry)
         """
@@ -121,10 +126,12 @@ class DatabricksServiceSimulationSpostamento(DatabricksServiceSimulation):
                 sim.new_channel,
                 sim.new_date,
                 sim.new_from_time,
+                sim.schedule,
                 sim.status,
                 sim.is_retry,
                 sce.id               AS sce_id,
                 sce.scenario_type,
+                sce.program_id,
                 sce.program_name,
                 sce.program_channel,
                 sce.program_date,

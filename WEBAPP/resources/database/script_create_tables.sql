@@ -17,6 +17,7 @@ INSERT INTO ta_coll.whatif.webapp_status (code, description) VALUES
 CREATE TABLE IF NOT EXISTS ta_coll.whatif.webapp_scenarios (
     id                    STRING     NOT NULL,
     scenario_type         STRING     NOT NULL,
+    program_id            STRING     NOT NULL,
     program_name          STRING     NOT NULL,
     program_channel       STRING     NOT NULL,
     program_date          DATE       NOT NULL,
@@ -57,6 +58,7 @@ CREATE TABLE IF NOT EXISTS ta_coll.whatif.webapp_simulations_spostamento (
     new_channel               STRING    NOT NULL,
     new_date                  DATE      NOT NULL,
     new_from_time             STRING    NOT NULL,
+    schedule                  ARRAY<STRING>,
     share_result              DOUBLE,
     status                    STRING    NOT NULL,
     creation_date             TIMESTAMP NOT NULL,

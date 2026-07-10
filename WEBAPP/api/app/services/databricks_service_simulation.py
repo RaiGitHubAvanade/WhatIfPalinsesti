@@ -74,11 +74,11 @@ class DatabricksServiceSimulation(DatabricksService):
         """Insert a new row into webapp_scenarios."""
         query = """
             INSERT INTO ta_coll.whatif.webapp_scenarios
-                (id, scenario_type, program_name, program_channel,
+                (id, scenario_type, program_id, program_name, program_channel,
                  program_share_predict, program_date, program_from_time, program_to_time,
                  creation_date, modified_date)
             VALUES
-                (:id, :scenario_type, :program_name, :program_channel,
+                (:id, :scenario_type, :program_id, :program_name, :program_channel,
                  :program_share_predict, :program_date, :program_from_time, :program_to_time,
                  :creation_date, :modified_date)
         """

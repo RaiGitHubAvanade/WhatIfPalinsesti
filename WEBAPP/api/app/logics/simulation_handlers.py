@@ -18,6 +18,7 @@ class SostituzioneSimulationHandler:
 
     def get_scenario_simulations(self, req: ServingEndpointSostituzioneRequest) -> list[dict]:
         return self._service.get_scenario_simulations(
+            program_id=req.program_id,
             program_name=req.program_name,
             program_channel=req.program_channel,
             program_date=req.program_date,
@@ -51,7 +52,7 @@ class SostituzioneSimulationHandler:
 
     def build_retry_request(self, row: dict) -> ServingEndpointSostituzioneRequest:
         return ServingEndpointSostituzioneRequest(
-            program_id=None,
+            program_id=row.get("program_id"),
             program_name=row.get("program_name"),
             program_channel=row.get("program_channel"),
             program_date=str(row.get("program_date")) if row.get("program_date") else None,
@@ -98,6 +99,7 @@ class SpostamentoSimulationHandler:
 
     def get_scenario_simulations(self, req: ServingEndpointSpostamentoRequest) -> list[dict]:
         return self._service.get_scenario_simulations(
+            program_id=req.program_id,
             program_name=req.program_name,
             program_channel=req.program_channel,
             program_date=req.program_date,
@@ -120,6 +122,7 @@ class SpostamentoSimulationHandler:
             "new_channel": req.new_channel,
             "new_date": req.new_date,
             "new_from_time": req.new_from_time,
+            "schedule": req.schedule,
             "share_result": None,
             "status": "Running",
             "creation_date": now,
@@ -136,7 +139,7 @@ class SpostamentoSimulationHandler:
 
     def build_retry_request(self, row: dict) -> ServingEndpointSpostamentoRequest:
         return ServingEndpointSpostamentoRequest(
-            program_id=None,
+            program_id=row.get("program_id"),
             program_name=row.get("program_name"),
             program_channel=row.get("program_channel"),
             program_date=str(row.get("program_date")) if row.get("program_date") else None,
@@ -146,6 +149,7 @@ class SpostamentoSimulationHandler:
             new_channel=row.get("new_channel"),
             new_date=str(row.get("new_date")) if row.get("new_date") else None,
             new_from_time=row.get("new_from_time"),
+            schedule=row.get("schedule"),
             program_share_predict=row.get("program_share_predict"),
         )
 

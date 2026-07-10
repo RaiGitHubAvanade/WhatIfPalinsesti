@@ -122,6 +122,7 @@ class BusinessLogicSimulation:
         self._base_service.insert_scenario({
             "id": scenario_id,
             "scenario_type": req.scenario_type,
+            "program_id": req.program_id,
             "program_name": req.program_name,
             "program_channel": req.program_channel,
             "program_share_predict": req.program_share_predict,
