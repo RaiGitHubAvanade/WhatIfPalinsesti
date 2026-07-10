@@ -1,8 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useApp } from '../context/useApp'
 import {
-  getScenarios,
   deleteSimulationSostituzione,
   deleteSimulationSpostamento,
   deleteScenario,
@@ -25,11 +24,13 @@ const SCEN_PER_PAGE = 3
 function mapToDisplay(apiScen) {
   const {
     id, scenario_type, program_name, program_channel,
+    program_id,
     program_date, program_from_time, program_to_time, program_share_predict,
     creation_date, modified_date, simulations,
   } = apiScen
 
   const prog = {
+    id: program_id != null ? String(program_id) : null,
     program_name,
     channel: program_channel,
     share_predicted: program_share_predict,
@@ -111,10 +112,17 @@ function mapToDisplay(apiScen) {
 
 export default function Scenarios() {
   const navigate = useNavigate()
-  const { toast, set } = useApp()
+  const {
+    toast,
+    set,
+    scenariosData,
+    scenariosLoaded,
+    scenariosLoading,
+    scenariosPollingActive,
+    ensureScenariosLoaded,
+    refreshScenarios,
+  } = useApp()
 
-  const [scenarios, setScenarios] = useState([])
-  const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [typeFilter, setTypeFilter] = useState('')
   const [dateFilter, setDateFilter] = useState('')
@@ -122,24 +130,26 @@ export default function Scenarios() {
   const [selectedItem, setSelectedItem] = useState(null)
 
   const [refreshing, setRefreshing] = useState(false)
+  const scenarios = useMemo(() => (scenariosData || []).map(mapToDisplay), [scenariosData])
+  const loading = !scenariosLoaded && scenariosLoading
+  const pollingActive = scenariosPollingActive
 
   // ── Fetch on mount ──
   useEffect(() => {
     let cancelled = false
-    getScenarios()
-      .then(data => { if (!cancelled) setScenarios((data.scenarios || []).map(mapToDisplay)) })
-      .catch(e => { if (!cancelled) toast('Errore caricamento scenari: ' + e.message) })
-      .finally(() => { if (!cancelled) setLoading(false) })
+    ensureScenariosLoaded()
+      .catch(e => { if (!cancelled && e?.name !== 'AbortError') toast('Errore caricamento scenari: ' + e.message) })
     return () => { cancelled = true }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [ensureScenariosLoaded, toast])
 
   async function handleRefresh() {
     setRefreshing(true)
     try {
-      const data = await getScenarios()
-      setScenarios((data.scenarios || []).map(mapToDisplay))
+      await refreshScenarios({ force: true })
     } catch (e) {
-      toast('Errore caricamento scenari: ' + e.message)
+      if (e?.name !== 'AbortError') {
+        toast('Errore caricamento scenari: ' + e.message)
+      }
     } finally {
       setRefreshing(false)
     }
@@ -153,30 +163,17 @@ export default function Scenarios() {
       toast('Errore eliminazione scenario: ' + e.message)
       return
     }
-    setScenarios(prev => prev.filter(item => item.id !== scenId))
+    await refreshScenarios({ force: true, silent: true })
   }
 
-  function handleRename(scenId, title) {
-    setScenarios(prev => prev.map(item =>
-      item.id === scenId ? { ...item, sc: { ...item.sc, title } } : item
-    ))
-  }
-
-  async function handleDeleteSim(scenId, simId, idx, scenarioType) {
+  async function handleDeleteSim(simId, scenarioType) {
     try {
       if (scenarioType === 'sostituzione') {
         await deleteSimulationSostituzione(simId)
       } else {
         await deleteSimulationSpostamento(simId)
       }
-      setScenarios(prev => prev
-        .map(item =>
-          item.id === scenId
-            ? { ...item, sc: { ...item.sc, items: item.sc.items.filter((_, i) => i !== idx) } }
-            : item
-        )
-        .filter(item => item.sc.items.length > 0)
-      )
+      await refreshScenarios({ force: true, silent: true })
     } catch (e) {
       toast('Errore eliminazione: ' + e.message)
     }
@@ -191,7 +188,7 @@ export default function Scenarios() {
       }
       toast('Simulazione rilanciata.')
       // Refresh to show updated Running status
-      await handleRefresh()
+      await refreshScenarios({ force: true, silent: true })
     } catch (e) {
       toast('Errore rilancio: ' + e.message)
     }
@@ -283,6 +280,12 @@ export default function Scenarios() {
           )}
 
           <span className="scen-filter-count">
+            {pollingActive && (
+              <>
+                <span>Auto-aggiornamento attivo</span>
+                <span style={{ margin: '0 6px' }}>·</span>
+              </>
+            )}
             {loading ? '…' : `${total} ${total === 1 ? 'scenario' : 'scenari'}`}
           </span>
 
@@ -345,7 +348,6 @@ export default function Scenarios() {
                   scenId={id}
                   sc={sc}
                   onDelete={() => handleDeleteScen(id)}
-                  onRename={title => handleRename(id, title)}
                   onAddSim={() => {
                     set({
                       prog: sc.anchor,
@@ -360,7 +362,7 @@ export default function Scenarios() {
                     navigate('/simulazione', { state: { prefilled: true } })
                   }}
                   onViewDetail={item => setSelectedItem(item)}
-                  onDeleteSim={(simId, idx) => handleDeleteSim(id, simId, idx, sc.type)}
+                  onDeleteSim={simId => handleDeleteSim(simId, sc.type)}
                   onRetrySim={simId => handleRetrySim(simId, sc.type)}
                 />
               ))}

@@ -10,8 +10,6 @@ export default function StepMode() {
       step: 2,
       cand: null,
       _spSimulated: false,
-      _simResult: null,
-      _simSaved: false,
     })
   }
 

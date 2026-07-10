@@ -7,6 +7,7 @@
  * @typedef {Object} ScenarioViewModel
  * @property {string} id
  * @property {string} scenario_type
+ * @property {string} program_id
  * @property {string} program_name
  * @property {string} program_channel
  * @property {string|null} program_date

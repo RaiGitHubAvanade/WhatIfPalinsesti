@@ -3,7 +3,7 @@ import { useApp } from '../../context/useApp'
 import { startSostituzione, startSpostamento } from '../../services/apiSimulation'
 
 export default function SimNav() {
-  const { state, set, toast, addToScenarioWithResult } = useApp()
+  const { state, set, toast, refreshScenarios } = useApp()
   const { step, mode, prog, cand, spDestCh, spDestDay, spDestTime, spScheduleIds } = state
   const [loading, setLoading] = useState(false)
 
@@ -44,14 +44,14 @@ export default function SimNav() {
           new_channel: spDestCh,
           new_date: spDestDay,
           new_from_time: spDestTime,
-          schedule: spScheduleIds,
+          schedule: (spScheduleIds || []).map((id) => String(id)).filter((id) => id),
         })
       } else {
         throw new Error('Modalità di simulazione non valida')
       }
-      addToScenarioWithResult(result.data)
       toast(result.message || 'La simulazione è stata creata ed è disponibile nella sezione "Scenari". Seleziona un altro programma sostitutivo per eseguire una nuova simulazione.')
       set({ cand: null })
+      await refreshScenarios({ force: true, silent: true })
     } catch (e) {
       toast('Errore simulazione: ' + e.message)
     } finally {

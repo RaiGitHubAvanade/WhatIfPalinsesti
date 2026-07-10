@@ -12,6 +12,7 @@ class ScenarioViewModel:
     """One scenario with its nested simulations."""
     id: str
     scenario_type: str           # 'sostituzione' | 'spostamento'
+    program_id: str
     program_name: str
     program_channel: str
     program_date: str | None
@@ -27,6 +28,7 @@ class ScenarioViewModel:
         return cls(
             id=s.id,
             scenario_type=s.scenario_type,
+            program_id=s.program_id,
             program_name=s.program_name,
             program_channel=s.program_channel,
             program_date=s.program_date,

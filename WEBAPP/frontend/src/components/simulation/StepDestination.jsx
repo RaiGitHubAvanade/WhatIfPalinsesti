@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useApp } from '../../context/useApp'
 import { getSchedulePrograms } from '../../services/apiSimulation'
 import ChannelSelector from '../shared/ChannelSelector'
@@ -19,7 +19,7 @@ function toMinutes(hhmm) {
 
 export default function StepDestination() {
   const { state, set, toast } = useApp()
-  const { spDestCh, spDestDay, spDestTime } = state
+  const { spDestCh, spDestDay, spDestTime, spScheduleIds } = state
   const today = new Date().toISOString().slice(0, 10)
   const maxDay = new Date(new Date(today).getTime() + 6 * 86400000).toISOString().slice(0, 10)
 
@@ -51,19 +51,34 @@ export default function StepDestination() {
     return () => clearTimeout(t)
   }, [fetchSchedule])
 
-  const filteredSchedule = schedule
-    .filter((p) => !spDestCh || p.channel === spDestCh)
-    .filter((p) => {
-      if (!spDestTime) return true
-      const selected = toMinutes(spDestTime)
-      const from = toMinutes(p.from_time)
-      if (selected === null || from === null) return false
-      return from >= (selected - 120) && from <= (selected + 120)
-    })
+  const filteredSchedule = useMemo(() => (
+    schedule
+      .filter((p) => !spDestCh || p.channel === spDestCh)
+      .filter((p) => {
+        if (!spDestTime) return true
+        const selected = toMinutes(spDestTime)
+        const from = toMinutes(p.from_time)
+        if (selected === null || from === null) return false
+        return from >= (selected - 120) && from <= (selected + 120)
+      })
+  ), [schedule, spDestCh, spDestTime])
+
+  const filteredScheduleIds = useMemo(() => (
+    filteredSchedule
+      .map((p) => p.id)
+      .filter((id) => id !== null && id !== undefined && id !== '')
+      .map((id) => String(id))
+  ), [filteredSchedule])
 
   useEffect(() => {
-    set({ spScheduleIds: filteredSchedule.map(p => p.id).filter(Boolean) })
-  }, [filteredSchedule, set])
+    const isSame =
+      spScheduleIds.length === filteredScheduleIds.length
+      && spScheduleIds.every((id, idx) => id === filteredScheduleIds[idx])
+
+    if (!isSame) {
+      set({ spScheduleIds: filteredScheduleIds })
+    }
+  }, [filteredScheduleIds, set, spScheduleIds])
 
   const totalPages = Math.max(1, Math.ceil(filteredSchedule.length / PAGE_SIZE))
   const safePage = Math.min(page, totalPages)

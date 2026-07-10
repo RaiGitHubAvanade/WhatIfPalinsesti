@@ -37,6 +37,7 @@ class DatabricksServiceScenarios(DatabricksService):
             SELECT
                 sce.id                       AS scenario_id,
                 sce.scenario_type,
+                sce.program_id,
                 sce.program_name,
                 sce.program_channel,
                 sce.program_date,
@@ -196,6 +197,7 @@ class DatabricksServiceScenarios(DatabricksService):
             SELECT
                 sce.id                       AS scenario_id,
                 sce.scenario_type,
+                sce.program_id,
                 sce.program_name,
                 sce.program_channel,
                 sce.program_date,

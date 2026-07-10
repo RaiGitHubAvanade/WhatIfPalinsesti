@@ -43,8 +43,8 @@ class DatabricksServiceSimulationSpostamento(DatabricksServiceSimulation):
             FROM ta_coll.whatif.webapp_scenarios sce
             LEFT JOIN ta_coll.whatif.webapp_simulations_spostamento sim
                    ON sce.id = sim.id_scenario
-                        WHERE sce.program_id        = :program_id
-                            AND sce.program_name      = :program_name
+            WHERE sce.program_id        = :program_id
+              AND sce.program_name      = :program_name
               AND sce.program_channel   = :program_channel
               AND sce.program_date      = :program_date
               AND sce.program_from_time = :program_from_time
@@ -52,7 +52,7 @@ class DatabricksServiceSimulationSpostamento(DatabricksServiceSimulation):
               AND sce.scenario_type     = :scenario_type
         """
         params = {
-                        "program_id": program_id,
+            "program_id": program_id,
             "program_name": program_name,
             "program_channel": program_channel,
             "program_date": program_date,
@@ -71,13 +71,19 @@ class DatabricksServiceSimulationSpostamento(DatabricksServiceSimulation):
         return rows
 
     def insert_simulation(self, simulation: dict) -> None:
+        params = {
+            **simulation,
+            "schedule": json.dumps([str(item) for item in (simulation.get("schedule") or [])]),
+        }
+
         query = """
             INSERT INTO ta_coll.whatif.webapp_simulations_spostamento
                 (id, id_scenario, new_channel, new_date, new_from_time, schedule,
                  share_result, status, creation_date, modified_date,
                  last_error, is_retry)
             VALUES
-                (:id, :id_scenario, :new_channel, :new_date, :new_from_time, :schedule,
+                (:id, :id_scenario, :new_channel, :new_date, :new_from_time,
+                 from_json(:schedule, 'ARRAY<STRING>'),
                  :share_result, :status, :creation_date, :modified_date,
                  :last_error, :is_retry)
         """
@@ -85,7 +91,7 @@ class DatabricksServiceSimulationSpostamento(DatabricksServiceSimulation):
         self._logger.info(f"insert_simulation | with id {simulation.get('id')}, scenario_id {simulation.get('id_scenario')}")
 
         with self._connection.cursor() as cursor:
-            cursor.execute(query, parameters=simulation)
+            cursor.execute(query, parameters=params)
 
     def update_simulation(self, simulation_id: str, **fields) -> None:
         # Filter out fields not present in live schema/environment.

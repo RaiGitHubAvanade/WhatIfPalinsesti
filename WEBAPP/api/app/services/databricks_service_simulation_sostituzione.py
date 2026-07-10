@@ -41,8 +41,8 @@ class DatabricksServiceSimulationSostituzione(DatabricksServiceSimulation):
             FROM ta_coll.whatif.webapp_scenarios sce
             LEFT JOIN ta_coll.whatif.webapp_simulations_sostituzione sim
                    ON sce.id = sim.id_scenario
-                        WHERE sce.program_id        = :program_id
-                            AND sce.program_name      = :program_name
+            WHERE sce.program_id        = :program_id
+              AND sce.program_name      = :program_name
               AND sce.program_channel   = :program_channel
               AND sce.program_date      = :program_date
               AND sce.program_from_time = :program_from_time
@@ -50,7 +50,7 @@ class DatabricksServiceSimulationSostituzione(DatabricksServiceSimulation):
               AND sce.scenario_type     = :scenario_type
         """
         params = {
-                        "program_id": program_id,
+            "program_id": program_id,
             "program_name": program_name,
             "program_channel": program_channel,
             "program_date": program_date,

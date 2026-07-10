@@ -7,6 +7,7 @@ class Scenario:
     """Maps one row of ta_coll.whatif.webapp_scenarios."""
     id: str
     scenario_type: str
+    program_id: str
     program_name: str
     program_channel: str
     program_date: str | None
@@ -25,6 +26,7 @@ class Scenario:
         return cls(
             id=str(row.id),
             scenario_type=row.scenario_type,
+            program_id=str(row.program_id),
             program_name=row.program_name,
             program_channel=row.program_channel,
             program_date=d.isoformat() if isinstance(d, date) else str(d) if d else None,
@@ -44,6 +46,7 @@ class Scenario:
         return cls(
             id=str(row["scenario_id"]),
             scenario_type=row.get("scenario_type") or "",
+            program_id=str(row.get("program_id") or ""),
             program_name=row.get("program_name") or "",
             program_channel=row.get("program_channel") or "",
             program_date=d.isoformat() if hasattr(d, "isoformat") else str(d) if d else None,

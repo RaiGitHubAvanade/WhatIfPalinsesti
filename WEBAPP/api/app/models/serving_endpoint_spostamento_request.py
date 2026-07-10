@@ -21,6 +21,8 @@ class ServingEndpointSpostamentoRequest:
 
     @classmethod
     def from_body(cls, body: dict) -> "ServingEndpointSpostamentoRequest":
+        schedule_raw = body.get("schedule")
+        schedule = [str(item) for item in schedule_raw] if isinstance(schedule_raw, list) else None
         return cls(
             program_id=body.get("program_id"),
             program_name=body.get("program_name"),
@@ -32,7 +34,7 @@ class ServingEndpointSpostamentoRequest:
             new_channel=body.get("new_channel"),
             new_date=body.get("new_date"),
             new_from_time=body.get("new_from_time"),
-            schedule=body.get("schedule"),
+            schedule=schedule,
             program_share_predict=body.get("program_share_predict"),
         )
 

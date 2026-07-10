@@ -1,5 +1,4 @@
 import { NavLink } from 'react-router-dom'
-import { useApp } from '../../context/useApp'
 import raiLogo from '../../assets/rai_logo.svg'
 import './Sidebar.css'
 
@@ -11,9 +10,6 @@ const NAV_ITEMS = [
 ]
 
 export default function Sidebar() {
-  const { state } = useApp()
-  const totalItems = Object.values(state.scenarios).reduce((acc, s) => acc + s.items.length, 0)
-
   return (
     <nav className="sidebar">
       <div className="sb-logo">
@@ -35,14 +31,7 @@ export default function Sidebar() {
             className={({ isActive }) => 'sb-item' + (isActive ? ' active' : '')}
           >
             <span className="ico">{ico}</span>
-            <span>
-              {label}
-              {label === 'Scenari' && totalItems > 0 && (
-                <span style={{ marginLeft: 6, background: 'rgba(255,255,255,.25)', borderRadius: 999, padding: '1px 7px', fontSize: 11, fontWeight: 900 }}>
-                  {totalItems}
-                </span>
-              )}
-            </span>
+            <span>{label}</span>
           </NavLink>
         ))}
       </div>
