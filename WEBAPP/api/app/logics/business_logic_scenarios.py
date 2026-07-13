@@ -138,3 +138,14 @@ class BusinessLogicScenarios:
             self._service.toggle_evento_forte(competitor_id)
         except Exception as e:
             raise RuntimeError(f"Errore durante il toggle di evento_forte per id '{competitor_id}': {e}") from e
+
+
+    def get_simulations_status(self, simulation_ids: list[str]) -> list[dict]:
+        cleaned_ids = [str(sim_id).strip() for sim_id in simulation_ids if str(sim_id).strip()]
+        if not cleaned_ids:
+            return []
+
+        try:
+            return self._service.get_simulations_status(cleaned_ids)
+        except Exception as e:
+            raise RuntimeError(f"Errore nel recupero dello stato simulazioni: {e}") from e

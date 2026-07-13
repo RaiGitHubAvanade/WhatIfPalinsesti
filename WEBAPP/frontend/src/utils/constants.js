@@ -26,3 +26,7 @@ export const SIMULATION_TYPES = [
   { value: 'sostituzione', label: 'Sostituzione' },
   { value: 'spostamento',  label: 'Spostamento' },
 ]
+
+/** Intervalli di polling per lo stato delle simulazioni */
+export const SCENARIOS_POLLING_BASE_MS = 3000
+export const SCENARIOS_POLLING_MAX_MS = 30000

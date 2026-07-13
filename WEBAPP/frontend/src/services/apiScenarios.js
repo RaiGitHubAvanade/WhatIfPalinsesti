@@ -17,6 +17,18 @@ export async function getScenarios({ search = '', type = '', date = '' } = {}, r
   return result.data
 }
 
+/** @returns {Promise<{items: Array<{id: string, status: 'Running'|'Completed'|'Failed', share_result: number|null, last_error: string|null, modified_date: string|null}>}>} */
+export async function getSimulationsStatus(simulationIds, requestOptions = {}) {
+  const result = await apiFetch('/api/scenarios/simulations/status', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ simulation_ids: simulationIds }),
+    ...requestOptions,
+  })
+  if (!result.success) throw new Error(result.message || 'Errore recupero stato simulazioni')
+  return result.data
+}
+
 /** @returns {Promise<void>} */
 export async function deleteSimulationSostituzione(simulationId) {
   const result = await apiFetch(`/api/scenarios/simulation/sostituzione/${simulationId}/delete`, { method: 'DELETE' })

@@ -1,14 +1,73 @@
 import { useReducer, useCallback, useEffect, useRef, useState } from 'react'
 import { AppContext } from './AppContextStore'
-import { getScenarios } from '../services/apiScenarios'
-
-const SCENARIOS_POLL_BASE_MS = 3000
-const SCENARIOS_POLL_MAX_MS = 30000
+import { getScenarios, getSimulationsStatus } from '../services/apiScenarios'
+import { SCENARIOS_POLLING_BASE_MS, SCENARIOS_POLLING_MAX_MS } from '../utils/constants'
 
 function hasRunningSimulations(scenarios) {
   return (scenarios || []).some(s =>
     (s.simulations || []).some(sim => sim.status === 'Running')
   )
+}
+
+function getRunningSimulationIds(scenarios) {
+  const ids = []
+  for (const scenario of scenarios || []) {
+    for (const simulation of scenario.simulations || []) {
+      if (simulation?.status === 'Running' && simulation?.id) {
+        ids.push(simulation.id)
+      }
+    }
+  }
+  return ids
+}
+
+function chunkArray(items, size) {
+  if (!items?.length) return []
+  const chunks = []
+  for (let i = 0; i < items.length; i += size) {
+    chunks.push(items.slice(i, i + size))
+  }
+  return chunks
+}
+
+function patchScenariosWithStatuses(scenarios, statusItems) {
+  if (!statusItems?.length) return scenarios
+
+  const byId = new Map(statusItems.map(item => [item.id, item]))
+  let changed = false
+
+  const nextScenarios = (scenarios || []).map(scenario => {
+    let scenarioChanged = false
+    const nextSimulations = (scenario.simulations || []).map(simulation => {
+      const patch = byId.get(simulation.id)
+      if (!patch) return simulation
+
+      const nextSimulation = {
+        ...simulation,
+        status: patch.status,
+        share_result: patch.share_result,
+        last_error: patch.last_error,
+        modified_date: patch.modified_date,
+      }
+
+      if (
+        nextSimulation.status !== simulation.status
+        || nextSimulation.share_result !== simulation.share_result
+        || nextSimulation.last_error !== simulation.last_error
+        || nextSimulation.modified_date !== simulation.modified_date
+      ) {
+        scenarioChanged = true
+        changed = true
+        return nextSimulation
+      }
+
+      return simulation
+    })
+
+    return scenarioChanged ? { ...scenario, simulations: nextSimulations } : scenario
+  })
+
+  return changed ? nextScenarios : scenarios
 }
 
 // ─────────────────────── initial state ───────────────────────────
@@ -171,7 +230,7 @@ export function AppProvider({ children }) {
     const runPoll = async () => {
       if (cancelled) return
       if (scenariosPollInFlightRef.current) {
-        scheduleNextPoll(SCENARIOS_POLL_BASE_MS)
+        scheduleNextPoll(SCENARIOS_POLLING_BASE_MS)
         return
       }
 
@@ -182,24 +241,32 @@ export function AppProvider({ children }) {
       scenariosPollAbortRef.current = controller
 
       try {
-        const data = await getScenarios({ search: '', type: '', date: '' }, { signal: controller.signal })
-        const next = data.scenarios || []
-        setScenariosData(next)
-        setScenariosLoaded(true)
+        const runningIds = getRunningSimulationIds(scenariosData)
+        if (runningIds.length === 0) {
+          scenariosPollErrorCountRef.current = 0
+          return
+        }
+
+        const idChunks = chunkArray(runningIds, 200)
+        const chunkResponses = await Promise.all(
+          idChunks.map(ids => getSimulationsStatus(ids, { signal: controller.signal }))
+        )
+        const statusItems = chunkResponses.flatMap(res => res.items || [])
+
+        setScenariosData(prev => patchScenariosWithStatuses(prev, statusItems))
 
         if (cancelled || reqSeq !== scenariosPollSeqRef.current) return
 
         scenariosPollErrorCountRef.current = 0
-        if (hasRunningSimulations(next)) {
-          scheduleNextPoll(SCENARIOS_POLL_BASE_MS)
-        }
+
+        scheduleNextPoll(SCENARIOS_POLLING_BASE_MS)
       } catch (e) {
         if (cancelled || e?.name === 'AbortError' || reqSeq !== scenariosPollSeqRef.current) return
 
         scenariosPollErrorCountRef.current += 1
         const expDelay = Math.min(
-          SCENARIOS_POLL_MAX_MS,
-          SCENARIOS_POLL_BASE_MS * (2 ** scenariosPollErrorCountRef.current),
+          SCENARIOS_POLLING_MAX_MS,
+          SCENARIOS_POLLING_BASE_MS * (2 ** scenariosPollErrorCountRef.current),
         )
         const jitter = Math.floor(Math.random() * 500)
         scheduleNextPoll(expDelay + jitter)
@@ -210,13 +277,13 @@ export function AppProvider({ children }) {
       }
     }
 
-    scheduleNextPoll(SCENARIOS_POLL_BASE_MS)
+    scheduleNextPoll(SCENARIOS_POLLING_BASE_MS)
 
     return () => {
       cancelled = true
       clearScenariosPollingResources()
     }
-  }, [scenariosLoaded, scenariosPollingActive, clearScenariosPollingResources])
+  }, [scenariosData, scenariosLoaded, scenariosPollingActive, clearScenariosPollingResources])
 
   useEffect(() => () => {
     clearScenariosPollingResources()

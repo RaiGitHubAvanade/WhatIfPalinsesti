@@ -150,3 +150,35 @@ def toggle_evento_forte():
 
     logger.info("toggleEventoForte: success | id=%s", competitor_id)
     return success(message="Evento forte aggiornato con successo")
+
+
+@bp.route("/scenarios/simulations/status", methods=["POST"])
+def get_simulations_status():
+    body = request.get_json(silent=True) or {}
+    simulation_ids = body.get("simulation_ids")
+
+    if not isinstance(simulation_ids, list):
+        return error(
+            message="Il parametro 'simulation_ids' deve essere una lista",
+            errors=["simulation_ids must be a list"],
+        ), 400
+
+    if len(simulation_ids) > 200:
+        return error(
+            message="Numero massimo di simulation_ids superato (max 200)",
+            errors=["too_many_ids"],
+        ), 400
+
+    logger.info("getSimulationsStatus | ids=%d", len(simulation_ids))
+
+    try:
+        logic = BusinessLogicScenarios(get_scenarios_service())
+        statuses = logic.get_simulations_status(simulation_ids)
+    except RuntimeError as e:
+        logger.error("getSimulationsStatus RuntimeError: %s", e)
+        return error(message=str(e), errors=["databricks_error"]), 502
+    except Exception as e:
+        logger.exception("getSimulationsStatus unexpected: %s", e)
+        return error(message=f"Errore imprevisto: {e}", errors=["internal_error"]), 500
+
+    return success(data={"items": statuses}, message="Stati simulazioni ottenuti con successo")

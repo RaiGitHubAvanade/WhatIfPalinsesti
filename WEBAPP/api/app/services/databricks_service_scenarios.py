@@ -245,6 +245,57 @@ class DatabricksServiceScenarios(DatabricksService):
         return list(scenarios.values())
 
 
+    def get_simulations_status(self, simulation_ids: list[str]) -> list[dict]:
+        """Return status fields for the provided simulation IDs across both simulation tables."""
+        if not simulation_ids:
+            return []
+
+        placeholders = ", ".join(f":id{i}" for i in range(len(simulation_ids)))
+        params = {f"id{i}": sim_id for i, sim_id in enumerate(simulation_ids)}
+
+        query = f"""
+            SELECT
+                sim.id,
+                sim.status,
+                sim.share_result,
+                sim.last_error,
+                sim.modified_date
+            FROM ta_coll.whatif.webapp_simulations_sostituzione sim
+            WHERE sim.id IN ({placeholders})
+
+            UNION ALL
+
+            SELECT
+                sim.id,
+                sim.status,
+                sim.share_result,
+                sim.last_error,
+                sim.modified_date
+            FROM ta_coll.whatif.webapp_simulations_spostamento sim
+            WHERE sim.id IN ({placeholders})
+        """
+
+        self._logger.info("get_simulations_status | ids=%d", len(simulation_ids))
+
+        with self._connection.cursor() as cursor:
+            cursor.execute(query, parameters=params)
+            columns = [col[0] for col in cursor.description]
+            rows = [dict(zip(columns, row)) for row in cursor.fetchall()]
+
+        unique: dict[str, dict] = {}
+        for row in rows:
+            sim_id = str(row["id"])
+            unique[sim_id] = {
+                "id": sim_id,
+                "status": row.get("status"),
+                "share_result": row.get("share_result"),
+                "last_error": row.get("last_error"),
+                "modified_date": row.get("modified_date").isoformat() if hasattr(row.get("modified_date"), "isoformat") else str(row.get("modified_date")) if row.get("modified_date") is not None else None,
+            }
+
+        return list(unique.values())
+
+
     ### --- Competitors --- ###
 
     def get_vw_output_palinsesto_futuro_ui(

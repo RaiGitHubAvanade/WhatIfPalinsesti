@@ -44,7 +44,7 @@ export default function SimNav() {
           new_channel: spDestCh,
           new_date: spDestDay,
           new_from_time: spDestTime,
-          schedule: (spScheduleIds || []).map((id) => String(id)).filter((id) => id),
+          schedule: spScheduleIds,
         })
       } else {
         throw new Error('Modalità di simulazione non valida')

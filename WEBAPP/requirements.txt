@@ -7,7 +7,3 @@ requests>=2.32
 databricks-sdk==0.33.0
 databricks-sql-connector==4.3.0
 pyarrow==24.0.0
-
-# Deployment servers
-#waitress==3.0.2 #from /api path, execute: .\.venv\Scripts\python.exe -m waitress --port=5000 --call app:create_app
-#gunicorn==23.0.0 #doesn't work on windows
