@@ -30,4 +30,6 @@ env:
   - name: "MOCK_SIMULATION_SOSTITUZIONE_RESULT"
     value: "false"
   - name: "MOCK_SIMULATION_SPOSTAMENTO_RESULT"
-    value: "true"
+    value: "false"
+  - name: "MAX_SIMULATIONS_PER_SCENARIO"
+    value: "3"

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { fmtDateShort } from '../../utils/dateUtils'
+import { MAX_SIMULATIONS_PER_SCENARIO } from '../../utils/constants'
 import './ScenCard.css'
 
 /**
@@ -16,7 +17,7 @@ export default function ScenCard({ scenId, sc, onDelete, onAddSim, onViewDetail,
   const [retryingSimId, setRetryingSimId] = useState(null)
   const [deletingScen, setDeletingScen] = useState(false)
 
-  const isFull = sc.items.length >= 3
+  const isFull = sc.items.length >= MAX_SIMULATIONS_PER_SCENARIO
   const typeCls = sc.type === 'spostamento' ? 'spostamento' : 'sostituzione'
   const typeLabel = sc.type === 'spostamento' ? 'Spostamento' : sc.type === 'sostituzione' ? 'Sostituzione' : ''
   const displayTitle = sc.title || sc.anchor?.program_name || `Scenario ${scenId}`
@@ -62,7 +63,7 @@ export default function ScenCard({ scenId, sc, onDelete, onAddSim, onViewDetail,
         <div className="scen-hcard-date">📺 {sc.anchor?.channel || '—'} 📅 {anchorDateTime}</div>
       </div>
 
-      <div className="scen-hcard-count">{sc.items.length} / 3 simulazioni</div>
+      <div className="scen-hcard-count">{sc.items.length} / {MAX_SIMULATIONS_PER_SCENARIO} simulazioni</div>
 
       {/* ── Item rows ── */}
       <div className="scen-hcard-items">

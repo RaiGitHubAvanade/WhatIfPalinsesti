@@ -4,6 +4,7 @@ from datetime import date
 
 from flask import Blueprint, request
 
+from app.utils.messages import Messages
 from app.container import get_simulation_logic
 from app.models.api_response import error, success
 from app.models.serving_endpoint_sostituzione_request import ServingEndpointSostituzioneRequest
@@ -115,6 +116,8 @@ def start_sostituzione():
     try:
         logic = get_simulation_logic()
         message, status_code = logic.start_sostituzione(req)
+        if (status_code == 202):
+            message = Messages.SIMULATION_SOSTITUZIONE_STARTED
     except ValueError as e:
         return error(message=str(e), errors=["missing_params"]), 400
     except RuntimeError as e:
@@ -156,6 +159,8 @@ def start_spostamento():
     try:
         logic = get_simulation_logic()
         message, status_code = logic.start_spostamento(req)
+        if (status_code == 202):
+            message = Messages.SIMULATION_SPOSTAMENTO_STARTED
     except ValueError as e:
         return error(message=str(e), errors=["missing_params"]), 400
     except RuntimeError as e:

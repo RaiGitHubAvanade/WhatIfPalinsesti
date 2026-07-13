@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from collections.abc import Iterable
 
 
 @dataclass
@@ -19,10 +20,12 @@ class ServingEndpointSpostamentoRequest:
     program_to_time: str | None = None
     program_share_predict: float | None = None
 
+    def __post_init__(self) -> None:
+        self.schedule = _normalize_schedule(self.schedule)
+
     @classmethod
     def from_body(cls, body: dict) -> "ServingEndpointSpostamentoRequest":
-        schedule_raw = body.get("schedule")
-        schedule = [str(item) for item in schedule_raw] if isinstance(schedule_raw, list) else None
+        schedule = _normalize_schedule(body.get("schedule"))
         return cls(
             program_id=body.get("program_id"),
             program_name=body.get("program_name"),
@@ -60,7 +63,7 @@ class ServingEndpointSpostamentoRequest:
     def to_payload(self) -> dict:
         return {
             "inputs": {
-                "Programma_da_sostituire": [self.program_id],
+                "Programma_da_spostare": [self.program_id],
                 "Destinazione": {
                     "Canale": [self.new_channel],
                     "data_str": [self.new_date],
@@ -69,3 +72,21 @@ class ServingEndpointSpostamentoRequest:
                 },
             }
         }
+
+
+def _normalize_schedule(value) -> list[str] | None:
+    if value is None:
+        return None
+
+    # Databricks/NumPy rows may expose ARRAY fields as ndarray; convert first.
+    to_list = getattr(value, "tolist", None)
+    if callable(to_list):
+        value = to_list()
+
+    if isinstance(value, str):
+        return [value]
+
+    if isinstance(value, Iterable):
+        return [str(item) for item in value]
+
+    return None

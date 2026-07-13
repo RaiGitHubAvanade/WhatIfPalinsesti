@@ -4,6 +4,7 @@ import uuid
 from collections.abc import Callable
 from datetime import datetime, timezone
 
+from app.config import Config
 from app.logics.simulation_handlers import SimulationHandlerFactory
 from app.utils.messages import Messages
 from app.services.databricks_service_simulation import DatabricksServiceSimulation
@@ -102,7 +103,7 @@ class BusinessLogicSimulation:
                         is_retry=False,
                     )
                     self._launch_thread(simulation_id, req.to_payload(), simulation_type)
-                    return Messages.SIMULATION_STARTED, 202
+                    return "", 202
 
                 status = sim["status"]
                 if status == "Running":
@@ -110,12 +111,12 @@ class BusinessLogicSimulation:
                 return Messages.SIMULATION_ALREADY_COMPLETED, 200
 
             sim_count = len([r for r in rows if r.get("sim_id") is not None])
-            if sim_count < 3:
+            if sim_count < Config.MAX_SIMULATIONS_PER_SCENARIO:
                 simulation_id = str(uuid.uuid4())
                 handler.insert_simulation(simulation_id, scenario_id, req, now)
                 self._base_service.update_scenario(scenario_id, modified_date=now)
                 self._launch_thread(simulation_id, req.to_payload(), simulation_type)
-                return Messages.SIMULATION_STARTED, 202
+                return "", 202
             return Messages.SIMULATION_SCENARIO_LIMIT_REACHED, 200
 
         scenario_id = str(uuid.uuid4())
@@ -136,7 +137,7 @@ class BusinessLogicSimulation:
         simulation_id = str(uuid.uuid4())
         handler.insert_simulation(simulation_id, scenario_id, req, now)
         self._launch_thread(simulation_id, req.to_payload(), simulation_type)
-        return Messages.SIMULATION_STARTED, 202
+        return "", 202
 
 
     def retry_sostituzione(self, simulation_id: str) -> tuple[str, int]:

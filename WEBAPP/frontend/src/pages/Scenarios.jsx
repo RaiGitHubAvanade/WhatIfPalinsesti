@@ -12,6 +12,7 @@ import SimulationDetail from '../components/scenarios/SimulationDetail'
 import DaySelector from '../components/shared/DaySelector'
 import SimulationTypeSelector from '../components/simulation/SimulationTypeSelector'
 import TextInputFilter from '../components/shared/TextInputFilter'
+import { MAX_SIMULATIONS_PER_SCENARIO } from '../utils/constants'
 import './Scenarios.css'
 
 const SCEN_PER_PAGE = 3
@@ -246,7 +247,7 @@ export default function Scenarios() {
       )}
       {!selectedItem && (
       <>
-      <div className="page-sub">Visualizza e confronta le simulazioni salvate per ogni scenario. Ogni scenario può contenere fino a 3 simulazioni.</div>
+      <div className="page-sub">Visualizza e confronta le simulazioni salvate per ogni scenario. Ogni scenario può contenere fino a {MAX_SIMULATIONS_PER_SCENARIO} simulazioni.</div>
 
       <div className="card scen-page-card">
 
@@ -349,6 +350,11 @@ export default function Scenarios() {
                   sc={sc}
                   onDelete={() => handleDeleteScen(id)}
                   onAddSim={() => {
+                    if (sc.items.length >= MAX_SIMULATIONS_PER_SCENARIO) {
+                      toast(`Limite massimo di ${MAX_SIMULATIONS_PER_SCENARIO} simulazioni raggiunto per questo scenario.`)
+                      return
+                    }
+
                     set({
                       prog: sc.anchor,
                       ch: sc.anchor.channel,
