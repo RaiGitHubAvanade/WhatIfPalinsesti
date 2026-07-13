@@ -19,6 +19,25 @@
   margin-left: auto;
 }
 
+.pw-export-btn--styled {
+  background: none;
+  border: 1.5px solid #4caf50;
+  color: #4caf50;
+  border-radius: 9px;
+  padding: 6px 11px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: .15s;
+  font-family: inherit;
+  flex-shrink: 0;
+}
+
+.pw-export-btn--styled:hover {
+  background: #4caf50;
+  color: #fff;
+}
+
 .pw-week-table-info-top span {
   display: inline-flex;
   align-items: center;

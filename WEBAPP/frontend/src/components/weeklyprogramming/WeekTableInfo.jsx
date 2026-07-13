@@ -7,7 +7,7 @@ export default function WeekTableInfo({ weekStart, weekLabel, wCh, onExport }) {
         <div className="pw-week-table-info-top">
           <span><strong>Canale:</strong> {wCh}</span>
           <span><strong>Settimana:</strong> {weekLabel}</span>
-          <button className="scen-export-btn pw-export-btn" onClick={onExport}>
+          <button className="pw-export-btn pw-export-btn--styled" onClick={onExport}>
             Esporta Excel
           </button>
         </div>
