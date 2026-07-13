@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useApp } from '../../context/useApp'
 import { getSchedulePrograms } from '../../services/apiSimulation'
 import ChannelSelector from '../shared/ChannelSelector'
@@ -26,23 +26,49 @@ export default function StepDestination() {
   const [schedule, setSchedule] = useState(/** @type {OtherProgramViewModel[]} */ ([]))
   const [loading, setLoading] = useState(false)
   const [page, setPage] = useState(1)
+  const requestSeqRef = useRef(0)
+  const inFlightCountRef = useRef(0)
 
   const fetchSchedule = useCallback(async () => {
     if (!spDestDay) {
       setPage(1)
       setSchedule([])
-      set({ spScheduleIds: [] })
+      set({ spScheduleIds: [], spScheduleLoading: false, spScheduleLoadedDay: '' })
+      inFlightCountRef.current = 0
+      setLoading(false)
       return
     }
+
+    const requestId = ++requestSeqRef.current
+    inFlightCountRef.current += 1
     setLoading(true)
+    set({ spScheduleLoading: true, spScheduleLoadedDay: '' })
+
     try {
       const data = await getSchedulePrograms({ day: spDestDay })
-      setSchedule(data || [])
-      setPage(1)
+      if (requestId === requestSeqRef.current) {
+        setSchedule(data || [])
+        setPage(1)
+      }
     } catch (e) {
+      if (requestId === requestSeqRef.current) {
+        setSchedule([])
+        setPage(1)
+      }
       toast('Errore caricamento palinsesto: ' + e.message)
     } finally {
-      setLoading(false)
+      inFlightCountRef.current = Math.max(0, inFlightCountRef.current - 1)
+      const hasInFlight = inFlightCountRef.current > 0
+      setLoading(hasInFlight)
+
+      if (requestId === requestSeqRef.current) {
+        set({
+          spScheduleLoading: hasInFlight,
+          spScheduleLoadedDay: spDestDay,
+        })
+      } else if (!hasInFlight) {
+        set({ spScheduleLoading: false })
+      }
     }
   }, [spDestDay]) // eslint-disable-line react-hooks/exhaustive-deps
 

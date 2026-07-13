@@ -89,6 +89,8 @@ const INITIAL_STATE = {
   spDestTime: null,
   spDestCh: null,
   spScheduleIds: [],
+  spScheduleLoading: false,
+  spScheduleLoadedDay: '',
 
   // competitors panel
   showComp: false,
@@ -130,6 +132,8 @@ function reducer(state, action) {
         spDestTime: null,
         spDestCh: null,
         spScheduleIds: [],
+        spScheduleLoading: false,
+        spScheduleLoadedDay: '',
         showComp: false,
       }
 

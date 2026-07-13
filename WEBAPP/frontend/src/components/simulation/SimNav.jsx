@@ -4,12 +4,25 @@ import { startSostituzione, startSpostamento } from '../../services/apiSimulatio
 
 export default function SimNav() {
   const { state, set, toast, refreshScenarios } = useApp()
-  const { step, mode, prog, cand, spDestCh, spDestDay, spDestTime, spScheduleIds } = state
+  const {
+    step,
+    mode,
+    prog,
+    cand,
+    spDestCh,
+    spDestDay,
+    spDestTime,
+    spScheduleIds,
+    spScheduleLoading,
+    spScheduleLoadedDay,
+  } = state
   const [loading, setLoading] = useState(false)
 
   const readyToLaunch = step === 2 && (
     mode === 'spostamento'
       ? !!(spDestCh && spDestDay && spDestTime)
+        && !spScheduleLoading
+        && spScheduleLoadedDay === spDestDay
       : !!cand
   )
 
