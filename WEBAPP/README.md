@@ -39,4 +39,7 @@ Once databricks extension is configured, run the following script to deploy:
 ```powershell
 .\deploy.ps1
 ```
-If it says the 'databricks' command is not recognized, restart the terminal.
+If it says the 'databricks' command is not recognized, restart the terminal and run:
+```powershell
+cd .\WEBAPP\ ; api\.venv\Scripts\activate ; .\deploy.ps1
+```

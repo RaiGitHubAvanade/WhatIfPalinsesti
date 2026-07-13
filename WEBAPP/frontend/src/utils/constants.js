@@ -4,6 +4,9 @@ export const DAYS = ['dom', 'lun', 'mar', 'mer', 'gio', 'ven', 'sab']
 /** CSS class per canale RAI per i program rows */
 export const CH_CLS = { 'Rai 1': 'prow-r1', 'Rai 2': 'prow-r2', 'Rai 3': 'prow-r3' }
 
+/** Max number of Simulations for a single Scenario */
+export const MAX_SIMULATIONS_PER_SCENARIO = 3
+
 /** Numero di programmi per pagina nelle liste di selezione */
 export const PROGRAM_PAGE_SIZE = 8
 
