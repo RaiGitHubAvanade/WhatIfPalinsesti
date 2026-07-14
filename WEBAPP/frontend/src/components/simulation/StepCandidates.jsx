@@ -28,7 +28,7 @@ export default function StepCandidates() {
     let cancelled = false
     getCandidatePrograms()
       .then(data => { if (!cancelled) setRawData(data || []) })
-      .catch(e => { if (!cancelled) toast('Errore caricamento candidati: ' + e.message) })
+      .catch(e => { if (!cancelled) toast(e.message || 'Errore caricamento candidati', 'error') })
       .finally(() => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps

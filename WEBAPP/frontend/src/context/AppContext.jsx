@@ -103,7 +103,7 @@ const INITIAL_STATE = {
   wOverrides: {},        // { [rowIndex]: { prog, prev } }
 
   // toast
-  toast: null,           // { msg: string, id: number }
+  toast: null,           // { msg: string, type: 'success'|'warning'|'error', id: number }
 }
 
 // ─────────────────────── reducer ─────────────────────────────────
@@ -139,7 +139,14 @@ function reducer(state, action) {
 
     // Show toast — auto-cleared from component
     case 'TOAST':
-      return { ...state, toast: { msg: action.payload, id: Date.now() } }
+      return {
+        ...state,
+        toast: {
+          msg: action.payload.msg,
+          type: action.payload.type || 'error',
+          id: Date.now(),
+        },
+      }
 
     case 'TOAST_CLEAR':
       return { ...state, toast: null }
@@ -206,7 +213,10 @@ export function AppProvider({ children }) {
   }, [refreshScenarios, scenariosData, scenariosLoaded])
 
   const set = useCallback((payload) => dispatch({ type: 'SET', payload }), [])
-  const toast = useCallback((msg) => dispatch({ type: 'TOAST', payload: msg }), [])
+  const toast = useCallback((msg, type = 'error') => dispatch({ type: 'TOAST', payload: { msg, type } }), [])
+  const toastSuccess = useCallback((msg) => dispatch({ type: 'TOAST', payload: { msg, type: 'success' } }), [])
+  const toastWarning = useCallback((msg) => dispatch({ type: 'TOAST', payload: { msg, type: 'warning' } }), [])
+  const toastError = useCallback((msg) => dispatch({ type: 'TOAST', payload: { msg, type: 'error' } }), [])
   const clearToast = useCallback(() => dispatch({ type: 'TOAST_CLEAR' }), [])
   const resetSim = useCallback(() => dispatch({ type: 'SIM_RESET' }), [])
 
@@ -298,6 +308,9 @@ export function AppProvider({ children }) {
     dispatch,
     set,
     toast,
+    toastSuccess,
+    toastWarning,
+    toastError,
     clearToast,
     resetSim,
     applyWeeklyOverride,

@@ -55,7 +55,7 @@ export default function StepDestination() {
         setSchedule([])
         setPage(1)
       }
-      toast('Errore caricamento palinsesto: ' + e.message)
+      toast(e.message || 'Errore caricamento palinsesto', 'error')
     } finally {
       inFlightCountRef.current = Math.max(0, inFlightCountRef.current - 1)
       const hasInFlight = inFlightCountRef.current > 0

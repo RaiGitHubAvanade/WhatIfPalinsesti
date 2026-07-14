@@ -54,7 +54,7 @@ export default function DayRow({ row, showDay, dayIso, wCh, isCurrentWeek }) {
         value: newValue,
       })
     } catch (e) {
-      toast('Errore salvataggio share manuale: ' + e.message)
+      toast(e.message || 'Errore salvataggio share manuale', 'error')
     } finally {
       setSavingManuale(false)
     }

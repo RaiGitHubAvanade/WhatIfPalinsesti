@@ -62,11 +62,11 @@ export default function SimNav() {
       } else {
         throw new Error('Modalità di simulazione non valida')
       }
-      toast(result.message || 'La simulazione è stata creata ed è disponibile nella sezione "Scenari". Seleziona un altro programma sostitutivo per eseguire una nuova simulazione.')
+      toast(result.message || 'Simulazione avviata con successo.', 'success')
       set({ cand: null })
       await refreshScenarios({ force: true, silent: true })
     } catch (e) {
-      toast('Errore simulazione: ' + e.message)
+      toast(e.message || 'Errore simulazione', 'error')
     } finally {
       setLoading(false)
     }

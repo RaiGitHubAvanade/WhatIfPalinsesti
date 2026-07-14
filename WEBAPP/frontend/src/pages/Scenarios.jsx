@@ -139,7 +139,7 @@ export default function Scenarios() {
   useEffect(() => {
     let cancelled = false
     ensureScenariosLoaded()
-      .catch(e => { if (!cancelled && e?.name !== 'AbortError') toast('Errore caricamento scenari: ' + e.message) })
+      .catch(e => { if (!cancelled && e?.name !== 'AbortError') toast(e.message || 'Errore caricamento scenari', 'error') })
     return () => { cancelled = true }
   }, [ensureScenariosLoaded, toast])
 
@@ -149,7 +149,7 @@ export default function Scenarios() {
       await refreshScenarios({ force: true })
     } catch (e) {
       if (e?.name !== 'AbortError') {
-        toast('Errore caricamento scenari: ' + e.message)
+        toast(e.message || 'Errore caricamento scenari', 'error')
       }
     } finally {
       setRefreshing(false)
@@ -161,7 +161,7 @@ export default function Scenarios() {
     try {
       await deleteScenario(scenId)
     } catch (e) {
-      toast('Errore eliminazione scenario: ' + e.message)
+      toast(e.message || 'Errore eliminazione scenario', 'error')
       return
     }
     await refreshScenarios({ force: true, silent: true })
@@ -176,7 +176,7 @@ export default function Scenarios() {
       }
       await refreshScenarios({ force: true, silent: true })
     } catch (e) {
-      toast('Errore eliminazione: ' + e.message)
+      toast(e.message || 'Errore eliminazione', 'error')
     }
   }
 
@@ -187,11 +187,11 @@ export default function Scenarios() {
       } else {
         await retrySpostamento(simId)
       }
-      toast('Simulazione rilanciata.')
+      toast('Simulazione rilanciata.', 'success')
       // Refresh to show updated Running status
       await refreshScenarios({ force: true, silent: true })
     } catch (e) {
-      toast('Errore rilancio: ' + e.message)
+      toast(e.message || 'Errore rilancio', 'error')
     }
   }
 
@@ -310,13 +310,13 @@ export default function Scenarios() {
                   )
                   if (!result.ok) {
                     if (result.reason === 'no_scenarios') {
-                      toast('Nessuno scenario da esportare con i filtri selezionati.')
+                      toast('Nessuno scenario da esportare con i filtri selezionati.', 'warning')
                     } else {
-                      toast('Nessuna simulazione completata da esportare. Le simulazioni in corso potrebbero non essere ancora disponibili.')
+                      toast('Nessuna simulazione completata da esportare. Le simulazioni in corso potrebbero non essere ancora disponibili.', 'warning')
                     }
                   }
                 } catch (e) {
-                  toast('Errore esportazione: ' + e.message)
+                  toast(e.message || 'Errore esportazione', 'error')
                 }
               }}
             >
@@ -351,7 +351,7 @@ export default function Scenarios() {
                   onDelete={() => handleDeleteScen(id)}
                   onAddSim={() => {
                     if (sc.items.length >= MAX_SIMULATIONS_PER_SCENARIO) {
-                      toast(`Limite massimo di ${MAX_SIMULATIONS_PER_SCENARIO} simulazioni raggiunto per questo scenario.`)
+                      toast(`Limite massimo di ${MAX_SIMULATIONS_PER_SCENARIO} simulazioni raggiunto per questo scenario.`, 'warning')
                       return
                     }
 

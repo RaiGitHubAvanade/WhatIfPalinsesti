@@ -5,6 +5,8 @@ import './Toast.css'
 export default function Toast() {
   const { state, clearToast } = useApp()
   const { toast } = state
+  const type = toast?.type || 'error'
+  const role = type === 'error' ? 'alert' : 'status'
 
   useEffect(() => {
     if (!toast) return
@@ -16,7 +18,7 @@ export default function Toast() {
 
   return (
     <div className="toast-container">
-      <div className="toast" key={toast.id}>{toast.msg}</div>
+      <div className={`toast toast-${type}`} key={toast.id} role={role} aria-live="polite">{toast.msg}</div>
     </div>
   )
 }

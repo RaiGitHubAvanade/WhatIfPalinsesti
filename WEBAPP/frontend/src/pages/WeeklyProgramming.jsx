@@ -60,19 +60,21 @@ export default function WeeklyProgramming() {
   }
 
   const handleLoad = async () => {
-    if (!wCh) { toast('Seleziona un canale'); return }
-    if (!selectedDay) { toast('Seleziona un giorno'); return }
     setLoading(true)
     clearWeeklyOverrides()
     try {
       /** @type {WeeklyTableViewModel} */
       const data = await getWeeklyTable(wCh, selectedDay)
-      setRows(data.rows || [])
+      const nextRows = data.rows || []
+      setRows(nextRows)
       setWeekStart(getMondayISO(selectedDay))
       setWeekLabel(data.week)
       setLoadedChannel(data.channel)
+      if (nextRows.length === 0) {
+        toast('Purtroppo non sono stati trovati programmi inerenti ai filtri selezionati', 'warning')
+      }
     } catch (e) {
-      toast('Errore caricamento palinsesto: ' + e.message)
+      toast(e.message || 'Errore caricamento palinsesto', 'error')
     } finally {
       setLoading(false)
     }
@@ -144,7 +146,7 @@ export default function WeeklyProgramming() {
               weekStart,
             })
           } catch (e) {
-            toast('Errore esportazione: ' + e.message)
+            toast(e.message || 'Errore esportazione', 'error')
           }
         }}
       />

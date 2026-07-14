@@ -54,7 +54,7 @@ export default function StepProgram() {
       const data = await getTargetPrograms({ day: date || today })
       setRawData(data || [])
     } catch (e) {
-      toast('Errore caricamento programmi: ' + e.message)
+      toast(e.message || 'Errore caricamento programmi', 'error')
     } finally {
       setLoading(false)
     }
