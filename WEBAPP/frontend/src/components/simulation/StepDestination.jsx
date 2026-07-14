@@ -115,18 +115,18 @@ export default function StepDestination() {
 
       {/* Filter bar */}
       <div className="psel-filter-bar">
-        {/* Channel */}
-        <ChannelSelector
-          selected={spDestCh}
-          onChange={c => set({ spDestCh: spDestCh === c ? null : c })}
-        />
-
         {/* Date */}
         <DaySelector
           value={spDestDay || ''}
           minDate={today}
           maxDate={maxDay}
           onChange={val => set({ spDestDay: val })}
+        />
+
+        {/* Channel */}
+        <ChannelSelector
+          selected={spDestCh}
+          onChange={c => set({ spDestCh: spDestCh === c ? null : c })}
         />
 
         {/* Time */}
@@ -174,7 +174,7 @@ export default function StepDestination() {
                   <div key={p.id} className={`prow prow-readonly${cc ? ' ' + cc : ''}`}>
                     <span className="prow-time">
                       {p.from_time}
-                      {p.to_time && <span className="prow-end">–{p.to_time}</span>}
+                      {p.to_time && <span className="prow-end"> - {p.to_time}</span>}
                     </span>
                     <div className="prow-body">
                       <span className="prow-title">{p.program_name}</span>

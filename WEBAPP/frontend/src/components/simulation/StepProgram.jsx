@@ -76,8 +76,8 @@ export default function StepProgram() {
         if (!p.from_time || !p.to_time) return false
         const ps = toMinutes(p.from_time)
         const pe = toMinutes(p.to_time)
-        if (ft !== null && ps <= ft) return false   // keep only programs starting after "Da"
-        if (tt !== null && pe >= tt) return false   // keep only programs ending before "A"
+        if (ft !== null && ps < ft) return false    // keep programs starting at or after "Da"
+        if (tt !== null && pe > tt) return false   // keep only programs ending before "A"
         return true
       })
     }
@@ -170,7 +170,7 @@ export default function StepProgram() {
               >
                 <span className="prow-time">
                   {p.from_time}
-                  {p.to_time && <span className="prow-end">–{p.to_time}</span>}
+                  {p.to_time && <span className="prow-end"> - {p.to_time}</span>}
                 </span>
                 <div className="prow-body">
                   <span className="prow-title">{p.program_name || '—'}</span>
