@@ -6,6 +6,28 @@ from app.services.databricks_service_simulation import DatabricksServiceSimulati
 class DatabricksServiceSimulationSpostamento(DatabricksServiceSimulation):
     """Databricks SQL operations specific to simulazioni spostamento."""
 
+    def get_scenario_simulation_count(self, program_id: str, scenario_type: str) -> int:
+        query = """
+            SELECT COUNT(sim.id) AS simulation_count
+            FROM ta_coll.whatif.webapp_scenarios sce
+            LEFT JOIN ta_coll.whatif.webapp_simulations_spostamento sim
+                   ON sce.id = sim.id_scenario
+            WHERE sce.program_id = :program_id
+              AND sce.scenario_type = :scenario_type
+        """
+        params = {
+            "program_id": program_id,
+            "scenario_type": scenario_type,
+        }
+
+        self._logger.info(f"get_scenario_simulation_count | with params {params}")
+
+        with self._connection.cursor() as cursor:
+            cursor.execute(query, parameters=params)
+            row = cursor.fetchone()
+
+        return int(row[0]) if row else 0
+
     def get_scenario_simulations(
         self,
         program_id: str,

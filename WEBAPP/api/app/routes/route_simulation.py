@@ -89,6 +89,45 @@ def get_schedule_programs():
     return success(data=[asdict(p) for p in result], message="Palinsesto destinazione ottenuto con successo")
 
 
+@bp.route("/simulation/checkScenarioLimit")
+def check_scenario_limit():
+    program_id = request.args.get("program_id") or None
+    scenario_type = request.args.get("scenario_type") or None
+
+    if not program_id:
+        return error(message="Il parametro 'program_id' è obbligatorio", errors=["missing_program_id"]), 400
+
+    if scenario_type not in {"sostituzione", "spostamento"}:
+        return error(
+            message="Il parametro 'scenario_type' deve essere 'sostituzione' o 'spostamento'",
+            errors=["invalid_scenario_type"],
+        ), 400
+
+    logger.info("checkScenarioLimit | program_id=%s scenario_type=%s", program_id, scenario_type)
+
+    try:
+        logic = get_simulation_logic()
+        can_proceed, simulation_count = logic.can_proceed_to_step_3(program_id, scenario_type)
+    except RuntimeError as e:
+        logger.error("checkScenarioLimit RuntimeError: %s", e)
+        return error(message=str(e), errors=["databricks_error"]), 502
+    except Exception as e:
+        logger.exception("checkScenarioLimit unexpected: %s", e)
+        return error(message=f"Errore imprevisto: {e}", errors=["internal_error"]), 500
+
+    message = ""
+    if not can_proceed:
+        message = Messages.SCENARIO_LIMIT_REACHED_STEP_2
+
+    return success(
+        data={
+            "can_proceed": can_proceed,
+            "simulation_count": simulation_count,
+        },
+        message=message,
+    )
+
+
 # Simulation: Sostituzione
 @bp.route("/simulation/sostituzione/start", methods=["POST"])
 def start_sostituzione():

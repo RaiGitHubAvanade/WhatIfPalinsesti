@@ -27,6 +27,12 @@ class SostituzioneSimulationHandler:
             scenario_type=req.scenario_type,
         )
 
+    def get_scenario_simulation_count(self, program_id: str, scenario_type: str) -> int:
+        return self._service.get_scenario_simulation_count(
+            program_id=program_id,
+            scenario_type=scenario_type,
+        )
+
     def is_same_simulation(self, row: dict, req: ServingEndpointSostituzioneRequest) -> bool:
         return row.get("new_program_name") == req.new_program_name
 
@@ -106,6 +112,12 @@ class SpostamentoSimulationHandler:
             program_from_time=req.program_from_time,
             program_to_time=req.program_to_time,
             scenario_type=req.scenario_type,
+        )
+
+    def get_scenario_simulation_count(self, program_id: str, scenario_type: str) -> int:
+        return self._service.get_scenario_simulation_count(
+            program_id=program_id,
+            scenario_type=scenario_type,
         )
 
     def is_same_simulation(self, row: dict, req: ServingEndpointSpostamentoRequest) -> bool:

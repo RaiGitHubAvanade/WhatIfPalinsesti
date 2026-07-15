@@ -1,16 +1,37 @@
 import { useApp } from '../../context/useApp'
+import { checkScenarioLimit } from '../../services/apiSimulation'
 import './StepMode.css'
 
 export default function StepMode() {
-  const { set } = useApp()
+  const { state, set, toast } = useApp()
+  const { prog } = state
 
-  const handleMode = (mode) => {
-    set({
-      mode,
-      step: 2,
-      cand: null,
-      _spSimulated: false,
-    })
+  const handleMode = async (mode) => {
+    if (!prog?.id) {
+      toast('Programma non valido. Seleziona nuovamente un programma.', 'error')
+      return
+    }
+
+    try {
+      const result = await checkScenarioLimit({
+        programId: prog.id,
+        scenarioType: mode,
+      })
+
+      if (!result?.data?.can_proceed) {
+        toast(result.message, 'warning')
+        return
+      }
+
+      set({
+        mode,
+        step: 2,
+        cand: null,
+        _spSimulated: false,
+      })
+    } catch (e) {
+      toast(e.message || 'Errore validazione limite scenario', 'error')
+    }
   }
 
   return (

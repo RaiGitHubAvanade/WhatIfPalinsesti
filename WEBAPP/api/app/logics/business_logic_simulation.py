@@ -76,6 +76,18 @@ class BusinessLogicSimulation:
         return self.start_simulation(req, "spostamento")
 
 
+    def can_proceed_to_step_3(self, program_id: str, scenario_type: str) -> tuple[bool, int]:
+        handler = self._handler_factory.get_handler(scenario_type)
+
+        try:
+            simulation_count = handler.get_scenario_simulation_count(program_id, scenario_type)
+        except Exception as e:
+            raise RuntimeError(f"Errore nella validazione del limite simulazioni: {e}") from e
+
+        can_proceed = simulation_count < Config.MAX_SIMULATIONS_PER_SCENARIO
+        return can_proceed, simulation_count
+
+
     def start_simulation(self, req: ServingEndpointSostituzioneRequest | ServingEndpointSpostamentoRequest, simulation_type: str) -> tuple[str, int]:
         now = datetime.now(timezone.utc)
         handler = self._handler_factory.get_handler(simulation_type)

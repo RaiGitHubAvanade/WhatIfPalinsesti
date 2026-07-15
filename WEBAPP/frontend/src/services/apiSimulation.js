@@ -31,6 +31,16 @@ export async function getSchedulePrograms({ day = '' } = {}) {
   return result.data
 }
 
+export async function checkScenarioLimit({ programId, scenarioType }) {
+  const params = new URLSearchParams()
+  params.set('program_id', programId)
+  params.set('scenario_type', scenarioType)
+
+  const result = await apiFetch(`/api/simulation/checkScenarioLimit?${params.toString()}`)
+  if (!result.success) throw new Error(result.message || 'Errore validazione limite scenario')
+  return result
+}
+
 /** @returns {Promise<void>} */
 export async function startSostituzione(payload) {
   const result = await apiFetch('/api/simulation/sostituzione/start', {
