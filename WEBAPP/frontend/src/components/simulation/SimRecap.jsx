@@ -4,7 +4,7 @@ import './SimRecap.css'
 
 export default function SimRecap() {
   const { state } = useApp()
-  const { prog, mode, cand, spDestCh, spDestDay, spDestTime } = state
+  const { prog, mode, simModeValidationLoading, cand, spDestCh, spDestDay, spDestTime } = state
 
   const hasProg = !!prog
   const hasMode = !!mode
@@ -68,6 +68,12 @@ export default function SimRecap() {
             </div>
           ) : (
             <div className="rp-pending">Nessuna modalità selezionata</div>
+          )}
+          {simModeValidationLoading && (
+            <div className="rp-validating" aria-live="polite" aria-busy="true">
+              <span className="rp-spinner" aria-hidden="true" />
+              <span className="rp-validating-text">Validazione Scenario in corso...</span>
+            </div>
           )}
         </>
       )}

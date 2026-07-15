@@ -133,6 +133,33 @@
   font-size: 17px;
 }
 
+.rp-validating {
+  margin-top: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rp-spinner {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  border: 2px solid rgba(11, 61, 145, 0.2);
+  border-top-color: var(--rai);
+  animation: rp-spin .8s linear infinite;
+}
+
+.rp-validating-text {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+@keyframes rp-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* ── Destination block ── */
 .rp-dest-rows {
   display: flex;

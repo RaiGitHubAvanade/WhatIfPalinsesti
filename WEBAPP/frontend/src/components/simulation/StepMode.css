@@ -25,6 +25,14 @@
   transform: translateY(-3px);
 }
 
+.sim-mode-card.is-disabled {
+  opacity: .55;
+  cursor: not-allowed;
+  pointer-events: none;
+  box-shadow: none;
+  transform: none;
+}
+
 .sim-mode-card-sost         { background: linear-gradient(180deg, #fafafa, #fff); border-color: #d7ccc8; }
 .sim-mode-card-sost:hover   { border-color: #8d6e63; background: linear-gradient(180deg, #efebe9, #fff); }
 .sim-mode-card-sposta       { background: linear-gradient(180deg, #f3f4f9, #fff); border-color: #c5cae9; }

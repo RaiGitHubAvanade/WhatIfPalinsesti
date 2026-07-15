@@ -7,6 +7,7 @@ export default function SimNav() {
   const {
     step,
     mode,
+    simModeValidationLoading,
     prog,
     cand,
     spDestCh,
@@ -83,7 +84,7 @@ export default function SimNav() {
   return (
     <>
       {step > 0 && (
-        <button className="btn-back" onClick={handleBack}>
+        <button className="btn-back" onClick={handleBack} disabled={simModeValidationLoading}>
           ← Indietro
         </button>
       )}

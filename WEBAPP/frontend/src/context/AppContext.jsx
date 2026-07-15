@@ -74,6 +74,7 @@ function patchScenariosWithStatuses(scenarios, statusItems) {
 const INITIAL_STATE = {
   // simulation flow
   mode: null,           // 'sostituzione' | 'spostamento' | null
+  simModeValidationLoading: false,
   step: 0,
   ch: null,
   date: '',
@@ -119,6 +120,7 @@ function reducer(state, action) {
       return {
         ...state,
         mode: null,
+        simModeValidationLoading: false,
         step: 0,
         ch: null,
         date: '',
