@@ -12,13 +12,13 @@ class ServingEndpointSpostamentoRequest:
     program_channel: str | None
     program_date: str | None
     program_from_time: str | None
+    program_to_time: str | None
+    program_share_predict: float | None
     scenario_type: str | None
-    new_channel: str | None
     new_date: str | None
+    new_channel: str | None
     new_from_time: str | None
     schedule: list[str] | None
-    program_to_time: str | None = None
-    program_share_predict: float | None = None
 
     def __post_init__(self) -> None:
         self.schedule = _normalize_schedule(self.schedule)
@@ -33,12 +33,12 @@ class ServingEndpointSpostamentoRequest:
             program_date=body.get("program_date"),
             program_from_time=body.get("program_from_time"),
             program_to_time=body.get("program_to_time"),
+            program_share_predict=body.get("program_share_predict"),
             scenario_type=body.get("scenario_type"),
-            new_channel=body.get("new_channel"),
             new_date=body.get("new_date"),
+            new_channel=body.get("new_channel"),
             new_from_time=body.get("new_from_time"),
             schedule=schedule,
-            program_share_predict=body.get("program_share_predict"),
         )
 
     def retrieve_missing_parameters(self) -> list[str]:
@@ -50,12 +50,12 @@ class ServingEndpointSpostamentoRequest:
                 "program_date": self.program_date,
                 "program_from_time": self.program_from_time,
                 "program_to_time": self.program_to_time,
+                "program_share_predict": self.program_share_predict,
                 "scenario_type": self.scenario_type,
-                "new_channel": self.new_channel,
                 "new_date": self.new_date,
+                "new_channel": self.new_channel,
                 "new_from_time": self.new_from_time,
                 "schedule": self.schedule,
-                "program_share_predict": self.program_share_predict,
             }.items()
             if val is None
         ]
