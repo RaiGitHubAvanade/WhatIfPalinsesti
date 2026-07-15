@@ -107,7 +107,7 @@ class BusinessLogicScenarios:
         channel_order = [c for c in Config.CHANNEL_ORDER_SIMULATION_DETAIL]
 
         try:
-            rows = self._service.get_vw_output_palinsesto_futuro_ui(
+            rows = self._service.get_vw_output_palinsesto_futuro(
                 channel_order, day, from_time, to_time
             )
         except Exception as e:

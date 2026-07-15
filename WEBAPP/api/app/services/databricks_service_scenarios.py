@@ -298,7 +298,7 @@ class DatabricksServiceScenarios(DatabricksService):
 
     ### --- Competitors --- ###
 
-    def get_vw_output_palinsesto_futuro_ui(
+    def get_vw_output_palinsesto_futuro(
         self,
         channel_order: list[str],
         day,
@@ -310,7 +310,7 @@ class DatabricksServiceScenarios(DatabricksService):
         placeholders = ", ".join(f":ch{i}" for i in range(len(channel_order)))
         query = f"""
             SELECT ID, Canale, Data, Programma, orario_inizio, orario_fine, share_storico, evento_forte
-            FROM ta_coll.whatif.vw_output_palinsesto_futuro_ui
+            FROM ta_coll.whatif.vw_output_palinsesto_futuro 
             WHERE Data = :day
             AND Canale IN ({placeholders})
             AND (
@@ -333,7 +333,7 @@ class DatabricksServiceScenarios(DatabricksService):
             "overlap_from": DateTimeUtils.hhmm_to_minutes(from_time),
         }
 
-        self._logger.info(f"get_vw_output_palinsesto_futuro_ui | with params {params}")
+        self._logger.info(f"get_vw_output_palinsesto_futuro | with params {params}")
 
         with self._connection.cursor() as cursor:
             cursor.execute(query, parameters=params)
