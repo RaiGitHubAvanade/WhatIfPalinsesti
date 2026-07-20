@@ -1,6 +1,9 @@
 /** Abbreviazioni italiane dei giorni della settimana (indice 0 = domenica) */
 export const DAYS = ['dom', 'lun', 'mar', 'mer', 'gio', 'ven', 'sab']
 
+/** Delay (ms) before retrying a failed network request (e.g. transient DNS failure) */
+export const NETWORK_RETRY_DELAY_MS = 1500
+
 /** CSS class per canale RAI per i program rows */
 export const CH_CLS = { 'Rai 1': 'prow-r1', 'Rai 2': 'prow-r2', 'Rai 3': 'prow-r3' }
 
