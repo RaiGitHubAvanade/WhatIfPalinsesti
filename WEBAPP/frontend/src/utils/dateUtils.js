@@ -29,3 +29,27 @@ export function toMinutes(hhmm) {
   const base = h * 60 + m
   return h < 6 ? base + 1440 : base
 }
+
+/** Convert minutes to HH:MM, wrapping to 24h format. */
+export function formatMinutesToTime(minutes) {
+  if (minutes === null || minutes === undefined || Number.isNaN(minutes)) return null
+  const m = ((minutes % 1440) + 1440) % 1440
+  const h = Math.floor(m / 60)
+  const mm = m % 60
+  return `${String(h).padStart(2, '0')}:${String(mm).padStart(2, '0')}`
+}
+
+/** Compute duration in minutes between two HH:MM values (broadcast-day aware via toMinutes). */
+export function durationMinutes(start, end) {
+  const startMin = toMinutes(start)
+  const endMin = toMinutes(end)
+  if (startMin === null || endMin === null) return null
+  return endMin - startMin
+}
+
+/** Compute end HH:MM given start HH:MM and duration in minutes. */
+export function endTimeFromStartAndDuration(start, duration) {
+  const startMin = toMinutes(start)
+  if (startMin === null || duration === null || duration === undefined) return null
+  return formatMinutesToTime(startMin + duration)
+}

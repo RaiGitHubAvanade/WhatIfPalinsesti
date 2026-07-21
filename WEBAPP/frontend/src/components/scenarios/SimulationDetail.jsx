@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { getScenCompetitorPrograms, toggleEventoForte } from '../../services/apiScenarios'
-import { fmtDate } from '../../utils/dateUtils'
+import { fmtDate, durationMinutes, endTimeFromStartAndDuration } from '../../utils/dateUtils'
 import './SimulationDetail.css'
 
 function VerdictPill({ delta }) {
@@ -179,6 +179,8 @@ function DetailSpostamento({ result, onClose }) {
   const origSlotShare = r.orig_slot_share
   const destSlotShare = r.dest_slot_share
   const delta = r.delta
+  const slotDuration = durationMinutes(r.orig_time, r.orig_end)
+  const destEnd = endTimeFromStartAndDuration(r.dest_time, slotDuration)
   const origColorCls = (origSlotShare !== null && destSlotShare !== null)
     ? (origSlotShare > destSlotShare ? ' res-share-high' : origSlotShare < destSlotShare ? ' res-share-low' : '') : ''
   const predColorCls = (origSlotShare !== null && destSlotShare !== null)
@@ -211,7 +213,7 @@ function DetailSpostamento({ result, onClose }) {
               <div className="res-move-slot-content">
                 <div className="res-move-slot-row"><span className="res-move-slot-key">Canale:</span><span className="res-move-slot-val">{r.dest_ch || '—'}</span></div>
                 <div className="res-move-slot-row"><span className="res-move-slot-key">Data:</span><span className="res-move-slot-val">{fmtDate(r.dest_date) || '—'}</span></div>
-                <div className="res-move-slot-row"><span className="res-move-slot-key">Orario:</span><span className="res-move-slot-val">{r.dest_time || '—'}</span></div>
+                <div className="res-move-slot-row"><span className="res-move-slot-key">Orario:</span><span className="res-move-slot-val">{r.dest_time || '—'}{destEnd ? ` – ${destEnd}` : ''}</span></div>
               </div>
             </div>
           </div>

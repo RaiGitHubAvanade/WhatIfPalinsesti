@@ -5,7 +5,7 @@ import { CH_CLS, PROGRAM_PAGE_SIZE as PAGE_SIZE } from '../../utils/constants'
 import CustomSelect from '../shared/CustomSelect'
 import ChannelSelector from '../shared/ChannelSelector'
 import TextInputFilter from '../shared/TextInputFilter'
-import { toMinutes } from '../../utils/dateUtils'
+import { durationMinutes } from '../../utils/dateUtils'
 import './StepCandidates.css'
 
 /** @typedef {import('../../models/weekly_programming/competitorProgramsViewModel').OtherProgramViewModel} OtherProgramViewModel */
@@ -26,7 +26,7 @@ export default function StepCandidates() {
 
   const sharePredicted = prog?.share_predicted ?? null
   const duration = (prog?.from_time && prog?.to_time)
-    ? toMinutes(prog.to_time) - toMinutes(prog.from_time)
+    ? durationMinutes(prog.from_time, prog.to_time)
     : null
 
   // Re-fetch candidates when the target program changes
