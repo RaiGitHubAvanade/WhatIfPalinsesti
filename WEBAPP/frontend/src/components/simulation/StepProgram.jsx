@@ -6,7 +6,7 @@ import DaySelector from '../shared/DaySelector'
 import TimeSelector from './TimeSelector'
 import TextInputFilter from '../shared/TextInputFilter'
 import { CH_CLS, PROGRAM_PAGE_SIZE as PAGE_SIZE } from '../../utils/constants'
-import { fmtDate } from '../../utils/dateUtils'
+import { fmtDate, toMinutes } from '../../utils/dateUtils'
 import './StepProgram.css'
 
 function parseSlot(slot) {
@@ -25,14 +25,6 @@ function buildSlot(from, to) {
   if (from) return `${from}-`
   if (to) return `-${to}`
   return null
-}
-
-/** Convert HH:MM to minutes, adding 1440 for post-midnight hours (< 06:00). */
-function toMinutes(hhmm) {
-  if (!hhmm) return null
-  const [h, m] = hhmm.split(':').map(Number)
-  const base = h * 60 + m
-  return h < 6 ? base + 1440 : base
 }
 
 export default function StepProgram() {

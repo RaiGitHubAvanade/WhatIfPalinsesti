@@ -5,17 +5,10 @@ import { CH_CLS, PROGRAM_PAGE_SIZE as PAGE_SIZE } from '../../utils/constants'
 import CustomSelect from '../shared/CustomSelect'
 import ChannelSelector from '../shared/ChannelSelector'
 import TextInputFilter from '../shared/TextInputFilter'
+import { toMinutes } from '../../utils/dateUtils'
 import './StepCandidates.css'
 
 /** @typedef {import('../../models/weekly_programming/competitorProgramsViewModel').OtherProgramViewModel} OtherProgramViewModel */
-
-/** Convert HH:MM to minutes, adding 1440 for post-midnight hours (< 06:00). */
-function toMinutes(hhmm) {
-  if (!hhmm) return null
-  const [h, m] = hhmm.split(':').map(Number)
-  const base = h * 60 + m
-  return h < 6 ? base + 1440 : base
-}
 
 export default function StepCandidates() {
   const { state, set, toast } = useApp()

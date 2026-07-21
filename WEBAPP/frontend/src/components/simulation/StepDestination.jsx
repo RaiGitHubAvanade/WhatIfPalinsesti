@@ -5,17 +5,10 @@ import ChannelSelector from '../shared/ChannelSelector'
 import DaySelector from '../shared/DaySelector'
 import { TimePicker } from './TimeSelector'
 import { CH_CLS, PROGRAM_PAGE_SIZE as PAGE_SIZE } from '../../utils/constants'
-import { fmtDate } from '../../utils/dateUtils'
+import { fmtDate, toMinutes } from '../../utils/dateUtils'
 import './StepDestination.css'
 
 /** @typedef {import('../../models/weekly_programming/competitorProgramsViewModel').OtherProgramViewModel} OtherProgramViewModel */
-
-function toMinutes(hhmm) {
-  if (!hhmm) return null
-  const [h, m] = hhmm.split(':').map(Number)
-  const base = h * 60 + m
-  return h < 6 ? base + 1440 : base
-}
 
 export default function StepDestination() {
   const { state, set, toast } = useApp()
