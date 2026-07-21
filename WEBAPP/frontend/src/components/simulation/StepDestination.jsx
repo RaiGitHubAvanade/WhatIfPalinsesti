@@ -146,7 +146,7 @@ export default function StepDestination() {
               Palinsesto · {spDestCh}{spDestDay ? ` · ${fmtDate(spDestDay)}` : ''}
             </span>
             <span className="psel-list-cnt">
-              {filteredSchedule.length} programm{filteredSchedule.length === 1 ? 'a' : 'i'}
+              Share Previsto
             </span>
           </div>
 

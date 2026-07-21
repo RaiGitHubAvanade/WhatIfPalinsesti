@@ -1,7 +1,7 @@
 import './Topbar.css'
 
 const PAGE_TITLES = {
-  '/': 'Dashboard',
+  '/': 'Home',
   '/simulazione': 'Simulazione',
   '/scenari': 'Scenari',
   '/programmazione': 'Programmazione Settimanale',

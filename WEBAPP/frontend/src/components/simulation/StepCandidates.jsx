@@ -125,7 +125,7 @@ export default function StepCandidates() {
           <div className="psel-list-hdr psel-list-hdr-pad">
             <span className="psel-list-lbl">Programmi trovati</span>
             <span className="psel-list-cnt">
-              {displayed.length} programm{displayed.length === 1 ? 'a' : 'i'}
+              Share Storico
             </span>
           </div>
 
