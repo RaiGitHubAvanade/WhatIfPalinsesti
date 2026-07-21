@@ -54,17 +54,24 @@ class DatabricksServiceSimulation(DatabricksService):
         return [Program.MapProgramFromRaiPredictRow(row) for row in rows]
     
 
-    def get_candidate_programs(self) -> list[Program]:
+    def get_candidate_programs(self, share_predicted: float, min_duration: int, max_duration: int) -> list[Program]:
         """Fetch all candidate replacement programs (filtering done client-side)."""
         query = """
             SELECT titolo, canale, tipologia, genere, eta, share_storico_pct
             FROM ta_coll.whatif.output_lista_programmi_sostituzione
+            WHERE share_storico_pct >= :share_predicted
+              AND durata_minuti BETWEEN :min_duration AND :max_duration
             ORDER BY share_storico_pct DESC
         """
-        self._logger.info(f"get_candidate_programs | Query: {query}")
+        params = {
+            "share_predicted": share_predicted,
+            "min_duration": min_duration,
+            "max_duration": max_duration,
+        }
+        self._logger.info(f"get_candidate_programs | with params {params}")
 
         with self._connection.cursor() as cursor:
-            cursor.execute(query, parameters={})
+            cursor.execute(query, parameters=params)
             rows = cursor.fetchall()
 
         return [Program.MapProgramFromCandidateRow(row) for row in rows]

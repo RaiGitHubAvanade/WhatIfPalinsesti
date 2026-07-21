@@ -46,11 +46,28 @@ def get_target_programs():
 # Step 3
 @bp.route("/simulation/getCandidatePrograms")
 def get_candidate_programs():
-    logger.info("getCandidatePrograms")
+    share_predicted_str = request.args.get("share_predicted") or None
+    duration_str = request.args.get("duration") or None
+
+    share_predicted = None
+    if share_predicted_str is not None:
+        try:
+            share_predicted = float(share_predicted_str)
+        except ValueError:
+            return error(message="Parametro 'share_predicted' non valido", errors=["invalid_share_predicted"]), 400
+
+    duration = None
+    if duration_str is not None:
+        try:
+            duration = int(duration_str)
+        except ValueError:
+            return error(message="Parametro 'duration' non valido", errors=["invalid_duration"]), 400
+
+    logger.info("getCandidatePrograms | share_predicted=%s duration=%s", share_predicted, duration)
 
     try:
         logic  = get_simulation_logic()
-        result = logic.get_candidate_programs()
+        result = logic.get_candidate_programs(share_predicted=share_predicted, duration=duration)
     except RuntimeError as e:
         logger.error("getCandidatePrograms RuntimeError: %s", e)
         return error(message=str(e), errors=["databricks_error"]), 502

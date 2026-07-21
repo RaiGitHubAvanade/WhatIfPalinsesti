@@ -33,3 +33,5 @@ env:
     value: "false"
   - name: "MAX_SIMULATIONS_PER_SCENARIO"
     value: "3"
+  - name: "CANDIDATES_DURATION_OFFSET_MINUTES"
+    value: "15"

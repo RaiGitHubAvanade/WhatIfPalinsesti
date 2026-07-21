@@ -9,9 +9,17 @@ import './StepCandidates.css'
 
 /** @typedef {import('../../models/weekly_programming/competitorProgramsViewModel').OtherProgramViewModel} OtherProgramViewModel */
 
+/** Convert HH:MM to minutes, adding 1440 for post-midnight hours (< 06:00). */
+function toMinutes(hhmm) {
+  if (!hhmm) return null
+  const [h, m] = hhmm.split(':').map(Number)
+  const base = h * 60 + m
+  return h < 6 ? base + 1440 : base
+}
+
 export default function StepCandidates() {
   const { state, set, toast } = useApp()
-  const { cand } = state
+  const { cand, prog } = state
 
   const [search, setSearch] = useState('')
   const [ch, setCh] = useState('')
@@ -23,15 +31,20 @@ export default function StepCandidates() {
   const [loading, setLoading] = useState(true)
   const [page, setPage] = useState(1)
 
-  // Fetch all candidates once on mount
+  const sharePredicted = prog?.share_predicted ?? null
+  const duration = (prog?.from_time && prog?.to_time)
+    ? toMinutes(prog.to_time) - toMinutes(prog.from_time)
+    : null
+
+  // Re-fetch candidates when the target program changes
   useEffect(() => {
     let cancelled = false
-    getCandidatePrograms()
+    getCandidatePrograms({ share_predicted: sharePredicted, duration })
       .then(data => { if (!cancelled) setRawData(data || []) })
       .catch(e => { if (!cancelled) toast(e.message || 'Errore caricamento candidati', 'error') })
       .finally(() => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [sharePredicted, duration]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Client-side filtering
   const candidates_filtered = useMemo(() => {
