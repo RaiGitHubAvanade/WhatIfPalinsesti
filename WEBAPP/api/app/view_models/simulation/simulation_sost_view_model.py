@@ -17,6 +17,7 @@ class SimulationSostViewModel:
     modified_date: str | None
     last_error: str | None
     is_retry: bool
+    user_email: str | None
 
     @classmethod
     def MapSimulationSostViewModelFromSimulationSost(cls, sim: SimulationSost) -> "SimulationSostViewModel":
@@ -30,4 +31,5 @@ class SimulationSostViewModel:
             modified_date=sim.modified_date,
             last_error=sim.last_error,
             is_retry=sim.is_retry,
+            user_email=sim.user_email,
         )

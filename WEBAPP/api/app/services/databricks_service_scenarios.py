@@ -54,7 +54,8 @@ class DatabricksServiceScenarios(DatabricksService):
                 sim.creation_date            AS simulation_creation_date,
                 sim.modified_date            AS simulation_modified_date,
                 sim.last_error,
-                sim.is_retry
+                sim.is_retry,
+                sim.user_email
             FROM ta_coll.whatif.webapp_scenarios sce
             LEFT JOIN ta_coll.whatif.webapp_simulations_sostituzione sim
                    ON sce.id = sim.id_scenario
@@ -215,7 +216,8 @@ class DatabricksServiceScenarios(DatabricksService):
                 sim.creation_date            AS simulation_creation_date,
                 sim.modified_date            AS simulation_modified_date,
                 sim.last_error,
-                sim.is_retry
+                sim.is_retry,
+                sim.user_email
             FROM ta_coll.whatif.webapp_scenarios sce
             LEFT JOIN ta_coll.whatif.webapp_simulations_spostamento sim
                    ON sce.id = sim.id_scenario

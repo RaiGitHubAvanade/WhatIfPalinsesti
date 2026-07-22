@@ -71,12 +71,12 @@ class BusinessLogicSimulation:
         ]
 
 
-    def start_sostituzione(self, req: ServingEndpointSostituzioneRequest) -> tuple[str, int]:
-        return self.start_simulation(req, "sostituzione")
+    def start_sostituzione(self, req: ServingEndpointSostituzioneRequest, actor_identity: str | None = None) -> tuple[str, int]:
+        return self.start_simulation(req, "sostituzione", actor_identity)
 
 
-    def start_spostamento(self, req: ServingEndpointSpostamentoRequest) -> tuple[str, int]:
-        return self.start_simulation(req, "spostamento")
+    def start_spostamento(self, req: ServingEndpointSpostamentoRequest, actor_identity: str | None = None) -> tuple[str, int]:
+        return self.start_simulation(req, "spostamento", actor_identity)
 
 
     def can_proceed_to_step_3(self, program_id: str, scenario_type: str) -> tuple[bool, int]:
@@ -91,7 +91,12 @@ class BusinessLogicSimulation:
         return can_proceed, simulation_count
 
 
-    def start_simulation(self, req: ServingEndpointSostituzioneRequest | ServingEndpointSpostamentoRequest, simulation_type: str) -> tuple[str, int]:
+    def start_simulation(
+        self,
+        req: ServingEndpointSostituzioneRequest | ServingEndpointSpostamentoRequest,
+        simulation_type: str,
+        actor_identity: str | None = None,
+    ) -> tuple[str, int]:
         now = datetime.now(timezone.utc)
         handler = self._handler_factory.get_handler(simulation_type)
 
@@ -110,13 +115,15 @@ class BusinessLogicSimulation:
                 simulation_id = sim["sim_id"]
 
                 if sim["is_retry"]:
-                    handler.update_simulation(
-                        simulation_id,
-                        status="Running",
-                        modified_date=now,
-                        last_error=None,
-                        is_retry=False,
-                    )
+                    update_fields = {
+                        "status": "Running",
+                        "modified_date": now,
+                        "last_error": None,
+                        "is_retry": False,
+                        "user_email": actor_identity,
+                    }
+
+                    handler.update_simulation(simulation_id, **update_fields)
                     self._launch_thread(simulation_id, req.to_payload(), simulation_type)
                     return "", 202
 
@@ -128,7 +135,7 @@ class BusinessLogicSimulation:
             sim_count = len([r for r in rows if r.get("sim_id") is not None])
             if sim_count < Config.MAX_SIMULATIONS_PER_SCENARIO:
                 simulation_id = str(uuid.uuid4())
-                handler.insert_simulation(simulation_id, scenario_id, req, now)
+                handler.insert_simulation(simulation_id, scenario_id, req, actor_identity, now)
                 self._base_service.update_scenario(scenario_id, modified_date=now)
                 self._launch_thread(simulation_id, req.to_payload(), simulation_type)
                 return "", 202
@@ -150,20 +157,20 @@ class BusinessLogicSimulation:
         })
 
         simulation_id = str(uuid.uuid4())
-        handler.insert_simulation(simulation_id, scenario_id, req, now)
+        handler.insert_simulation(simulation_id, scenario_id, req, actor_identity, now)
         self._launch_thread(simulation_id, req.to_payload(), simulation_type)
         return "", 202
 
 
-    def retry_sostituzione(self, simulation_id: str) -> tuple[str, int]:
-        return self._retry_simulation(simulation_id, "sostituzione")
+    def retry_sostituzione(self, simulation_id: str, actor_identity: str | None = None) -> tuple[str, int]:
+        return self._retry_simulation(simulation_id, "sostituzione", actor_identity)
 
 
-    def retry_spostamento(self, simulation_id: str) -> tuple[str, int]:
-        return self._retry_simulation(simulation_id, "spostamento")
+    def retry_spostamento(self, simulation_id: str, actor_identity: str | None = None) -> tuple[str, int]:
+        return self._retry_simulation(simulation_id, "spostamento", actor_identity)
 
 
-    def _retry_simulation(self, simulation_id: str, simulation_type: str) -> tuple[str, int]:
+    def _retry_simulation(self, simulation_id: str, simulation_type: str, actor_identity: str | None = None) -> tuple[str, int]:
         handler = self._handler_factory.get_handler(simulation_type)
 
         try:
@@ -182,7 +189,7 @@ class BusinessLogicSimulation:
         if missing:
             raise ValueError(f"Campi obbligatori mancanti: {', '.join(missing)}")
 
-        return self.start_simulation(req, simulation_type)
+        return self.start_simulation(req, simulation_type, actor_identity)
 
 
     def _launch_thread(self, simulation_id: str, body: dict, simulation_type: str) -> None:

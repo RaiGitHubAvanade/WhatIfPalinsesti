@@ -61,7 +61,8 @@ class DatabricksServiceSimulationSpostamento(DatabricksServiceSimulation):
                 sim.creation_date    AS sim_creation_date,
                 sim.modified_date,
                 sim.last_error,
-                sim.is_retry
+                sim.is_retry,
+                sim.user_email
             FROM ta_coll.whatif.webapp_scenarios sce
             LEFT JOIN ta_coll.whatif.webapp_simulations_spostamento sim
                    ON sce.id = sim.id_scenario
@@ -102,12 +103,12 @@ class DatabricksServiceSimulationSpostamento(DatabricksServiceSimulation):
             INSERT INTO ta_coll.whatif.webapp_simulations_spostamento
                 (id, id_scenario, new_channel, new_date, new_from_time, schedule,
                  share_result, status, creation_date, modified_date,
-                 last_error, is_retry)
+                 last_error, is_retry, user_email)
             VALUES
                 (:id, :id_scenario, :new_channel, :new_date, :new_from_time,
                  from_json(:schedule, 'ARRAY<STRING>'),
                  :share_result, :status, :creation_date, :modified_date,
-                 :last_error, :is_retry)
+                 :last_error, :is_retry, :user_email)
         """
 
         self._logger.info(f"insert_simulation | with id {simulation.get('id')}, scenario_id {simulation.get('id_scenario')}")
@@ -157,6 +158,7 @@ class DatabricksServiceSimulationSpostamento(DatabricksServiceSimulation):
                 sim.schedule,
                 sim.status,
                 sim.is_retry,
+                sim.user_email,
                 sce.id               AS sce_id,
                 sce.scenario_type,
                 sce.program_id,

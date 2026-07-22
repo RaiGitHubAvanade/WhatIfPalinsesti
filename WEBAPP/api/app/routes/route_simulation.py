@@ -9,6 +9,7 @@ from app.container import get_simulation_logic
 from app.models.api_response import error, success
 from app.models.serving_endpoint_sostituzione_request import ServingEndpointSostituzioneRequest
 from app.models.serving_endpoint_spostamento_request import ServingEndpointSpostamentoRequest
+from app.utils.request_identity import resolve_request_user_identity
 
 logger = logging.getLogger(__name__)
 
@@ -150,6 +151,7 @@ def check_scenario_limit():
 def start_sostituzione():
     body = request.get_json(silent=True) or {}
     req = ServingEndpointSostituzioneRequest.from_body(body)
+    actor_identity, identity_source = resolve_request_user_identity(request)
 
     missing = req.retrieve_missing_parameters()
     if missing:
@@ -159,7 +161,7 @@ def start_sostituzione():
         ), 400
 
     logger.info(
-        "startSostituzione | scenario_type=%s program=%s channel=%s date=%s from=%s to=%s new_program=%s",
+        "startSostituzione | scenario_type=%s program=%s channel=%s date=%s from=%s to=%s new_program=%s user_email=%s user_email_source=%s",
         req.scenario_type,
         req.program_name,
         req.program_channel,
@@ -167,11 +169,13 @@ def start_sostituzione():
         req.program_from_time,
         req.program_to_time,
         req.new_program_name,
+        actor_identity,
+        identity_source,
     )
 
     try:
         logic = get_simulation_logic()
-        message, status_code = logic.start_sostituzione(req)
+        message, status_code = logic.start_sostituzione(req, actor_identity)
         if (status_code == 202):
             message = Messages.SIMULATION_SOSTITUZIONE_STARTED
     except ValueError as e:
@@ -191,6 +195,7 @@ def start_sostituzione():
 def start_spostamento():
     body = request.get_json(silent=True) or {}
     req = ServingEndpointSpostamentoRequest.from_body(body)
+    actor_identity, identity_source = resolve_request_user_identity(request)
 
     missing = req.retrieve_missing_parameters()
     if missing:
@@ -200,7 +205,7 @@ def start_spostamento():
         ), 400
 
     logger.info(
-        "startSpostamento | scenario_type=%s program=%s channel=%s date=%s from=%s to=%s destination=%s %s %s",
+        "startSpostamento | scenario_type=%s program=%s channel=%s date=%s from=%s to=%s destination=%s %s %s user_email=%s user_email_source=%s",
         req.scenario_type,
         req.program_name,
         req.program_channel,
@@ -210,11 +215,13 @@ def start_spostamento():
         req.new_channel,
         req.new_date,
         req.new_from_time,
+        actor_identity,
+        identity_source,
     )
 
     try:
         logic = get_simulation_logic()
-        message, status_code = logic.start_spostamento(req)
+        message, status_code = logic.start_spostamento(req, actor_identity)
         if (status_code == 202):
             message = Messages.SIMULATION_SPOSTAMENTO_STARTED
     except ValueError as e:
@@ -231,10 +238,11 @@ def start_spostamento():
 
 @bp.route("/simulation/sostituzione/<simulation_id>/retry", methods=["POST"])
 def retry_sostituzione(simulation_id):
-    logger.info("retrySostituzione | id=%s", simulation_id)
+    actor_identity, identity_source = resolve_request_user_identity(request)
+    logger.info("retrySostituzione | id=%s user_email=%s user_email_source=%s", simulation_id, actor_identity, identity_source)
     try:
         logic = get_simulation_logic()
-        message, status_code = logic.retry_sostituzione(simulation_id)
+        message, status_code = logic.retry_sostituzione(simulation_id, actor_identity)
     except ValueError as e:
         return error(message=str(e), errors=["invalid_state"]), 400
     except RuntimeError as e:
@@ -248,10 +256,11 @@ def retry_sostituzione(simulation_id):
 
 @bp.route("/simulation/spostamento/<simulation_id>/retry", methods=["POST"])
 def retry_spostamento(simulation_id):
-    logger.info("retrySpostamento | id=%s", simulation_id)
+    actor_identity, identity_source = resolve_request_user_identity(request)
+    logger.info("retrySpostamento | id=%s user_email=%s user_email_source=%s", simulation_id, actor_identity, identity_source)
     try:
         logic = get_simulation_logic()
-        message, status_code = logic.retry_spostamento(simulation_id)
+        message, status_code = logic.retry_spostamento(simulation_id, actor_identity)
     except ValueError as e:
         return error(message=str(e), errors=["invalid_state"]), 400
     except RuntimeError as e:

@@ -68,6 +68,7 @@ function mapToDisplay(apiScen) {
         ch: program_channel,
         _status: sim.status,
         _sim_id: sim.id,
+        _user_email: sim.user_email || '',
       }
     } else {
       return {
@@ -94,6 +95,7 @@ function mapToDisplay(apiScen) {
         spDestTime: sim.new_from_time,
         _status: sim.status,
         _sim_id: sim.id,
+        _user_email: sim.user_email || '',
       }
     }
   })

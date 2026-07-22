@@ -14,6 +14,7 @@ class SimulationSost:
     modified_date: str | None
     last_error: str | None
     is_retry: bool
+    user_email: str | None
 
     @classmethod
     def MapSimulationSostFromRow(cls, row) -> "SimulationSost":
@@ -28,6 +29,7 @@ class SimulationSost:
             modified_date=_to_iso(row.modified_date),
             last_error=row.last_error,
             is_retry=bool(row.is_retry),
+            user_email=row.user_email,
         )
 
     @classmethod
@@ -43,6 +45,7 @@ class SimulationSost:
             modified_date=_to_iso(row.get("simulation_modified_date")),
             last_error=row.get("last_error"),
             is_retry=bool(row.get("is_retry", False)),
+            user_email=row.get("user_email"),
         )
 
 
@@ -60,6 +63,7 @@ class SimulationSposta:
     modified_date: str | None
     last_error: str | None
     is_retry: bool
+    user_email: str | None
 
     @classmethod
     def MapSimulationSpostaFromRow(cls, row) -> "SimulationSposta":
@@ -75,6 +79,7 @@ class SimulationSposta:
             modified_date=_to_iso(row.modified_date),
             last_error=row.last_error,
             is_retry=bool(row.is_retry),
+            user_email=row.user_email,
         )
 
     @classmethod
@@ -91,6 +96,7 @@ class SimulationSposta:
             modified_date=_to_iso(row.get("simulation_modified_date")),
             last_error=row.get("last_error"),
             is_retry=bool(row.get("is_retry", False)),
+            user_email=row.get("user_email"),
         )
 
 

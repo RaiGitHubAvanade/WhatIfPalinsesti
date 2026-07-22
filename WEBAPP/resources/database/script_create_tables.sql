@@ -43,6 +43,7 @@ CREATE TABLE IF NOT EXISTS ta_coll.whatif.webapp_simulations_sostituzione (
     modified_date             TIMESTAMP NOT NULL,
     last_error                STRING,
     is_retry                  BOOLEAN   NOT NULL,
+    user_email                STRING,
     shap_values               MAP<STRING, DOUBLE>,
 
     CONSTRAINT pk_webapp_simulations_sostituzione           PRIMARY KEY (id),
@@ -65,6 +66,7 @@ CREATE TABLE IF NOT EXISTS ta_coll.whatif.webapp_simulations_spostamento (
     modified_date             TIMESTAMP NOT NULL,
     last_error                STRING,
     is_retry                  BOOLEAN   NOT NULL,
+    user_email                STRING,
     shap_values               MAP<STRING, DOUBLE>,
 
     CONSTRAINT pk_webapp_simulations_spostamento            PRIMARY KEY (id),

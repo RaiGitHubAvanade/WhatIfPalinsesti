@@ -36,7 +36,14 @@ class SostituzioneSimulationHandler:
     def is_same_simulation(self, row: dict, req: ServingEndpointSostituzioneRequest) -> bool:
         return row.get("new_program_name") == req.new_program_name
 
-    def insert_simulation(self, simulation_id: str, scenario_id: str, req: ServingEndpointSostituzioneRequest, now: datetime) -> None:
+    def insert_simulation(
+        self,
+        simulation_id: str,
+        scenario_id: str,
+        req: ServingEndpointSostituzioneRequest,
+        actor_identity: str | None,
+        now: datetime,
+    ) -> None:
         self._service.insert_simulation({
             "id": simulation_id,
             "id_scenario": scenario_id,
@@ -48,6 +55,7 @@ class SostituzioneSimulationHandler:
             "modified_date": now,
             "last_error": None,
             "is_retry": False,
+            "user_email": actor_identity,
         })
 
     def update_simulation(self, simulation_id: str, **fields) -> None:
@@ -127,7 +135,14 @@ class SpostamentoSimulationHandler:
             and row.get("new_from_time") == req.new_from_time
         )
 
-    def insert_simulation(self, simulation_id: str, scenario_id: str, req: ServingEndpointSpostamentoRequest, now: datetime) -> None:
+    def insert_simulation(
+        self,
+        simulation_id: str,
+        scenario_id: str,
+        req: ServingEndpointSpostamentoRequest,
+        actor_identity: str | None,
+        now: datetime,
+    ) -> None:
         self._service.insert_simulation({
             "id": simulation_id,
             "id_scenario": scenario_id,
@@ -141,6 +156,7 @@ class SpostamentoSimulationHandler:
             "modified_date": now,
             "last_error": None,
             "is_retry": False,
+            "user_email": actor_identity,
         })
 
     def update_simulation(self, simulation_id: str, **fields) -> None:

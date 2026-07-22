@@ -10,6 +10,7 @@
  * @property {string|null} modified_date
  * @property {string|null} last_error
  * @property {boolean} is_retry
+ * @property {string|null} user_email
  */
 
 export {}
