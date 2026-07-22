@@ -13,8 +13,8 @@ import './ScenCard.css'
  * }} props
  */
 export default function ScenCard({ scenId, sc, onDelete, onAddSim, onViewDetail, onDeleteSim, onRetrySim }) {
-  const [deletingSimId, setDeletingSimId] = useState(null)
-  const [retryingSimId, setRetryingSimId] = useState(null)
+  const [deletingSimIds, setDeletingSimIds] = useState(new Set())
+  const [retryingSimIds, setRetryingSimIds] = useState(new Set())
   const [deletingScen, setDeletingScen] = useState(false)
 
   const isFull = sc.items.length >= MAX_SIMULATIONS_PER_SCENARIO
@@ -130,35 +130,47 @@ export default function ScenCard({ scenId, sc, onDelete, onAddSim, onViewDetail,
                   <span className="scen-item-status-lbl scen-item-status-lbl--failed">Fallita</span>
                 ) : <span />}
                 <div className="scen-item-actions" onClick={e => e.stopPropagation()}>
-                  {item._status === 'Failed' && onRetrySim && deletingSimId !== item._sim_id && (
+                  {item._status === 'Failed' && onRetrySim && !deletingSimIds.has(item._sim_id) && (
                     <button
                       className="scen-icon-btn"
-                      disabled={retryingSimId === item._sim_id}
+                      disabled={retryingSimIds.has(item._sim_id)}
                       onClick={async () => {
-                        setRetryingSimId(item._sim_id)
+                        setRetryingSimIds(prev => new Set(prev).add(item._sim_id))
                         try { await onRetrySim(item._sim_id) }
-                        finally { setRetryingSimId(null) }
+                        finally {
+                          setRetryingSimIds(prev => {
+                            const next = new Set(prev)
+                            next.delete(item._sim_id)
+                            return next
+                          })
+                        }
                       }}
                       title="Rilancia simulazione"
                     >
-                      {retryingSimId === item._sim_id
+                      {retryingSimIds.has(item._sim_id)
                         ? <span className="scen-spinner" />
                         : '⟳'}
                     </button>
                   )}
-                  {item._status !== 'Running' && onDeleteSim && retryingSimId !== item._sim_id && (
+                  {item._status !== 'Running' && onDeleteSim && !retryingSimIds.has(item._sim_id) && (
                     <button
                       className="scen-icon-btn"
-                      disabled={deletingSimId === item._sim_id}
+                      disabled={deletingSimIds.has(item._sim_id)}
                       onClick={async (e) => {
                         e.stopPropagation()
-                        setDeletingSimId(item._sim_id)
+                        setDeletingSimIds(prev => new Set(prev).add(item._sim_id))
                         try { await onDeleteSim(item._sim_id, idx) }
-                        finally { setDeletingSimId(null) }
+                        finally {
+                          setDeletingSimIds(prev => {
+                            const next = new Set(prev)
+                            next.delete(item._sim_id)
+                            return next
+                          })
+                        }
                       }}
                       title="Rimuovi simulazione"
                     >
-                      {deletingSimId === item._sim_id
+                      {deletingSimIds.has(item._sim_id)
                         ? <span className="scen-spinner" />
                         : '🗑️'}
                     </button>
