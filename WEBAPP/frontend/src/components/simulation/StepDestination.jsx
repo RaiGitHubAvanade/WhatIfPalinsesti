@@ -153,7 +153,7 @@ export default function StepDestination() {
           {filteredSchedule.length === 0 ? (
             <p className="psel-empty">Nessun programma trovato in questo intervallo.</p>
           ) : (
-            <div className={`psel-list-body psel-list-readonly${totalPages > 1 ? ' psel-list-body--paged' : ''}`}>
+            <div className="psel-list-body psel-list-readonly">
               <div className="psel-readonly-hint">
                 ℹ️ Visualizzazione informativa del palinsesto per l&apos;intervallo selezionato
               </div>
