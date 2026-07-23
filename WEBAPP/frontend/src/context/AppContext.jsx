@@ -103,6 +103,9 @@ const INITIAL_STATE = {
   wLoaded: false,
   wOverrides: {},        // { [rowIndex]: { prog, prev } }
 
+  // target programs cache (StepProgram — keyed by date, expires after TTL)
+  targetProgramsCache: { date: null, data: [], loadedAt: null },
+
   // toast
   toast: null,           // { msg: string, type: 'success'|'warning'|'error', id: number }
 }

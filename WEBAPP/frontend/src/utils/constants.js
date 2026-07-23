@@ -36,3 +36,6 @@ export const SIMULATION_TYPES = [
 /** Intervalli di polling per lo stato delle simulazioni */
 export const SCENARIOS_POLLING_BASE_MS = 3000
 export const SCENARIOS_POLLING_MAX_MS = 30000
+
+/** Cache lifetime for the StepProgram target-programs list (ms) */
+export const TARGET_PROGRAMS_CACHE_TTL_MS = 60 * 60 * 1000

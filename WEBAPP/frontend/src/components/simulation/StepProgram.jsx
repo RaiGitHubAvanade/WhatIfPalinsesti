@@ -1,11 +1,11 @@
-﻿import { useState, useEffect, useCallback, useMemo } from 'react'
+﻿import { useState, useEffect, useMemo } from 'react'
 import { useApp } from '../../context/useApp'
 import { getTargetPrograms } from '../../services/apiSimulation'
 import ChannelSelector from '../shared/ChannelSelector'
 import DaySelector from '../shared/DaySelector'
 import TimeSelector from './TimeSelector'
 import TextInputFilter from '../shared/TextInputFilter'
-import { CH_CLS, PROGRAM_PAGE_SIZE as PAGE_SIZE } from '../../utils/constants'
+import { CH_CLS, PROGRAM_PAGE_SIZE as PAGE_SIZE, TARGET_PROGRAMS_CACHE_TTL_MS } from '../../utils/constants'
 import { fmtDate, toMinutes } from '../../utils/dateUtils'
 import './StepProgram.css'
 
@@ -29,37 +29,45 @@ function buildSlot(from, to) {
 
 export default function StepProgram() {
   const { state, set, toast } = useApp()
-  const { ch, date, slot, _search, prog } = state
+  const { ch, date, slot, _search, prog, targetProgramsCache } = state
 
-  const [rawData, setRawData] = useState([])
   const [loading, setLoading] = useState(false)
   const [page, setPage] = useState(1)
 
   const { fromTime, toTime } = parseSlot(slot)
   const today = new Date().toISOString().slice(0, 10)
   const maxDay = new Date(new Date(today).getTime() + 6 * 86400000).toISOString().slice(0, 10)
-
-  const fetchPrograms = useCallback(async () => {
-    setLoading(true)
-    setPage(1)
-    try {
-      const data = await getTargetPrograms({ day: date || today })
-      setRawData(data || [])
-    } catch (e) {
-      toast(e.message || 'Errore caricamento programmi', 'error')
-    } finally {
-      setLoading(false)
-    }
-  }, [date]) // eslint-disable-line react-hooks/exhaustive-deps
+  const effectiveDate = date || today
 
   useEffect(() => {
-    const t = setTimeout(fetchPrograms, 200)
-    return () => clearTimeout(t)
-  }, [fetchPrograms])
+    const { date: cachedDate, loadedAt } = targetProgramsCache
+    const cacheValid = cachedDate === effectiveDate
+      && loadedAt !== null
+      && (Date.now() - loadedAt) < TARGET_PROGRAMS_CACHE_TTL_MS
+    if (cacheValid) return
+
+    let cancelled = false
+    const t = setTimeout(async () => {
+      if (cancelled) return
+      setLoading(true)
+      setPage(1)
+      try {
+        const data = await getTargetPrograms({ day: effectiveDate })
+        if (!cancelled) {
+          set({ targetProgramsCache: { date: effectiveDate, data: data || [], loadedAt: Date.now() } })
+        }
+      } catch (e) {
+        if (!cancelled) toast(e.message || 'Errore caricamento programmi', 'error')
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }, 200)
+    return () => { cancelled = true; clearTimeout(t) }
+  }, [effectiveDate, targetProgramsCache]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Client-side filtering: channel, time overlap, text search
   const programs = useMemo(() => {
-    let result = rawData
+    let result = targetProgramsCache.data
     if (ch) result = result.filter(p => p.channel === ch)
     if (fromTime || toTime) {
       const ft = fromTime ? toMinutes(fromTime) : null
@@ -84,7 +92,7 @@ export default function StepProgram() {
       return ta - tb
     })
     return result
-  }, [rawData, ch, fromTime, toTime, _search])
+  }, [targetProgramsCache.data, ch, fromTime, toTime, _search])
 
   const totalPages = Math.max(1, Math.ceil(programs.length / PAGE_SIZE))
   const safePage = Math.min(page, totalPages)
