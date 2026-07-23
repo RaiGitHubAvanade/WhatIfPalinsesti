@@ -78,7 +78,7 @@ export default function StepCandidates() {
 
         {/* Target sesso */}
         <div className="psel-fg">
-          <span className="psel-fg-lbl">Genere</span>
+          <span className="psel-fg-lbl">Sesso</span>
           <CustomSelect
             value={targetSex}
             onChange={v => { setTargetSex(v); set({ cand: null }); setPage(1) }}
@@ -140,7 +140,7 @@ export default function StepCandidates() {
                 const sv = typeof p.share_storico === 'number' ? p.share_storico.toFixed(1) + '%' : '-'
                 const cc = CH_CLS[p.channel] || ''
                 const subMeta = [
-                  p.target_sex ? `Genere: ${p.target_sex}` : null,
+                  p.target_sex ? `Sesso: ${p.target_sex}` : null,
                   p.target_age ? `Età: ${p.target_age}` : null,
                 ].filter(Boolean)
 
