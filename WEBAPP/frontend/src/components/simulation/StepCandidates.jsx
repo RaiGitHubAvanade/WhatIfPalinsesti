@@ -18,6 +18,7 @@ export default function StepCandidates() {
   const [ch, setCh] = useState('')
   const [targetSex, setTargetSex] = useState('')
   const [targetAge, setTargetAge] = useState('')
+  const [genre, setGenre] = useState('')
   const [shareMin, setShareMin] = useState('')
 
   const [rawData, setRawData] = useState(/** @type {OtherProgramViewModel[]} */ ([]))
@@ -28,6 +29,16 @@ export default function StepCandidates() {
   const duration = (prog?.from_time && prog?.to_time)
     ? durationMinutes(prog.from_time, prog.to_time)
     : null
+
+  // Derive distinct filter options from loaded data — always consistent with available candidates
+  const availableTargetAges = useMemo(
+    () => [...new Set(rawData.map(p => p.target_age).filter(Boolean))].sort(),
+    [rawData]
+  )
+  const availableGenres = useMemo(
+    () => [...new Set(rawData.map(p => p.genre).filter(Boolean))].sort(),
+    [rawData]
+  )
 
   // Re-fetch candidates when the target program changes
   useEffect(() => {
@@ -49,9 +60,10 @@ export default function StepCandidates() {
     }
     if (targetSex) result = result.filter(p => p.target_sex === targetSex)
     if (targetAge) result = result.filter(p => p.target_age === targetAge)
+    if (genre) result = result.filter(p => p.genre === genre)
     if (shareMin) result = result.filter(p => typeof p.share_storico === 'number' && p.share_storico > parseFloat(shareMin))
     return result
-  }, [rawData, ch, search, targetSex, targetAge, shareMin])
+  }, [rawData, ch, search, targetSex, targetAge, genre, shareMin])
 
   const displayed = candidates_filtered
 
@@ -98,7 +110,20 @@ export default function StepCandidates() {
             onChange={v => { setTargetAge(v); set({ cand: null }); setPage(1) }}
             options={[
               { value: '', label: 'Tutte' },
-              ...['45+', '55+', '70+', '75+'].map(a => ({ value: a, label: a })),
+              ...availableTargetAges.map(a => ({ value: a, label: a })),
+            ]}
+          />
+        </div>
+
+        {/* Genere */}
+        <div className="psel-fg">
+          <span className="psel-fg-lbl">Genere</span>
+          <CustomSelect
+            value={genre}
+            onChange={v => { setGenre(v); set({ cand: null }); setPage(1) }}
+            options={[
+              { value: '', label: 'Tutti' },
+              ...availableGenres.map(g => ({ value: g, label: g })),
             ]}
           />
         </div>
@@ -140,6 +165,7 @@ export default function StepCandidates() {
                 const sv = typeof p.share_storico === 'number' ? p.share_storico.toFixed(1) + '%' : '-'
                 const cc = CH_CLS[p.channel] || ''
                 const subMeta = [
+                  p.genre ? `Genere: ${p.genre}` : null,
                   p.target_sex ? `Sesso: ${p.target_sex}` : null,
                   p.target_age ? `Età: ${p.target_age}` : null,
                 ].filter(Boolean)
