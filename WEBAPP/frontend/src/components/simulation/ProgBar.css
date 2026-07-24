@@ -1,2 +1,13 @@
-/* ProgBar uses the global .prog-bar, .prog-step, .prog-circ, .prog-lbl,
-   .prog-line utility classes defined in App.css. No extra styles needed. */
+/* ProgBar — step progress indicator */
+
+.prog-bar { display: flex; align-items: center; background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 16px 24px; margin-bottom: 22px; gap: 0; }
+.prog-step { display: flex; align-items: center; gap: 10px; }
+.prog-circ { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 900; flex-shrink: 0; transition: .2s; }
+.prog-circ.future { background: #EDF2F7; color: #A0AEC0; border: 2px solid #CBD5E0; }
+.prog-circ.active { background: var(--rai); color: #fff; box-shadow: 0 2px 8px rgba(11,61,145,.3); }
+.prog-circ.done { background: var(--success); color: #fff; }
+.prog-lbl { font-size: 13.5px; font-weight: 700; color: var(--muted); white-space: nowrap; }
+.prog-step.active .prog-lbl { color: var(--rai); font-weight: 900; }
+.prog-step.done .prog-lbl { color: var(--success); }
+.prog-line { flex: 1; height: 2px; background: #E2E8F0; margin: 0 8px; min-width: 18px; }
+.prog-line.done { background: var(--success); }
