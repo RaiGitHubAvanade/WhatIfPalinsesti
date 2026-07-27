@@ -60,7 +60,7 @@
   text-align: center;
   transition: border-color .15s;
 }
-.tp-trigger--set { color: var(--text); font-weight: 600; }
+.tp-trigger--set { color: var(--muted); font-weight: 600; }
 .tp-trigger:hover, .tp-trigger:focus { border-color: var(--rai); }
 
 .tp-dropdown {
@@ -83,7 +83,7 @@
   font-size: 12.5px;
   font-family: inherit;
   cursor: pointer;
-  color: var(--text);
+  color: var(--muted);
   transition: background .1s;
   text-align: center;
 }

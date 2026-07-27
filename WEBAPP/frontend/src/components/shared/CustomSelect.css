@@ -13,7 +13,7 @@
   white-space: nowrap;
   transition: border-color .15s;
 }
-.csel-trigger--set { color: var(--text); font-weight: 600; }
+.csel-trigger--set { color: var(--muted); font-weight: 600; }
 .csel-trigger:hover, .csel-trigger:focus { border-color: var(--rai); }
 
 .csel-dropdown {
@@ -37,7 +37,7 @@
   font-size: 13px;
   font-family: inherit;
   cursor: pointer;
-  color: var(--text);
+  color: var(--muted);
   transition: background .1s;
 }
 .csel-option:hover { background: #f0f4ff; }

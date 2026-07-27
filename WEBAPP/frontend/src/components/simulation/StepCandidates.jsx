@@ -115,19 +115,6 @@ export default function StepCandidates() {
           />
         </div>
 
-        {/* Genere */}
-        <div className="psel-fg">
-          <span className="psel-fg-lbl">Genere</span>
-          <CustomSelect
-            value={genre}
-            onChange={v => { setGenre(v); set({ cand: null }); setPage(1) }}
-            options={[
-              { value: '', label: 'Tutti' },
-              ...availableGenres.map(g => ({ value: g, label: g })),
-            ]}
-          />
-        </div>
-
         {/* Share minima */}
         <div className="psel-fg">
           <span className="psel-fg-lbl">Share minimo</span>
@@ -137,6 +124,19 @@ export default function StepCandidates() {
             options={[
               { value: '', label: 'Nessuno' },
               ...['10', '20', '30', '40', '50', '60', '70', '80'].map(s => ({ value: s, label: s + '%' })),
+            ]}
+          />
+        </div>
+
+        {/* Genere */}
+        <div className="psel-fg">
+          <span className="psel-fg-lbl">Genere</span>
+          <CustomSelect
+            value={genre}
+            onChange={v => { setGenre(v); set({ cand: null }); setPage(1) }}
+            options={[
+              { value: '', label: 'Tutti' },
+              ...availableGenres.map(g => ({ value: g, label: g })),
             ]}
           />
         </div>

@@ -18,7 +18,7 @@
   padding: 7px 12px;
   font-size: 13px;
   font-family: inherit;
-  color: var(--text);
+  color: var(--muted);
   background: #fff;
   outline: none;
   cursor: pointer;
