@@ -7,6 +7,7 @@ from flask import Blueprint, request
 from app.container import get_scenarios_service
 from app.logics.business_logic_scenarios import BusinessLogicScenarios
 from app.models.api_response import error, success
+from app.utils.sse_broker import broker
 
 logger = logging.getLogger(__name__)
 
@@ -53,6 +54,7 @@ def delete_simulation_sostituzione(simulation_id):
     except Exception as e:
         logger.exception("deleteSimulationSostituzione unexpected: %s", e)
         return error(message=f"Errore imprevisto: {e}", errors=["internal_error"]), 500
+    broker.broadcast("scenarios_changed", {})
     return success(message="Simulazione eliminata con successo")
 
 
@@ -68,6 +70,7 @@ def delete_simulation_spostamento(simulation_id):
     except Exception as e:
         logger.exception("deleteSimulationSpostamento unexpected: %s", e)
         return error(message=f"Errore imprevisto: {e}", errors=["internal_error"]), 500
+    broker.broadcast("scenarios_changed", {})
     return success(message="Simulazione eliminata con successo")
 
 
@@ -83,6 +86,7 @@ def delete_scenario(scenario_id):
     except Exception as e:
         logger.exception("deleteScenario unexpected: %s", e)
         return error(message=f"Errore imprevisto: {e}", errors=["internal_error"]), 500
+    broker.broadcast("scenarios_changed", {})
     return success(message="Scenario eliminato con successo")
 
 
@@ -149,6 +153,7 @@ def toggle_evento_forte():
         return error(message=f"Errore imprevisto: {e}", errors=["internal_error"]), 500
 
     logger.info("toggleEventoForte: success | id=%s", competitor_id)
+    broker.broadcast("scenarios_changed", {})
     return success(message="Evento forte aggiornato con successo")
 
 

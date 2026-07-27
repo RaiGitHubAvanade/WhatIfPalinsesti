@@ -28,9 +28,9 @@ function groupByDay(rows) {
 }
 
 /**
- * @param {{ rows: ProgramViewModel[], loading: boolean, weekStart: string|null, weekLabel: string, wCh: string|null, editableFromDate: string|null, onExport: () => void }} props
+ * @param {{ rows: ProgramViewModel[], loading: boolean, weekStart: string|null, weekLabel: string, wCh: string|null, editableFromDate: string|null, isEditMode: boolean, lockHolder: string|null, savingBatch: boolean, onManualChange: Function, onStartEdit: Function, onSaveEdit: Function, onCancelEdit: Function, onExport: () => void }} props
  */
-export default function WeekTable({ rows, loading, weekStart, weekLabel, wCh, editableFromDate, onExport }) {
+export default function WeekTable({ rows, loading, weekStart, weekLabel, wCh, editableFromDate, isEditMode, lockHolder, savingBatch, onManualChange, onStartEdit, onSaveEdit, onCancelEdit, onExport }) {
   const groups = groupByDay(rows)
 
   return (
@@ -54,6 +54,13 @@ export default function WeekTable({ rows, loading, weekStart, weekLabel, wCh, ed
             weekLabel={weekLabel}
             wCh={wCh}
             onExport={onExport}
+            editableFromDate={editableFromDate}
+            isEditMode={isEditMode}
+            lockHolder={lockHolder}
+            savingBatch={savingBatch}
+            onStartEdit={onStartEdit}
+            onSaveEdit={onSaveEdit}
+            onCancelEdit={onCancelEdit}
           />
     <div className="pw-weekly-wrap">
           <table>
@@ -79,6 +86,8 @@ export default function WeekTable({ rows, loading, weekStart, weekLabel, wCh, ed
                 weekStart={weekStart}
                 wCh={wCh}
                 editableFromDate={editableFromDate}
+                isEditMode={isEditMode}
+                onManualChange={onManualChange}
               />
             ))}
           </tbody>

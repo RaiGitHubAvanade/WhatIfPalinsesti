@@ -5,9 +5,9 @@ import './WeekDay.css'
 
 /**
  * WeekDay renders all prime-time program rows for a single calendar day.
- * @param {{ rows: PalinsestoViewModel[], dayIso: string|null, dayLabel: string, wCh: string|null, editableFromDate: string|null }} props
+ * @param {{ rows: PalinsestoViewModel[], dayIso: string|null, dayLabel: string, wCh: string|null, editableFromDate: string|null, isEditMode: boolean, onManualChange: Function }} props
  */
-export default function WeekDay({ rows, dayIso, dayLabel, wCh, editableFromDate }) {
+export default function WeekDay({ rows, dayIso, dayLabel, wCh, editableFromDate, isEditMode, onManualChange }) {
   return (
     <>
       {rows.map((row, i) => (
@@ -18,6 +18,8 @@ export default function WeekDay({ rows, dayIso, dayLabel, wCh, editableFromDate 
           dayIso={dayIso}
           wCh={wCh}
           editableFromDate={editableFromDate}
+          isEditMode={isEditMode}
+          onManualChange={onManualChange}
         />
       ))}
       <tr className="pw-day-separator" aria-hidden="true">

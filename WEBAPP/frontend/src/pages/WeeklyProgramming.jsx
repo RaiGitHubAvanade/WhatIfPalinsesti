@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { useApp } from '../context/useApp'
-import { getWeeklyTable } from '../services/apiWeeklyProgramming'
+import { getWeeklyTable, acquireLock, releaseLock, editManualShareBatch } from '../services/apiWeeklyProgramming'
+import { useSSEEvent } from '../hooks/useSSEEvent'
 
 /** @typedef {import('../models/weekly_programming/programViewModel').ProgramViewModel} ProgramViewModel */
 /** @typedef {import('../models/weekly_programming/weeklyTableViewModel').WeeklyTableViewModel} WeeklyTableViewModel */
@@ -38,32 +39,74 @@ function getDatePlusDays(days) {
 }
 
 export default function WeeklyProgramming() {
-  const { state, set, clearWeeklyOverrides, toast } = useApp()
+  const { state, set, clearWeeklyOverrides, applyWeeklyOverride, toast } = useApp()
   const { wCh } = state
 
+  // ── Table state ──────────────────────────────────────────────────────────
   const [selectedDay, setSelectedDay] = useState('')
-  /** @type {[PalinsestoViewModel[], React.Dispatch<React.SetStateAction<PalinsestoViewModel[]>>]} */
   const [rows, setRows] = useState([])
   const [weekStart, setWeekStart] = useState(null)
   const [weekLabel, setWeekLabel] = useState('')
   const [loadedChannel, setLoadedChannel] = useState(null)
   const [loading, setLoading] = useState(false)
 
-  const resetWeeklyView = () => {
+  // ── Edit-mode state ──────────────────────────────────────────────────────
+  const [isEditMode, setIsEditMode] = useState(false)
+  const [lockHolder, setLockHolder]   = useState(null)  // another user's email when they hold the lock
+  const [savingBatch, setSavingBatch] = useState(false)
+
+  // ── Stable refs (avoid stale closures in callbacks/effects) ─────────────
+  const clientIdRef      = useRef(crypto.randomUUID())
+  const weekStartRef     = useRef(null)
+  const loadedChannelRef = useRef(null)
+  const isEditModeRef    = useRef(false)
+  const pendingChangesRef = useRef(new Map())  // rowId → value|null
+
+  useEffect(() => { weekStartRef.current     = weekStart },     [weekStart])
+  useEffect(() => { loadedChannelRef.current = loadedChannel }, [loadedChannel])
+  useEffect(() => { isEditModeRef.current    = isEditMode },    [isEditMode])
+
+  // ── Release lock on unmount (user navigates to another page) ────────────
+  useEffect(() => {
+    return () => {
+      if (isEditModeRef.current && weekStartRef.current) {
+        releaseLock({ weekMonday: weekStartRef.current, clientId: clientIdRef.current })
+      }
+    }
+  }, [])
+
+  // ── Edit-mode helpers ────────────────────────────────────────────────────
+  const exitEditMode = useCallback(() => {
+    clearWeeklyOverrides()
+    pendingChangesRef.current.clear()
+    setIsEditMode(false)
+    setLockHolder(null)
+  }, [clearWeeklyOverrides])
+
+  const resetWeeklyView = useCallback(() => {
+    if (isEditModeRef.current && weekStartRef.current) {
+      releaseLock({ weekMonday: weekStartRef.current, clientId: clientIdRef.current })
+    }
+    exitEditMode()
     setSelectedDay('')
     setRows([])
     setWeekStart(null)
     setWeekLabel('')
     setLoadedChannel(null)
-    clearWeeklyOverrides()
     set({ wCh: null })
-  }
+  }, [exitEditMode, set])
 
-  const handleLoad = async () => {
+  const handleLoad = useCallback(async () => {
+    // Release any existing lock before loading a new week
+    if (isEditModeRef.current && weekStartRef.current) {
+      releaseLock({ weekMonday: weekStartRef.current, clientId: clientIdRef.current })
+      exitEditMode()
+    } else {
+      clearWeeklyOverrides()
+    }
+    setLockHolder(null)
     setLoading(true)
-    clearWeeklyOverrides()
     try {
-      /** @type {WeeklyTableViewModel} */
       const data = await getWeeklyTable(wCh, selectedDay)
       const nextRows = data.rows || []
       setRows(nextRows)
@@ -78,15 +121,87 @@ export default function WeeklyProgramming() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [wCh, selectedDay, exitEditMode, clearWeeklyOverrides, toast])
 
+  const handleStartEdit = useCallback(async () => {
+    if (!weekStartRef.current) return
+    try {
+      const result = await acquireLock({ weekMonday: weekStartRef.current, clientId: clientIdRef.current })
+      if (!result.acquired) {
+        toast(`Modifica non disponibile: ${result.holder} sta modificando gli share manuali di questa settimana`, 'warning')
+        return
+      }
+      setIsEditMode(true)
+    } catch (e) {
+      toast(e.message || 'Errore acquisizione blocco modifica', 'error')
+    }
+  }, [toast])
+
+  const handleSaveEdit = useCallback(async () => {
+    const changes = Object.fromEntries(pendingChangesRef.current)
+    setSavingBatch(true)
+    try {
+      if (Object.keys(changes).length > 0) {
+        await editManualShareBatch({ changes })
+      }
+      await releaseLock({ weekMonday: weekStartRef.current, clientId: clientIdRef.current })
+      pendingChangesRef.current.clear()
+      setIsEditMode(false)
+      toast('Share manuali salvati con successo', 'success')
+    } catch (e) {
+      toast(e.message || 'Errore salvataggio share manuali', 'error')
+    } finally {
+      setSavingBatch(false)
+    }
+  }, [toast])
+
+  const handleCancelEdit = useCallback(() => {
+    if (weekStartRef.current) {
+      releaseLock({ weekMonday: weekStartRef.current, clientId: clientIdRef.current })
+    }
+    exitEditMode()
+  }, [exitEditMode])
+
+  const handleManualChange = useCallback((rowId, overrideKey, newValue) => {
+    pendingChangesRef.current.set(rowId, newValue)
+    applyWeeklyOverride(overrideKey, { manual: newValue })
+  }, [applyWeeklyOverride])
+
+  // ── SSE handlers ─────────────────────────────────────────────────────────
+  const handleLockAcquired = useCallback(({ weekMonday, user }) => {
+    if (weekMonday !== weekStartRef.current) return
+    if (isEditModeRef.current) return  // we are the acquirer — ignore
+    setLockHolder(user)
+  }, [])
+
+  const handleLockReleased = useCallback(({ weekMonday }) => {
+    if (weekMonday !== weekStartRef.current) return
+    setLockHolder(null)
+  }, [])
+
+  const handleWeeklyChanged = useCallback(async () => {
+    if (isEditModeRef.current) return  // suppress during edit mode to protect pending changes
+    const ch  = loadedChannelRef.current
+    const day = weekStartRef.current
+    if (!ch || !day) return
+    try {
+      clearWeeklyOverrides()
+      const data = await getWeeklyTable(ch, day)
+      setRows(data.rows || [])
+      setWeekLabel(data.week)
+    } catch {
+      // Silent background refresh — swallow errors
+    }
+  }, [clearWeeklyOverrides])
+
+  useSSEEvent('weekly_lock_acquired', handleLockAcquired)
+  useSSEEvent('weekly_lock_released', handleLockReleased)
+  useSSEEvent('weekly_changed',       handleWeeklyChanged)
+
+  // ── Derived values ───────────────────────────────────────────────────────
   const hasFilters = Boolean(wCh || selectedDay)
 
-  // Compute which date is the earliest editable day for the loaded week:
-  //   future week  → whole week editable (editableFromDate = weekStart)
-  //   current week → only today onwards  (editableFromDate = todayISO)
-  //   past week    → nothing editable    (editableFromDate = null)
-  const todayISO = new Date().toISOString().slice(0, 10)
+  const todayISO       = new Date().toISOString().slice(0, 10)
   const thisWeekMonday = getMondayISO(todayISO)
   const editableFromDate = weekStart == null
     ? null
@@ -142,7 +257,6 @@ export default function WeeklyProgramming() {
             </button>
           </div>
         </div>
-
       </div>
 
       {/* Table */}
@@ -153,6 +267,13 @@ export default function WeeklyProgramming() {
         weekLabel={weekLabel}
         wCh={loadedChannel}
         editableFromDate={editableFromDate}
+        isEditMode={isEditMode}
+        lockHolder={lockHolder}
+        savingBatch={savingBatch}
+        onManualChange={handleManualChange}
+        onStartEdit={handleStartEdit}
+        onSaveEdit={handleSaveEdit}
+        onCancelEdit={handleCancelEdit}
         onExport={async () => {
           try {
             const { exportWeeklyToExcel } = await import('../utils/exportWeeklyExcel')

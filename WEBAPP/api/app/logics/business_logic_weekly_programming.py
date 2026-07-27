@@ -114,10 +114,6 @@ class BusinessLogicWeeklyProgramming:
         row_id: str,
         value: float | None,
     ) -> None:
-        """Persist a manual share override for a single program row via Databricks.
-
-        Only the current week's predict table is writable; past weeks are read-only.
-        """
         try:
             db_value = NumberUtils.percent_to_float(value)
             self._databricks_service.edit_manual_share_predict(row_id, db_value)
@@ -126,4 +122,20 @@ class BusinessLogicWeeklyProgramming:
                 f"Errore durante l'aggiornamento del palinsesto: {e}"
             ) from e
 
+
+    def edit_manual_share_batch(self, changes: dict[str, float | None]) -> None:
+        """Persist a batch of manual share overrides in a single request.
+
+        *changes* maps DB row ID strings to the new value (or None to clear).
+        """
+        if not changes:
+            raise ValueError("Nessuna modifica da salvare")
+        try:
+            for row_id, value in changes.items():
+                db_value = NumberUtils.percent_to_float(value)
+                self._databricks_service.edit_manual_share_predict(row_id, db_value)
+        except Exception as e:
+            raise RuntimeError(
+                f"Errore durante l'aggiornamento batch del palinsesto: {e}"
+            ) from e
 

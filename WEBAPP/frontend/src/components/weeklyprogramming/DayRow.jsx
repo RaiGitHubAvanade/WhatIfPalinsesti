@@ -1,21 +1,19 @@
 import { useState } from 'react'
 import { useApp } from '../../context/useApp'
 import OtherChannelsModal from './OtherChannelsModal'
-import { editManualShare } from '../../services/apiWeeklyProgramming'
 import './DayRow.css'
 
 /** @typedef {import('../../models/weekly_programming/programViewModel').ProgramViewModel} ProgramViewModel */
 
 /**
- * @param {{ row: ProgramViewModel, idx: number, showDay: boolean, dayIso: string|null, wCh: string|null, editableFromDate: string|null }} props
+ * @param {{ row: ProgramViewModel, idx: number, showDay: boolean, dayIso: string|null, wCh: string|null, editableFromDate: string|null, isEditMode: boolean, onManualChange: (rowId: string, overrideKey: string, newValue: number|null) => void }} props
  */
-export default function DayRow({ row, showDay, dayIso, wCh, editableFromDate }) {
-  const { state, applyWeeklyOverride, toast } = useApp()
+export default function DayRow({ row, showDay, dayIso, wCh, editableFromDate, isEditMode, onManualChange }) {
+  const { state } = useApp()
   const overrideKey = `${dayIso}|${row.from_time}|${row.to_time}`
   const override = state.wOverrides[overrideKey]
   const [editingManuale, setEditingManuale] = useState(false)
   const [editManualeVal, setEditManualeVal] = useState('')
-  const [savingManuale, setSavingManuale] = useState(false)
   const [showAltriCanali, setShowAltriCanali] = useState(false)
 
   // Row is editable only when editableFromDate is set and this day is on or after that date
@@ -33,7 +31,7 @@ export default function DayRow({ row, showDay, dayIso, wCh, editableFromDate }) 
   const deltaNum = delta != null ? parseFloat(delta) : null
   const rowClass = deltaNum != null ? (deltaNum > 10 ? 'sP' : deltaNum < -10 ? 'sN' : '') : ''
 
-  const handleSaveManuale = async () => {
+  const handleSaveManuale = () => {
     const trimmed = editManualeVal.trim()
     let newValue = null
     if (trimmed !== '') {
@@ -45,23 +43,9 @@ export default function DayRow({ row, showDay, dayIso, wCh, editableFromDate }) 
     // Skip if nothing changed
     if (newValue === manualeVal) { setEditingManuale(false); return }
 
-    // Optimistically update local state — always store manual explicitly (null = cleared)
-    applyWeeklyOverride(overrideKey, { ...(override || {}), manual: newValue })
     setEditingManuale(false)
-    setSavingManuale(true)
-
-    // Persist to backend
-    try {
-      await editManualShare({
-        id: row.id,
-        value: newValue,
-        date: dayIso,
-      })
-    } catch (e) {
-      toast(e.message || 'Errore salvataggio share manuale', 'error')
-    } finally {
-      setSavingManuale(false)
-    }
+    // Delegate to parent: updates visual override + pending changes dict
+    onManualChange(String(row.id), overrideKey, newValue)
   }
 
   return (
@@ -85,14 +69,12 @@ export default function DayRow({ row, showDay, dayIso, wCh, editableFromDate }) 
           <span className="pw-prev-value">
             {manualeVal != null ? manualeVal + '%' : <span className="pw-muted-italic">—</span>}
           </span>
-          {isEditable && (
-            savingManuale
-              ? <span className="pw-spinner" />
-              : <button
-                  className="pw-edit-btn"
-                  onClick={() => { setEditManualeVal(manualeVal ?? ''); setEditingManuale(true) }}
-                  title="Modifica manuale"
-                >✏️</button>
+          {isEditable && isEditMode && (
+            <button
+              className="pw-edit-btn"
+              onClick={() => { setEditManualeVal(manualeVal ?? ''); setEditingManuale(true) }}
+              title="Modifica manuale"
+            >✏️</button>
           )}
         </span>
         {/* Edit state — absolutely positioned so it doesn't affect layout */}

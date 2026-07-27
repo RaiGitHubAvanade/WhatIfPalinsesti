@@ -19,11 +19,11 @@ def success(data=None, message="", meta=None):
         meta=meta or {}
     )
 
-def error(message="", errors=None):
+def error(message="", errors=None, data=None):
     return _api_response(
         success=False,
         message=message,
-        data=None,
+        data=data,
         errors=errors,
         meta={}
     )

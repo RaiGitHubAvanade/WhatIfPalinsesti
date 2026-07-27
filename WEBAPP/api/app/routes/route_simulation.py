@@ -10,6 +10,7 @@ from app.models.api_response import error, success
 from app.models.serving_endpoint_sostituzione_request import ServingEndpointSostituzioneRequest
 from app.models.serving_endpoint_spostamento_request import ServingEndpointSpostamentoRequest
 from app.utils.request_identity import resolve_request_user_identity
+from app.utils.sse_broker import broker
 
 logger = logging.getLogger(__name__)
 
@@ -251,6 +252,7 @@ def retry_sostituzione(simulation_id):
     except Exception as e:
         logger.exception("retrySostituzione unexpected: %s", e)
         return error(message=f"Errore imprevisto: {e}", errors=["internal_error"]), 500
+    broker.broadcast("scenarios_changed", {})
     return success(message=message), status_code
 
 
@@ -269,4 +271,5 @@ def retry_spostamento(simulation_id):
     except Exception as e:
         logger.exception("retrySpostamento unexpected: %s", e)
         return error(message=f"Errore imprevisto: {e}", errors=["internal_error"]), 500
+    broker.broadcast("scenarios_changed", {})
     return success(message=message), status_code

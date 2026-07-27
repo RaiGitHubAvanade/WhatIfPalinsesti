@@ -16,7 +16,69 @@
 }
 
 .pw-export-btn {
+  /* kept for legacy reference — spacing now handled by pw-wti-actions */
+}
+
+.pw-wti-actions {
   margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* Base size shared by all action buttons (edit / cancel / save / export) */
+.pw-wti-btn {
+  border-radius: 9px;
+  padding: 6px 11px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s, color .15s;
+  font-family: inherit;
+  flex-shrink: 0;
+  border: 1.5px solid;
+  line-height: 1.4;
+}
+
+.pw-wti-btn--edit {
+  border-color: var(--rai);
+  color: var(--rai);
+  background: none;
+}
+.pw-wti-btn--edit:hover { background: var(--rai); color: #fff; }
+
+.pw-wti-btn--cancel {
+  border-color: var(--muted, #888);
+  color: var(--muted, #888);
+  background: none;
+}
+.pw-wti-btn--cancel:hover:not(:disabled) { background: var(--muted, #888); color: #fff; }
+.pw-wti-btn--cancel:disabled { opacity: .45; cursor: not-allowed; }
+
+.pw-wti-btn--save {
+  border-color: #4caf50;
+  color: #4caf50;
+  background: none;
+}
+.pw-wti-btn--save:hover:not(:disabled) { background: #4caf50; color: #fff; }
+.pw-wti-btn--save:disabled { opacity: .45; cursor: not-allowed; }
+
+/* Inline lock notice — same height as the buttons */
+.pw-wti-lock {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 9px;
+  padding: 6px 11px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+  flex-shrink: 0;
+  color: #7A5700;
+  background: #FFF8E1;
+  border: 1.5px solid #FFE082;
+  white-space: nowrap;
 }
 
 .pw-export-btn--styled {

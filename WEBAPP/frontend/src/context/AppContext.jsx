@@ -2,6 +2,7 @@ import { useReducer, useCallback, useState, useRef, useEffect } from 'react'
 import { AppContext } from './AppContextDef'
 import { INITIAL_STATE, reducer } from './appReducer'
 import { useScenarioPolling } from './useScenarioPolling'
+import { useSSEEvent } from '../hooks/useSSEEvent'
 import { hasRunningSimulations } from '../utils/scenarioUtils'
 import { getScenarios } from '../services/apiScenarios'
 
@@ -40,6 +41,19 @@ export function AppProvider({ children }) {
     if (scenariosLoadedRef.current) return scenariosDataRef.current
     return refreshScenarios({ force: true })
   }, [refreshScenarios]) // stable because refreshScenarios is stable
+
+  // ── SSE: react to mutations made by other users ───────────────────────────
+  const handleScenariosChanged = useCallback(() => {
+    refreshScenarios({ force: true, silent: true })
+  }, [refreshScenarios])
+
+  const handleWeeklyChanged = useCallback(() => {
+    // Expire the target-programs cache so StepProgram re-fetches on next open
+    dispatch({ type: 'SET', payload: { targetProgramsCache: { date: null, data: [], loadedAt: null } } })
+  }, [])
+
+  useSSEEvent('scenarios_changed', handleScenariosChanged)
+  useSSEEvent('weekly_changed', handleWeeklyChanged)
 
   const set                  = useCallback((payload) => dispatch({ type: 'SET', payload }), [])
   const toast                = useCallback((msg, type = 'error') => dispatch({ type: 'TOAST', payload: { msg, type } }), [])

@@ -5,6 +5,9 @@ from app.models.api_response import success, error
 from app.container import get_databricks_service
 from app.logics.business_logic_weekly_programming import BusinessLogicWeeklyProgramming
 from app.utils.date_time_utils import DateTimeUtils
+from app.utils.sse_broker import broker
+from app.utils.lock_store import lock_store
+from app.utils.request_identity import resolve_request_user_identity
 from datetime import date
 
 logger = logging.getLogger(__name__)
@@ -119,4 +122,94 @@ def edit_manual_share():
         return error(message=str(e), errors=["databricks_error"]), 502
 
     logger.info("editManualShare: success | id=%s", row_id)
+    broker.broadcast("weekly_changed", {})
     return success(data=None, message="Share manuale aggiornato con successo")
+
+
+@bp.route("/weekly/editManualShareBatch", methods=["POST"])
+def edit_manual_share_batch():
+    body = request.get_json(silent=True) or {}
+    changes = body.get("changes")
+
+    if not isinstance(changes, dict) or not changes:
+        return error(
+            message="Il parametro 'changes' deve essere un dizionario non vuoto",
+            errors=["invalid_changes"],
+        ), 400
+
+    validated: dict[str, float | None] = {}
+    for row_id, value in changes.items():
+        if value is not None:
+            try:
+                value = float(value)
+            except (TypeError, ValueError):
+                return error(
+                    message=f"Valore non valido per ID {row_id}",
+                    errors=["invalid_value"],
+                ), 400
+        validated[str(row_id)] = value
+
+    logger.info("editManualShareBatch called | count=%d", len(validated))
+
+    logic = BusinessLogicWeeklyProgramming(get_databricks_service())
+    try:
+        logic.edit_manual_share_batch(validated)
+    except ValueError as e:
+        logger.warning("editManualShareBatch validation error: %s", e)
+        return error(message=str(e), errors=["validation_error"]), 400
+    except RuntimeError as e:
+        logger.error("editManualShareBatch Databricks error: %s", e)
+        return error(message=str(e), errors=["databricks_error"]), 502
+    except Exception as e:
+        logger.exception("editManualShareBatch unexpected: %s", e)
+        return error(message=f"Errore imprevisto: {e}", errors=["internal_error"]), 500
+
+    broker.broadcast("weekly_changed", {})
+    logger.info("editManualShareBatch: success | count=%d", len(validated))
+    return success(message="Share manuali aggiornati con successo")
+
+
+@bp.route("/weekly/lock", methods=["POST"])
+def acquire_lock():
+    body = request.get_json(silent=True) or {}
+    week_monday = body.get("weekMonday")
+    client_id = body.get("clientId", "")
+
+    if not week_monday:
+        return error(message="Il parametro 'weekMonday' è obbligatorio", errors=["missing_field"]), 400
+
+    actor_identity, _ = resolve_request_user_identity(request)
+    user_display = actor_identity or "Utente sconosciuto"
+
+    acquired, existing = lock_store.try_acquire(week_monday, user_display, client_id)
+    if not acquired:
+        logger.info("acquireLock: rejected | weekMonday=%s holder=%s", week_monday, existing.user)
+        return error(
+            message=f"Un altro utente sta modificando gli share manuali: {existing.user}",
+            errors=["lock_held"],
+            data={"holder": existing.user},
+        ), 409
+
+    broker.broadcast("weekly_lock_acquired", {"weekMonday": week_monday, "user": user_display})
+    logger.info("acquireLock: acquired | weekMonday=%s user=%s clientId=%s", week_monday, user_display, client_id)
+    return success(data={"weekMonday": week_monday, "user": user_display}, message="Lock acquisito")
+
+
+@bp.route("/weekly/lock", methods=["DELETE"])
+def release_lock():
+    body = request.get_json(silent=True) or {}
+    week_monday = body.get("weekMonday")
+    client_id = body.get("clientId", "")
+
+    if not week_monday:
+        return error(message="Il parametro 'weekMonday' è obbligatorio", errors=["missing_field"]), 400
+
+    released = lock_store.release(week_monday, client_id)
+    if released:
+        broker.broadcast("weekly_lock_released", {"weekMonday": week_monday})
+        logger.info("releaseLock: released | weekMonday=%s clientId=%s", week_monday, client_id)
+    else:
+        logger.warning("releaseLock: not owner or already released | weekMonday=%s clientId=%s", week_monday, client_id)
+
+    return success(message="Lock rilasciato")
+

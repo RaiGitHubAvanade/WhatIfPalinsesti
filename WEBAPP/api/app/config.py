@@ -24,3 +24,4 @@ class Config:
     ALLOW_UNVERIFIED_BEARER_IDENTITY = os.getenv("ALLOW_UNVERIFIED_BEARER_IDENTITY", "false").lower() == "true"
     ENABLE_LOCAL_DEV_IDENTITY_FALLBACK = os.getenv("ENABLE_LOCAL_DEV_IDENTITY_FALLBACK", "false").lower() == "true"
     LOCAL_DEV_USER_EMAIL = os.getenv("LOCAL_DEV_USER_EMAIL", "dev@test.it")
+    SSE_KEEPALIVE_SECONDS = int(os.getenv("SSE_KEEPALIVE_SECONDS", "20"))

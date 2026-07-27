@@ -9,5 +9,30 @@
 .pw-reset-btn { font-size: 11px; padding: 3px 8px; }
 .pw-load-btn { min-width: 160px; }
 
+/* Edit-mode bar */
+.pw-edit-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  margin-bottom: 12px;
+  background: #EDF2FF;
+  border: 1.5px solid rgba(11,61,145,.18);
+  border-radius: 10px;
+}
+.pw-edit-bar__status { flex: 1; font-size: 13px; font-weight: 600; color: var(--rai); }
+.pw-edit-start-btn { font-size: 13px; }
+
+/* Lock notice */
+.pw-lock-notice {
+  padding: 10px 16px;
+  margin-bottom: 12px;
+  background: #FFF8E1;
+  border: 1.5px solid #FFE082;
+  border-radius: 10px;
+  font-size: 13px;
+  color: #7A5700;
+}
+
 .pw-legend { display: flex; align-items: center; gap: 14px; padding: 8px 14px; background: #F7F9FF; border: 1px solid rgba(11,61,145,.06); border-radius: 8px; margin-bottom: 12px; font-size: 12px; color: var(--muted); flex-wrap: wrap; }
 .pw-legend strong { color: var(--rai); }

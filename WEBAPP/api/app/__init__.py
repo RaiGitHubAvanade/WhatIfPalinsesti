@@ -23,11 +23,13 @@ def create_app(config_class=Config):
     from .routes.route_weekly_programming import bp as weekly_bp
     from .routes.route_simulation import bp as simulation_bp
     from .routes.route_scenarios import bp as scenarios_bp
+    from .routes.route_events import bp as events_bp
 
     api = "/api"
     app.register_blueprint(weekly_bp, url_prefix=api)
     app.register_blueprint(simulation_bp, url_prefix=api)
     app.register_blueprint(scenarios_bp, url_prefix=api)
+    app.register_blueprint(events_bp, url_prefix=api)
 
     @app.errorhandler(404)
     def not_found(e):
