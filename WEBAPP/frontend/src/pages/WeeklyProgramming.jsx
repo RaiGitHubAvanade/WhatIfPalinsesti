@@ -82,6 +82,20 @@ export default function WeeklyProgramming() {
 
   const hasFilters = Boolean(wCh || selectedDay)
 
+  // Compute which date is the earliest editable day for the loaded week:
+  //   future week  → whole week editable (editableFromDate = weekStart)
+  //   current week → only today onwards  (editableFromDate = todayISO)
+  //   past week    → nothing editable    (editableFromDate = null)
+  const todayISO = new Date().toISOString().slice(0, 10)
+  const thisWeekMonday = getMondayISO(todayISO)
+  const editableFromDate = weekStart == null
+    ? null
+    : weekStart > thisWeekMonday
+      ? weekStart
+      : weekStart === thisWeekMonday
+        ? todayISO
+        : null
+
   return (
     <div>
       <div className="page-sub">Visualizza e modifica il palinsesto settimanale dalle 20:30 alle 23:30. Puoi inserire manualmente le previsioni share.</div>
@@ -138,6 +152,7 @@ export default function WeeklyProgramming() {
         weekStart={weekStart}
         weekLabel={weekLabel}
         wCh={loadedChannel}
+        editableFromDate={editableFromDate}
         onExport={async () => {
           try {
             const { exportWeeklyToExcel } = await import('../utils/exportWeeklyExcel')

@@ -27,22 +27,11 @@ function groupByDay(rows) {
   return [...map.entries()].map(([day, rows]) => ({ day, rows }))
 }
 
-/** Returns the ISO date string (YYYY-MM-DD) of the Monday of the current week. */
-function getCurrentWeekMondayISO() {
-  const today = new Date()
-  const dow = today.getDay()
-  const diff = dow === 0 ? -6 : 1 - dow
-  const monday = new Date(today)
-  monday.setDate(today.getDate() + diff)
-  return `${monday.getFullYear()}-${String(monday.getMonth() + 1).padStart(2, '0')}-${String(monday.getDate()).padStart(2, '0')}`
-}
-
 /**
- * @param {{ rows: ProgramViewModel[], loading: boolean, weekStart: string|null, weekLabel: string, wCh: string|null, onExport: () => void }} props
+ * @param {{ rows: ProgramViewModel[], loading: boolean, weekStart: string|null, weekLabel: string, wCh: string|null, editableFromDate: string|null, onExport: () => void }} props
  */
-export default function WeekTable({ rows, loading, weekStart, weekLabel, wCh, onExport }) {
+export default function WeekTable({ rows, loading, weekStart, weekLabel, wCh, editableFromDate, onExport }) {
   const groups = groupByDay(rows)
-  const isCurrentWeek = weekStart === getCurrentWeekMondayISO()
 
   return (
     <div>
@@ -89,7 +78,7 @@ export default function WeekTable({ rows, loading, weekStart, weekLabel, wCh, on
                 dayLabel={isoToDayLabel(g.day)}
                 weekStart={weekStart}
                 wCh={wCh}
-                isCurrentWeek={isCurrentWeek}
+                editableFromDate={editableFromDate}
               />
             ))}
           </tbody>

@@ -41,10 +41,13 @@ class BusinessLogicWeeklyProgramming:
         from_day = day - timedelta(days=day.weekday())
         to_day = from_day + timedelta(days=6)
 
+        today = date.today()
         all_rows = []
         try:
             if DateTimeUtils.is_past_week(day):
                 all_rows = self._databricks_service.get_palinsesto_delta(channel, from_day, to_day)
+            elif DateTimeUtils.is_current_week(day):
+                all_rows = self._databricks_service.get_palinsesto_current_week(channel, from_day, to_day, today)
             else:
                 all_rows = self._databricks_service.get_palinsesto_predict(channel, from_day, to_day)
         except Exception as e:

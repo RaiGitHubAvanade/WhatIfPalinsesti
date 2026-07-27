@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, timedelta
 
 from app.models.program import Program
 from app.services.databricks_service import DatabricksService
@@ -31,6 +31,56 @@ class DatabricksServiceWeeklyProgramming(DatabricksService):
         }
 
         self._logger.info(f"get_palinsesto_delta | with params {params}")
+
+        with self._connection.cursor() as cursor:
+            cursor.execute(query, parameters=params)
+            rows = cursor.fetchall()
+
+        result = []
+        for row in rows:
+            result.append(Program.MapProgramFromRow(row))
+        return result
+
+    def get_palinsesto_current_week(
+            self,
+            channel: str,
+            from_day: date,
+            to_day: date,
+            today: date,
+    ) -> list[Program]:
+        """Hybrid fetch for the current week.
+
+        Days strictly before *today* are read from the delta table (has share_reale).
+        Today and future days are read from the predict table (no share_reale → NULL).
+        The two legs are merged with a single UNION ALL so only one round-trip is needed.
+        """
+        yesterday = today - timedelta(days=1)
+        query = """
+            SELECT ID, Canale, Data, Programma, orario_inizio, orario_fine,
+                   share_predetto, share_manuale, share_reale
+            FROM ta_coll.whatif.output_palinsesto_delta
+            WHERE Canale = :channel
+              AND Data BETWEEN :from_day AND :yesterday
+
+            UNION ALL
+
+            SELECT ID, Canale, Data, Programma, orario_inizio, orario_fine,
+                   share_predetto, share_manuale, NULL AS share_reale
+            FROM ta_coll.whatif.out_palinsesto_predict
+            WHERE Canale = :channel
+              AND Data BETWEEN :today AND :to_day
+
+            ORDER BY Data, orario_inizio
+        """
+        params = {
+            "channel":  channel,
+            "from_day": from_day,
+            "yesterday": yesterday,
+            "today":    today,
+            "to_day":   to_day,
+        }
+
+        self._logger.info(f"get_palinsesto_current_week | with params {params}")
 
         with self._connection.cursor() as cursor:
             cursor.execute(query, parameters=params)

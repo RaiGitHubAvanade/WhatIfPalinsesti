@@ -7,9 +7,9 @@ import './DayRow.css'
 /** @typedef {import('../../models/weekly_programming/programViewModel').ProgramViewModel} ProgramViewModel */
 
 /**
- * @param {{ row: ProgramViewModel, idx: number, showDay: boolean, dayIso: string|null, wCh: string|null, isCurrentWeek: boolean }} props
+ * @param {{ row: ProgramViewModel, idx: number, showDay: boolean, dayIso: string|null, wCh: string|null, editableFromDate: string|null }} props
  */
-export default function DayRow({ row, showDay, dayIso, wCh, isCurrentWeek }) {
+export default function DayRow({ row, showDay, dayIso, wCh, editableFromDate }) {
   const { state, applyWeeklyOverride, toast } = useApp()
   const overrideKey = `${dayIso}|${row.from_time}|${row.to_time}`
   const override = state.wOverrides[overrideKey]
@@ -17,6 +17,9 @@ export default function DayRow({ row, showDay, dayIso, wCh, isCurrentWeek }) {
   const [editManualeVal, setEditManualeVal] = useState('')
   const [savingManuale, setSavingManuale] = useState(false)
   const [showAltriCanali, setShowAltriCanali] = useState(false)
+
+  // Row is editable only when editableFromDate is set and this day is on or after that date
+  const isEditable = editableFromDate !== null && !!dayIso && dayIso >= editableFromDate
 
   const displayProg = override?.prog ?? row.program_name
   // If the user has explicitly set (or cleared) the value, use that; otherwise fall back to the DB value.
@@ -52,6 +55,7 @@ export default function DayRow({ row, showDay, dayIso, wCh, isCurrentWeek }) {
       await editManualShare({
         id: row.id,
         value: newValue,
+        date: dayIso,
       })
     } catch (e) {
       toast(e.message || 'Errore salvataggio share manuale', 'error')
@@ -81,7 +85,7 @@ export default function DayRow({ row, showDay, dayIso, wCh, isCurrentWeek }) {
           <span className="pw-prev-value">
             {manualeVal != null ? manualeVal + '%' : <span className="pw-muted-italic">—</span>}
           </span>
-          {isCurrentWeek && (
+          {isEditable && (
             savingManuale
               ? <span className="pw-spinner" />
               : <button
