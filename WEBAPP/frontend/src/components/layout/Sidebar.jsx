@@ -4,9 +4,9 @@ import './Sidebar.css'
 
 const NAV_ITEMS = [
   { to: '/', label: 'Home', ico: '🏠', exact: true },
-  { to: '/programmazione', label: 'Programmazione Settimanale', ico: '📅' },
   { to: '/simulazione', label: 'Simulazione', ico: '📈' },
   { to: '/scenari', label: '📋 Scenari', ico: '└' },
+  { to: '/programmazione', label: 'Programmazione Settimanale', ico: '📅' },
 ]
 
 export default function Sidebar() {

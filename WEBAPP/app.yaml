@@ -41,3 +41,5 @@ env:
     value: "false"
   - name: "LOCAL_DEV_USER_EMAIL"
     value: "localdev@test.it"
+  - name: "SSE_KEEPALIVE_SECONDS"
+    value: "20"
