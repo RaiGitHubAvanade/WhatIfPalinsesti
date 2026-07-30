@@ -3,8 +3,13 @@ import { useApp } from '../../context/useApp'
 import { getSchedulePrograms } from '../../services/apiSimulation'
 import ChannelSelector from '../shared/ChannelSelector'
 import DaySelector from '../shared/DaySelector'
+import PaginationNav from '../shared/PaginationNav'
 import { TimePicker } from './TimeSelector'
-import { CH_CLS, PROGRAM_PAGE_SIZE as PAGE_SIZE } from '../../utils/constants'
+import {
+  CH_CLS,
+  PROGRAM_PAGE_SIZE as PAGE_SIZE,
+  PROGRAM_PAGE_SIZE_OPTIONS,
+} from '../../utils/constants'
 import { fmtDate, toMinutes } from '../../utils/dateUtils'
 import './StepDestination.css'
 
@@ -19,6 +24,7 @@ export default function StepDestination() {
   const [schedule, setSchedule] = useState(/** @type {OtherProgramViewModel[]} */ ([]))
   const [loading, setLoading] = useState(false)
   const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(PAGE_SIZE)
   const requestSeqRef = useRef(0)
   const inFlightCountRef = useRef(0)
 
@@ -99,9 +105,9 @@ export default function StepDestination() {
     }
   }, [filteredScheduleIds, set, spScheduleIds])
 
-  const totalPages = Math.max(1, Math.ceil(filteredSchedule.length / PAGE_SIZE))
+  const totalPages = Math.max(1, Math.ceil(filteredSchedule.length / pageSize))
   const safePage = Math.min(page, totalPages)
-  const pageItems = filteredSchedule.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE)
+  const pageItems = filteredSchedule.slice((safePage - 1) * pageSize, safePage * pageSize)
 
   return (
     <div className="card psel-card">
@@ -182,30 +188,17 @@ export default function StepDestination() {
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="psel-pager">
-              <button className="psel-pager-nav" disabled={safePage <= 1} onClick={() => setPage((p) => p - 1)}>←</button>
-              {Array.from({ length: totalPages }, (_, i) => i + 1)
-                .filter((n) => n === 1 || n === totalPages || Math.abs(n - safePage) <= 2)
-                .reduce((acc, n, i, arr) => {
-                  if (i > 0 && n - arr[i - 1] > 1) acc.push('…')
-                  acc.push(n)
-                  return acc
-                }, [])
-                .map((item, i) =>
-                  item === '…'
-                    ? <span key={`ell-${i}`} className="psel-pager-ell">…</span>
-                    : (
-                      <button
-                        key={item}
-                        className={`psel-pager-num${safePage === item ? ' active' : ''}`}
-                        onClick={() => setPage(item)}
-                      >
-                        {item}
-                      </button>
-                    )
-                )}
-              <button className="psel-pager-nav" disabled={safePage >= totalPages} onClick={() => setPage((p) => p + 1)}>→</button>
-            </div>
+            <PaginationNav
+              currentPage={safePage}
+              totalPages={totalPages}
+              onPageChange={setPage}
+              pageSizeValue={pageSize}
+              pageSizeOptions={PROGRAM_PAGE_SIZE_OPTIONS}
+              onPageSizeChange={value => {
+                setPageSize(value)
+                setPage(1)
+              }}
+            />
           )}
         </>
       )}

@@ -10,12 +10,20 @@ import { retrySostituzione, retrySpostamento } from '../services/apiSimulation'
 import ScenCard from '../components/scenarios/ScenCard'
 import SimulationDetail from '../components/scenarios/SimulationDetail'
 import DaySelector from '../components/shared/DaySelector'
+import CustomSelect from '../components/shared/CustomSelect'
 import SimulationTypeSelector from '../components/simulation/SimulationTypeSelector'
 import TextInputFilter from '../components/shared/TextInputFilter'
-import { MAX_SIMULATIONS_PER_SCENARIO } from '../utils/constants'
+import {
+  MAX_SIMULATIONS_PER_SCENARIO,
+  SCENARIOS_PAGE_SIZE_OPTIONS,
+  DEFAULT_SCENARIOS_PAGE_SIZE,
+} from '../utils/constants'
 import './Scenarios.css'
 
-const SCEN_PER_PAGE = 3
+function sanitizePageSize(value) {
+  const parsed = Number.parseInt(String(value), 10)
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : DEFAULT_SCENARIOS_PAGE_SIZE
+}
 
 /**
  * Map one API scenario to the display shape expected by ScenCard.
@@ -129,6 +137,7 @@ export default function Scenarios() {
   const [search, setSearch] = useState('')
   const [typeFilter, setTypeFilter] = useState('')
   const [dateFilter, setDateFilter] = useState('')
+  const [perPageValue, setPerPageValue] = useState(String(DEFAULT_SCENARIOS_PAGE_SIZE))
   const [page, setPage] = useState(1)
   const [selectedItem, setSelectedItem] = useState(null)
 
@@ -221,9 +230,10 @@ export default function Scenarios() {
 
   const hasAny = scenarios.length > 0
   const total = filtered.length
-  const totalPages = Math.max(1, Math.ceil(total / SCEN_PER_PAGE))
+  const scenariosPerPage = sanitizePageSize(perPageValue)
+  const totalPages = Math.max(1, Math.ceil(total / scenariosPerPage))
   const currentPage = Math.min(page, totalPages)
-  const pageItems = filtered.slice((currentPage - 1) * SCEN_PER_PAGE, currentPage * SCEN_PER_PAGE)
+  const pageItems = filtered.slice((currentPage - 1) * scenariosPerPage, currentPage * scenariosPerPage)
   const hasActiveFilter = !!(search || typeFilter || dateFilter)
 
   function resetFilters() {
@@ -277,6 +287,21 @@ export default function Scenarios() {
             value={dateFilter}
             onChange={v => { setDateFilter(v); setPage(1) }}
           />
+
+          <div className="scen-filter-sep" />
+
+          <div className="scen-page-size-filter">
+            <span className="scen-page-size-label">Scenari per pagina</span>
+            <CustomSelect
+              value={String(scenariosPerPage)}
+              onChange={v => {
+                const next = sanitizePageSize(v)
+                setPerPageValue(String(next))
+                setPage(1)
+              }}
+              options={SCENARIOS_PAGE_SIZE_OPTIONS.map(n => ({ value: String(n), label: String(n) }))}
+            />
+          </div>
 
           {hasActiveFilter && (
             <button className="scen-filter-reset" onClick={resetFilters}>✕ Azzera</button>

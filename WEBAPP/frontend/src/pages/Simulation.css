@@ -288,56 +288,6 @@
 .psel-list-body    { display: flex; flex-direction: column; }
 .psel-list-body--paged { min-height: 372px; }
 
-/* ── Pagination ────────────────────────────────────────────────────── */
-.psel-pager {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 3px;
-  padding: 10px 20px;
-  border-top: 1px solid var(--border);
-  background: #FAFBFF;
-  flex-shrink: 0;
-}
-.psel-pager-nav {
-  background: #fff;
-  border: 1.5px solid var(--border);
-  border-radius: 8px;
-  width: 32px;
-  height: 32px;
-  font-size: 14px;
-  cursor: pointer;
-  transition: border-color .15s, background .15s;
-  color: var(--rai);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-.psel-pager-nav:hover:not([disabled]) { border-color: var(--rai); background: #F0F6FF; }
-.psel-pager-nav[disabled]             { opacity: .35; cursor: not-allowed; }
-.psel-pager-num {
-  background: #fff;
-  border: 1.5px solid transparent;
-  border-radius: 8px;
-  width: 32px;
-  height: 32px;
-  font-size: 12.5px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background .15s, color .15s;
-  color: var(--text);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  font-family: inherit;
-}
-.psel-pager-num:hover  { background: #F0F6FF; color: var(--rai); }
-.psel-pager-num.active { background: var(--rai); color: #fff; font-weight: 700; border-color: var(--rai); }
-.psel-pager-ell  { color: var(--muted); font-size: 13px; padding: 0 2px; line-height: 32px; align-self: center; }
-.psel-pager-info { font-size: 11.5px; color: var(--muted); margin-left: 8px; white-space: nowrap; align-self: center; }
-
 /* ── Action bar ────────────────────────────────────────────────────── */
 .psel-action-bar {
   display: flex;

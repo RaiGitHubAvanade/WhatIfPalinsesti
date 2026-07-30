@@ -19,6 +19,8 @@
 
 .scen-txt-filter { max-width: 200px; }
 .scen-filter-sep { width: 1px; background: var(--border); height: 36px; align-self: center; margin: 0 2px; flex-shrink: 0; }
+.scen-page-size-filter { display: flex; flex-direction: column; gap: 4px; min-width: 130px; }
+.scen-page-size-label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); }
 .scen-filter-reset { background: none; border: 1.5px solid var(--danger); color: var(--danger); border-radius: 9px; padding: 7px 12px; font-size: 12px; font-weight: 600; cursor: pointer; transition: .15s; font-family: inherit; }
 .scen-filter-reset:hover { background: var(--danger); color: #fff; }
 .scen-refresh-btn { background: none; border: 1.5px solid var(--border); color: var(--muted); border-radius: 9px; padding: 6px 11px; font-size: 12px; font-weight: 600; line-height: 1; cursor: pointer; transition: .15s; font-family: inherit; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; gap: 5px; }
@@ -30,6 +32,14 @@
 @keyframes scen-spin { to { transform: rotate(360deg); } }
 .scen-spinner { display: inline-block; width: 13px; height: 13px; border: 2px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: scen-spin .7s linear infinite; }
 .scen-filter-count { font-size: 12px; font-weight: 500; color: var(--muted); white-space: nowrap; margin-left: auto; }
+
+@media (max-width: 980px) {
+  .scen-filter-count {
+    width: 100%;
+    margin-left: 0;
+    order: 20;
+  }
+}
 
 /* ── Empty state ────────────────────────────────────────────────────────── */
 .scen-empty-state {

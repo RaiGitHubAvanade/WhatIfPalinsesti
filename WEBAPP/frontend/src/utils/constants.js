@@ -12,6 +12,11 @@ export const MAX_SIMULATIONS_PER_SCENARIO = 3
 
 /** Numero di programmi per pagina nelle liste di selezione */
 export const PROGRAM_PAGE_SIZE = 8
+export const PROGRAM_PAGE_SIZE_OPTIONS = [8, 12, 16, 20, 24]
+
+/** Numero di scenari visualizzati per pagina nella pagina Scenari */
+export const SCENARIOS_PAGE_SIZE_OPTIONS = [3, 6, 9, 12, 15]
+export const DEFAULT_SCENARIOS_PAGE_SIZE = 3
 
 /** Canali RAI disponibili */
 export const CHANNELS = ['Rai 1', 'Rai 2', 'Rai 3']
