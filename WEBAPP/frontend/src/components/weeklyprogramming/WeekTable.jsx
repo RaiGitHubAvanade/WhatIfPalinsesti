@@ -2,7 +2,7 @@ import WeekDay from './WeekDay'
 import WeekTableInfo from './WeekTableInfo'
 import './WeekTable.css'
 
-/** @typedef {import('../../models/weekly_programming/programViewModel').ProgramViewModel} ProgramViewModel */
+/** @typedef {import('../../models/weekly_programming/raiProgramViewModel').RaiProgramViewModel} RaiProgramViewModel */
 /** @typedef {import('../../models/weekly_programming/weeklyTableViewModel').WeeklyTableViewModel} WeeklyTableViewModel */
 
 const _DAY_NAMES = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom']
@@ -28,7 +28,7 @@ function groupByDay(rows) {
 }
 
 /**
- * @param {{ rows: ProgramViewModel[], loading: boolean, weekStart: string|null, weekLabel: string, wCh: string|null, editableFromDate: string|null, isEditMode: boolean, lockHolder: string|null, savingBatch: boolean, onManualChange: Function, onStartEdit: Function, onSaveEdit: Function, onCancelEdit: Function, onExport: () => void }} props
+ * @param {{ rows: RaiProgramViewModel[], loading: boolean, weekStart: string|null, weekLabel: string, wCh: string|null, editableFromDate: string|null, isEditMode: boolean, lockHolder: string|null, savingBatch: boolean, onManualChange: Function, onStartEdit: Function, onSaveEdit: Function, onCancelEdit: Function, onExport: () => void }} props
  */
 export default function WeekTable({ rows, loading, weekStart, weekLabel, wCh, editableFromDate, isEditMode, lockHolder, savingBatch, onManualChange, onStartEdit, onSaveEdit, onCancelEdit, onExport }) {
   const groups = groupByDay(rows)

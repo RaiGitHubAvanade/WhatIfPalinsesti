@@ -13,7 +13,7 @@ import TextInputFilter from '../shared/TextInputFilter'
 import { durationMinutes } from '../../utils/dateUtils'
 import './StepCandidates.css'
 
-/** @typedef {import('../../models/weekly_programming/competitorProgramsViewModel').OtherProgramViewModel} OtherProgramViewModel */
+/** @typedef {import('../../models/simulation/candidateProgramViewModel').CandidateProgramViewModel} CandidateProgramViewModel */
 
 export default function StepCandidates() {
   const { state, set, toast } = useApp()
@@ -26,7 +26,7 @@ export default function StepCandidates() {
   const [genre, setGenre] = useState('')
   const [shareMin, setShareMin] = useState('')
 
-  const [rawData, setRawData] = useState(/** @type {OtherProgramViewModel[]} */ ([]))
+  const [rawData, setRawData] = useState(/** @type {CandidateProgramViewModel[]} */ ([]))
   const [loading, setLoading] = useState(true)
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(PAGE_SIZE)

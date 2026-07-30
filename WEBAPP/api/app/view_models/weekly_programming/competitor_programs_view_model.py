@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 
 from app.view_models.weekly_programming.competitor_channel_view_model import CompetitorChannelViewModel
-from app.models.program import Program
+from app.models.competitor_program import CompetitorProgram
 
 
 @dataclass
@@ -21,11 +21,11 @@ class CompetitorProgramsViewModel:
         from_time: str,
         to_time: str,
         program_name: str,
-        rows: list[Program],
+        rows: list[CompetitorProgram],
     ) -> "CompetitorProgramsViewModel":
-        channel_map: dict[str, list[Program]] = {}
+        channel_map: dict[str, list[CompetitorProgram]] = {}
         for row in rows:
-            channel_map.setdefault(row.canale, []).append(row)
+            channel_map.setdefault(row.Canale, []).append(row)
         other_channels = [
             CompetitorChannelViewModel.MapCompetitorChannelViewModelFromProgram(ch_name, ch_rows)
             for ch_name, ch_rows in channel_map.items()

@@ -3,7 +3,7 @@ import { useApp } from '../context/useApp'
 import { getWeeklyTable, acquireLock, releaseLock, editManualShareBatch } from '../services/apiWeeklyProgramming'
 import { useSSEEvent } from '../hooks/useSSEEvent'
 
-/** @typedef {import('../models/weekly_programming/programViewModel').ProgramViewModel} ProgramViewModel */
+/** @typedef {import('../models/weekly_programming/raiProgramViewModel').RaiProgramViewModel} RaiProgramViewModel */
 /** @typedef {import('../models/weekly_programming/weeklyTableViewModel').WeeklyTableViewModel} WeeklyTableViewModel */
 import ChannelSelector from '../components/shared/ChannelSelector'
 import DaySelector from '../components/shared/DaySelector'

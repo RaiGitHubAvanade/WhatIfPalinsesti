@@ -6,8 +6,8 @@ from app.services.databricks_service_scenarios import DatabricksServiceScenarios
 from app.view_models.scenarios import (
     ScenarioViewModel,
     ScenarioListViewModel,
-    ScenCompetitorProgramsViewModel,
 )
+from app.view_models.weekly_programming import CompetitorProgramsViewModel
 from app.config import Config
 from app.utils.date_time_utils import DateTimeUtils
 
@@ -98,7 +98,7 @@ class BusinessLogicScenarios:
         channel: str,
         day: date,
         from_time: str,
-    ) -> ScenCompetitorProgramsViewModel:
+    ) -> CompetitorProgramsViewModel:
         """Return competitor programs overlapping the slot starting at from_time.
         to_time is computed as from_time + COMPETITORS_SLOT_DURATION_MINUTES."""
         raw_minutes = int(from_time[:2]) * 60 + int(from_time[3:5])
@@ -117,17 +117,19 @@ class BusinessLogicScenarios:
 
         def _sort_key(row):
             try:
-                priority = (0, channel_order.index(row.canale))
+                priority = (0, channel_order.index(row.Canale))
             except ValueError:
-                priority = (1, row.canale)
+                priority = (1, row.Canale)
             return (*priority, DateTimeUtils.hhmm_to_minutes(row.orario_inizio))
 
         rows.sort(key=_sort_key)
 
-        return ScenCompetitorProgramsViewModel.MapFromRows(
+        return CompetitorProgramsViewModel.MapFromOtherChannels(
             channel=channel,
             day=day.isoformat(),
             from_time=from_time,
+            to_time=to_time,
+            program_name="",
             rows=rows,
         )
 

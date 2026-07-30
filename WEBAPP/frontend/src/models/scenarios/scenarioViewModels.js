@@ -1,6 +1,7 @@
 /**
  * @typedef {import('../simulation/simulationSostViewModel').SimulationSost} SimulationSost
  * @typedef {import('../simulation/simulationSpostaViewModel').SimulationSposta} SimulationSposta
+ * @typedef {import('../weekly_programming/competitorProgramsViewModel').CompetitorProgramsViewModel} CompetitorProgramsViewModel
  */
 
 /**
@@ -26,28 +27,7 @@
  */
 
 /**
- * @typedef {Object} ScenCompetitorProgramViewModel
- * @property {string|null} id
- * @property {string|null} program_name
- * @property {string|null} from_time
- * @property {string|null} to_time
- * @property {number|null} share_storico
- * @property {boolean} evento_forte
- */
-
-/**
- * @typedef {Object} ScenCompetitorChannelViewModel
- * @property {string} channel
- * @property {'RAI'|'Competitor'} channel_type
- * @property {ScenCompetitorProgramViewModel[]} programs
- */
-
-/**
- * @typedef {Object} ScenCompetitorProgramsViewModel
- * @property {string} channel
- * @property {string} day
- * @property {string} from_time
- * @property {ScenCompetitorChannelViewModel[]} other_channels
+ * @typedef {CompetitorProgramsViewModel} ScenCompetitorProgramsViewModel
  */
 
 export {}

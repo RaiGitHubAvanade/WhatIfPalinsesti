@@ -1,10 +1,10 @@
 from dataclasses import dataclass, field
 
-from app.view_models.weekly_programming.program_view_model import ProgramViewModel
+from app.view_models.weekly_programming.rai_program_view_model import RaiProgramViewModel
 
 
 @dataclass
 class WeeklyTableViewModel:
     week: str
     channel: str
-    rows: list[ProgramViewModel] = field(default_factory=list)
+    rows: list[RaiProgramViewModel] = field(default_factory=list)

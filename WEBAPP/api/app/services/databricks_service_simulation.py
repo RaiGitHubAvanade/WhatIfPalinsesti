@@ -1,6 +1,8 @@
 ﻿from datetime import date, datetime
 
-from app.models.program import Program
+from app.models.candidate_program import CandidateProgram
+from app.models.destination_program import DestinationProgram
+from app.models.target_program import TargetProgram
 from app.services.databricks_service import DatabricksService
 
 
@@ -11,7 +13,7 @@ class DatabricksServiceSimulation(DatabricksService):
     def get_target_programs(
         self,
         day: date,
-    ) -> list[Program]:
+    ) -> list[TargetProgram]:
         """Fetch all programs for the given day (channel/time filtering done client-side)."""
         query = """
             SELECT ID, Canale, Data, Programma, orario_inizio, orario_fine,
@@ -28,17 +30,17 @@ class DatabricksServiceSimulation(DatabricksService):
             cursor.execute(query, parameters=params)
             rows = cursor.fetchall()
 
-        return [Program.MapProgramFromRaiPredictRow(row) for row in rows]
+        return [TargetProgram.map_from_row(row) for row in rows]
 
 
     def get_schedule_programs(
         self,
         day: date,
-    ) -> list[Program]:
+    ) -> list[DestinationProgram]:
         """Fetch schedule programs for a specific day (client-side channel/time filtering)."""
         query = """
             SELECT ID, Canale, Data, Programma, orario_inizio, orario_fine,
-                   share_predetto, target_genere, target_eta, DES_GENERE_ESTESA_INT
+                     share_predetto, target_genere, target_eta, DES_GENERE_ESTESA_INT, durata_minuti
             FROM ta_coll.whatif.out_palinsesto_predict_all_slots
             WHERE Data = :day
             ORDER BY orario_inizio
@@ -51,10 +53,10 @@ class DatabricksServiceSimulation(DatabricksService):
             cursor.execute(query, parameters=params)
             rows = cursor.fetchall()
 
-        return [Program.MapProgramFromRaiPredictRow(row) for row in rows]
+        return [DestinationProgram.map_from_row(row) for row in rows]
     
 
-    def get_candidate_programs(self, share_predicted: float, min_duration: int, max_duration: int) -> list[Program]:
+    def get_candidate_programs(self, share_predicted: float, min_duration: int, max_duration: int) -> list[CandidateProgram]:
         """Fetch all candidate replacement programs (filtering done client-side)."""
         query = """
             SELECT titolo, canale, tipologia, genere, eta, share_storico_pct, durata_minuti
@@ -74,7 +76,7 @@ class DatabricksServiceSimulation(DatabricksService):
             cursor.execute(query, parameters=params)
             rows = cursor.fetchall()
 
-        return [Program.MapProgramFromCandidateRow(row) for row in rows]
+        return [CandidateProgram.map_from_row(row) for row in rows]
 
 
     def insert_scenario(self, scenario: dict) -> None:

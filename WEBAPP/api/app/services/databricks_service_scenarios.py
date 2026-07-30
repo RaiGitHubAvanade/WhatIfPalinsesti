@@ -1,5 +1,5 @@
 from app.services.databricks_service import DatabricksService
-from app.models.program import Program
+from app.models.competitor_program import CompetitorProgram
 from app.models.scenario import Scenario
 from app.models.simulation import SimulationSost, SimulationSposta
 from app.utils.date_time_utils import DateTimeUtils
@@ -306,7 +306,7 @@ class DatabricksServiceScenarios(DatabricksService):
         day,
         from_time: str,
         to_time: str,
-    ) -> list[Program]:
+    ) -> list[CompetitorProgram]:
         """Fetch future programs overlapping [from_time, to_time] on the given day"""
         channel_params = {f"ch{i}": ch for i, ch in enumerate(channel_order)}
         placeholders = ", ".join(f":ch{i}" for i in range(len(channel_order)))
@@ -341,7 +341,7 @@ class DatabricksServiceScenarios(DatabricksService):
             cursor.execute(query, parameters=params)
             rows = cursor.fetchall()
 
-        return [Program.MapProgramFromFutureRowDetailed(row) for row in rows]
+        return [CompetitorProgram.map_from_row(row) for row in rows]
 
 
     def toggle_evento_forte(self, competitor_id: str) -> None:

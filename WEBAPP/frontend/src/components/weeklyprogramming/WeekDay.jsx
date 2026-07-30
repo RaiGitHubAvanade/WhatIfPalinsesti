@@ -1,7 +1,7 @@
 import DayRow from './DayRow'
 import './WeekDay.css'
 
-/** @typedef {import('../../models/weekly_programming/programViewModel').ProgramViewModel} ProgramViewModel */
+/** @typedef {import('../../models/weekly_programming/raiProgramViewModel').RaiProgramViewModel} RaiProgramViewModel */
 
 /**
  * WeekDay renders all prime-time program rows for a single calendar day.

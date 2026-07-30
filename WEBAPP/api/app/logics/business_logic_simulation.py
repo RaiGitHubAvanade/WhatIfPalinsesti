@@ -10,7 +10,11 @@ from app.utils.messages import Messages
 from app.services.databricks_service_simulation import DatabricksServiceSimulation
 from app.models.serving_endpoint_sostituzione_request import ServingEndpointSostituzioneRequest
 from app.models.serving_endpoint_spostamento_request import ServingEndpointSpostamentoRequest
-from app.view_models.weekly_programming import OtherProgramViewModel
+from app.view_models.simulation import (
+    CandidateProgramViewModel,
+    DestinationProgramViewModel,
+    TargetProgramViewModel,
+)
 
 
 class BusinessLogicSimulation:
@@ -29,19 +33,19 @@ class BusinessLogicSimulation:
     def get_target_programs(
         self,
         day,
-    ) -> list[OtherProgramViewModel]:
+    ) -> list[TargetProgramViewModel]:
         try:
             rows = self._base_service.get_target_programs(day=day)
         except Exception as e:
             raise RuntimeError(f"Errore nel recupero del palinsesto RAI: {e}") from e
 
         return [
-            OtherProgramViewModel.MapRaiProgramViewModelFromProgram(row)
+            TargetProgramViewModel.from_target_program(row)
             for row in rows
         ]
 
 
-    def get_candidate_programs(self, share_predicted: float, duration: int) -> list[OtherProgramViewModel]:
+    def get_candidate_programs(self, share_predicted: float, duration: int) -> list[CandidateProgramViewModel]:
         offset = Config.CANDIDATES_DURATION_OFFSET_MINUTES
         min_duration = duration - offset if duration - offset > 0 else 0
         max_duration = duration + offset
@@ -51,7 +55,7 @@ class BusinessLogicSimulation:
             raise RuntimeError(f"Errore nel recupero dei programmi candidati: {e}") from e
 
         return [
-            OtherProgramViewModel.MapOtherProgramViewModelFromProgram(row)
+            CandidateProgramViewModel.from_candidate_program(row)
             for row in rows
         ]
 
@@ -59,14 +63,14 @@ class BusinessLogicSimulation:
     def get_schedule_programs(
         self,
         day,
-    ) -> list[OtherProgramViewModel]:
+    ) -> list[DestinationProgramViewModel]:
         try:
             rows = self._base_service.get_schedule_programs(day=day)
         except Exception as e:
             raise RuntimeError(f"Errore nel recupero del palinsesto destinazione: {e}") from e
 
         return [
-            OtherProgramViewModel.MapRaiProgramViewModelFromProgram(row)
+            DestinationProgramViewModel.from_destination_program(row)
             for row in rows
         ]
 

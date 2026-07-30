@@ -27,7 +27,7 @@ export function buildWeeklyExportFilename({ channel, weekStart }) {
  * Flatten weekly rows into a flat array of row objects, applying wOverrides.
  * Replicates the same display logic as DayRow.jsx.
  *
- * @param {import('../models/weekly_programming/programViewModel').ProgramViewModel[]} rows
+ * @param {import('../models/weekly_programming/raiProgramViewModel').RaiProgramViewModel[]} rows
  * @param {Record<string, { prog?: string, manual?: number|null }>} wOverrides
  * @param {string|null} channel
  * @returns {object[]}
@@ -82,7 +82,7 @@ const COL_WIDTHS = {
 /**
  * Generate and download an xlsx file from the loaded weekly rows.
  *
- * @param {import('../models/weekly_programming/programViewModel').ProgramViewModel[]} rows
+ * @param {import('../models/weekly_programming/raiProgramViewModel').RaiProgramViewModel[]} rows
  * @param {Record<string, { prog?: string, manual?: number|null }>} wOverrides
  * @param {{ channel: string|null, weekStart: string|null }} meta
  * @returns {Promise<void>}

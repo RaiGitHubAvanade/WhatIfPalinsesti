@@ -1,6 +1,7 @@
 from datetime import date, timedelta
 
-from app.models.program import Program
+from app.models.competitor_program import CompetitorProgram
+from app.models.rai_program import RaiProgram
 from app.services.databricks_service import DatabricksService
 from app.utils.date_time_utils import DateTimeUtils
 
@@ -14,7 +15,7 @@ class DatabricksServiceWeeklyProgramming(DatabricksService):
             channel: str,
             from_day: date,
             to_day: date
-    ) -> list[Program]:
+    ) -> list[RaiProgram]:
         """Execute the query and return rows for the week containing *day*."""
         query = """
             SELECT ID, Canale, Data, Programma, orario_inizio, orario_fine, share_predetto, 
@@ -36,10 +37,7 @@ class DatabricksServiceWeeklyProgramming(DatabricksService):
             cursor.execute(query, parameters=params)
             rows = cursor.fetchall()
 
-        result = []
-        for row in rows:
-            result.append(Program.MapProgramFromRow(row))
-        return result
+        return [RaiProgram.map_from_row(row) for row in rows]
 
     def get_palinsesto_current_week(
             self,
@@ -47,7 +45,7 @@ class DatabricksServiceWeeklyProgramming(DatabricksService):
             from_day: date,
             to_day: date,
             today: date,
-    ) -> list[Program]:
+    ) -> list[RaiProgram]:
         """Hybrid fetch for the current week.
 
         Days strictly before *today* are read from the delta table (has share_reale).
@@ -86,17 +84,14 @@ class DatabricksServiceWeeklyProgramming(DatabricksService):
             cursor.execute(query, parameters=params)
             rows = cursor.fetchall()
 
-        result = []
-        for row in rows:
-            result.append(Program.MapProgramFromRow(row))
-        return result
+        return [RaiProgram.map_from_row(row) for row in rows]
 
     def get_palinsesto_predict(
             self,
             channel: str,
             from_day: date,
             to_day: date
-    ) -> list[Program]:
+    ) -> list[RaiProgram]:
         """Execute the query and return rows for the week containing *day*."""
         query = """
             SELECT ID, Canale, Data, Programma, orario_inizio, orario_fine, share_predetto, 
@@ -118,10 +113,7 @@ class DatabricksServiceWeeklyProgramming(DatabricksService):
             cursor.execute(query, parameters=params)
             rows = cursor.fetchall()
 
-        result = []
-        for row in rows:
-            result.append(Program.MapProgramFromRow(row))
-        return result
+        return [RaiProgram.map_from_row(row) for row in rows]
 
 
 
@@ -158,12 +150,12 @@ class DatabricksServiceWeeklyProgramming(DatabricksService):
         day: date,
         from_time: str,
         to_time: str,
-    ) -> list[Program]:
+    ) -> list[CompetitorProgram]:
         """Fetch future Rai and Competitorprograms overlapping [from_time, to_time] on the given day."""
         channel_params = {f"ch{i}": ch for i, ch in enumerate(channel_order)}
         placeholders = ", ".join(f":ch{i}" for i in range(len(channel_order)))
         query = f"""
-            SELECT Canale, Data, Programma, orario_inizio, orario_fine 
+            SELECT ID, Canale, Data, Programma, orario_inizio, orario_fine, share_storico, evento_forte
             FROM ta_coll.whatif.vw_output_palinsesto_futuro 
             WHERE Data = :day 
             AND Canale IN ({placeholders}) 
@@ -193,7 +185,4 @@ class DatabricksServiceWeeklyProgramming(DatabricksService):
             cursor.execute(query, parameters=params)
             rows = cursor.fetchall()
 
-        result = []
-        for row in rows:
-            result.append(Program.MapProgramFromFutureRow(row))
-        return result
+        return [CompetitorProgram.map_from_row(row) for row in rows]

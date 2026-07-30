@@ -1,5 +1,5 @@
 /**
- * @typedef {Object} ProgramViewModel
+ * @typedef {Object} RaiProgramViewModel
  * @property {string|null} id
  * @property {string} day          - ISO date string, e.g. "2026-06-18"
  * @property {string|null} from_time  - Start time "HH:MM"

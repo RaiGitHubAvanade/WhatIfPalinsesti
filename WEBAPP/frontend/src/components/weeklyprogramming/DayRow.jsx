@@ -3,10 +3,10 @@ import { useApp } from '../../context/useApp'
 import OtherChannelsModal from './OtherChannelsModal'
 import './DayRow.css'
 
-/** @typedef {import('../../models/weekly_programming/programViewModel').ProgramViewModel} ProgramViewModel */
+/** @typedef {import('../../models/weekly_programming/raiProgramViewModel').RaiProgramViewModel} RaiProgramViewModel */
 
 /**
- * @param {{ row: ProgramViewModel, idx: number, showDay: boolean, dayIso: string|null, wCh: string|null, editableFromDate: string|null, isEditMode: boolean, onManualChange: (rowId: string, overrideKey: string, newValue: number|null) => void }} props
+ * @param {{ row: RaiProgramViewModel, idx: number, showDay: boolean, dayIso: string|null, wCh: string|null, editableFromDate: string|null, isEditMode: boolean, onManualChange: (rowId: string, overrideKey: string, newValue: number|null) => void }} props
  */
 export default function DayRow({ row, showDay, dayIso, wCh, editableFromDate, isEditMode, onManualChange }) {
   const { state } = useApp()

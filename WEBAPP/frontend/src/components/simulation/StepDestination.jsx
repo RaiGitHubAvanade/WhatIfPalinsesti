@@ -13,7 +13,7 @@ import {
 import { fmtDate, toMinutes } from '../../utils/dateUtils'
 import './StepDestination.css'
 
-/** @typedef {import('../../models/weekly_programming/competitorProgramsViewModel').OtherProgramViewModel} OtherProgramViewModel */
+/** @typedef {import('../../models/simulation/destinationProgramViewModel').DestinationProgramViewModel} DestinationProgramViewModel */
 
 export default function StepDestination() {
   const { state, set, toast } = useApp()
@@ -21,7 +21,7 @@ export default function StepDestination() {
   const today = new Date().toISOString().slice(0, 10)
   const maxDay = new Date(new Date(today).getTime() + 6 * 86400000).toISOString().slice(0, 10)
 
-  const [schedule, setSchedule] = useState(/** @type {OtherProgramViewModel[]} */ ([]))
+  const [schedule, setSchedule] = useState(/** @type {DestinationProgramViewModel[]} */ ([]))
   const [loading, setLoading] = useState(false)
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(PAGE_SIZE)

@@ -1,11 +1,12 @@
 /**
- * @typedef {import('../models/simulation/channelScheduleViewModel').ChannelScheduleViewModel} ChannelScheduleViewModel
- * @typedef {import('../models/weekly_programming/competitorProgramsViewModel').OtherProgramViewModel} OtherProgramViewModel
+ * @typedef {import('../models/simulation/targetProgramViewModel').TargetProgramViewModel} TargetProgramViewModel
+ * @typedef {import('../models/simulation/candidateProgramViewModel').CandidateProgramViewModel} CandidateProgramViewModel
+ * @typedef {import('../models/simulation/destinationProgramViewModel').DestinationProgramViewModel} DestinationProgramViewModel
  */
 
 import { apiFetch } from './apiService'
 
-/** @returns {Promise<OtherProgramViewModel[]>} */
+/** @returns {Promise<TargetProgramViewModel[]>} */
 export async function getTargetPrograms({ day = '' } = {}) {
   const params = new URLSearchParams()
   if (day) params.set('day', day)
@@ -15,7 +16,7 @@ export async function getTargetPrograms({ day = '' } = {}) {
   return result.data
 }
 
-/** @returns {Promise<OtherProgramViewModel[]>} */
+/** @returns {Promise<CandidateProgramViewModel[]>} */
 export async function getCandidatePrograms({ share_predicted = null, duration = null } = {}) {
   const params = new URLSearchParams()
   if (share_predicted !== null) params.set('share_predicted', share_predicted)
@@ -26,7 +27,7 @@ export async function getCandidatePrograms({ share_predicted = null, duration = 
   return result.data
 }
 
-/** @returns {Promise<ChannelScheduleViewModel>} */
+/** @returns {Promise<DestinationProgramViewModel[]>} */
 export async function getSchedulePrograms({ day = '' } = {}) {
   const params = new URLSearchParams()
   if (day) params.set('day', day)

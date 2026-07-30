@@ -2,7 +2,7 @@ import logging
 from datetime import date, timedelta
 
 from app.services.databricks_service_weekly_programming import DatabricksServiceWeeklyProgramming
-from app.view_models.weekly_programming import WeeklyTableViewModel, CompetitorProgramsViewModel, ProgramViewModel
+from app.view_models.weekly_programming import WeeklyTableViewModel, CompetitorProgramsViewModel, RaiProgramViewModel
 from app.utils.date_time_utils import DateTimeUtils
 from app.config import Config
 from app.utils.number_utils import NumberUtils
@@ -56,7 +56,7 @@ class BusinessLogicWeeklyProgramming:
             ) from e
 
         filtered = [
-            ProgramViewModel.MapProgramViewModelFromProgram(row)
+            RaiProgramViewModel.from_rai_program(row)
             for row in all_rows
             if self._in_prime_window(row.orario_inizio, row.orario_fine)
         ]
@@ -91,7 +91,7 @@ class BusinessLogicWeeklyProgramming:
 
         # Sorting rows by canale and orario_inizio
         def _sort_key(row) -> tuple:
-            canale = row.canale  # Program.canale
+            canale = row.Canale
             try:
                 priority = (0, channel_order.index(canale))
             except ValueError:
