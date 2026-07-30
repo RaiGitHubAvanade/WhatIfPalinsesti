@@ -160,6 +160,7 @@ export default function StepProgram() {
             if (p.genre) subMeta.push(p.genre)
             if (p.target_age) subMeta.push(p.target_age)
             if (p.target_sex && p.target_sex !== 'Tutti' && p.target_sex !== 'All') subMeta.push(p.target_sex)
+            if (p.duration_minutes) subMeta.push(`${p.duration_minutes} min`)
             return (
               <div
                 key={`${p.channel || ''}_${p.from_time || ''}_${p.program_name || ''}`}

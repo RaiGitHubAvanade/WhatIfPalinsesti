@@ -43,7 +43,13 @@ class AiService:
             json=payload,
             timeout=Config.SOSTITUZIONE_TIMEOUT_SECONDS,
         )
-
+        if not response.ok:
+            self._logger.error(
+                "%s | Databricks error status=%s body=%s",
+                "AiService.call_sostituzione",
+                response.status_code,
+                response.text,
+            )
         response.raise_for_status()
         return response.json()
 
@@ -65,7 +71,7 @@ class AiService:
                     "shap_values": {},
                 }
             }
-
+        
         response = self._session.post(
             f"{self._host}/serving-endpoints/{Config.SPOSTAMENTO_ENDPOINT}/invocations",
             headers=self._headers,
@@ -73,5 +79,12 @@ class AiService:
             timeout=Config.SPOSTAMENTO_TIMEOUT_SECONDS,
         )
 
+        if not response.ok:
+            self._logger.error(
+                "%s | Databricks error status=%s body=%s",
+                "AiService.call_spostamento",
+                response.status_code,
+                response.text,
+            )
         response.raise_for_status()
         return response.json()

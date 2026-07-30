@@ -17,6 +17,7 @@ class OtherProgramViewModel:
     target_sex: str | None = None
     target_age: str | None = None
     genre: str | None = None
+    duration_minutes: float | None = None
 
     @classmethod
     def MapRaiProgramViewModelFromProgram(cls, row: Program) -> "OtherProgramViewModel":
@@ -33,6 +34,7 @@ class OtherProgramViewModel:
             target_sex=row.target_sesso,
             target_age=NumberUtils.format_age(row.target_eta),
             genre=row.genere,
+            duration_minutes=row.durata_minuti,
         )
 
     @classmethod
@@ -50,4 +52,5 @@ class OtherProgramViewModel:
             target_sex=row.target_sesso,
             target_age=NumberUtils.format_age(row.target_eta),
             genre=row.genere,
+            duration_minutes=row.durata_minuti,
         )

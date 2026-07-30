@@ -168,6 +168,7 @@ export default function StepCandidates() {
                   p.genre ? `Genere: ${p.genre}` : null,
                   p.target_sex ? `Sesso: ${p.target_sex}` : null,
                   p.target_age ? `Età: ${p.target_age}` : null,
+                  p.duration_minutes ? `Durata: ${p.duration_minutes} min` : null,
                 ].filter(Boolean)
 
                 return (

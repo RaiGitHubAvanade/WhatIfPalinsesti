@@ -15,7 +15,7 @@ class DatabricksServiceSimulation(DatabricksService):
         """Fetch all programs for the given day (channel/time filtering done client-side)."""
         query = """
             SELECT ID, Canale, Data, Programma, orario_inizio, orario_fine,
-                   share_predetto, target_genere, target_eta, DES_GENERE_ESTESA_INT
+                   share_predetto, target_genere, target_eta, DES_GENERE_ESTESA_INT, durata_minuti
             FROM ta_coll.whatif.out_palinsesto_predict_all_slots
             WHERE Data = :day
             ORDER BY orario_inizio
@@ -57,7 +57,7 @@ class DatabricksServiceSimulation(DatabricksService):
     def get_candidate_programs(self, share_predicted: float, min_duration: int, max_duration: int) -> list[Program]:
         """Fetch all candidate replacement programs (filtering done client-side)."""
         query = """
-            SELECT titolo, canale, tipologia, genere, eta, share_storico_pct
+            SELECT titolo, canale, tipologia, genere, eta, share_storico_pct, durata_minuti
             FROM ta_coll.whatif.output_lista_programmi_sostituzione
             WHERE share_storico_pct >= :share_predicted
               AND durata_minuti BETWEEN :min_duration AND :max_duration

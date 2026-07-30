@@ -29,6 +29,7 @@ class Program:
     target_eta: str | None = None
     genere: str | None = None
     evento_forte: bool | None = None
+    durata_minuti: int | None = None
 
     @classmethod
     def MapProgramFromRow(cls, row) -> "Program":
@@ -60,6 +61,7 @@ class Program:
             target_sesso=row.target_genere,
             target_eta=row.target_eta,
             genere=row.DES_GENERE_ESTESA_INT,
+            durata_minuti=int(row.durata_minuti),
         )
 
     @classmethod
@@ -98,6 +100,7 @@ class Program:
             target_sesso=row.genere,
             target_eta=row.eta,
             share_storico=row.share_storico_pct,
+            durata_minuti=row.durata_minuti,
         )
 
     @classmethod

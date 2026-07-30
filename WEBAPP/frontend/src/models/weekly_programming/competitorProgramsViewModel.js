@@ -11,6 +11,7 @@
  * @property {string|null} target_sex
  * @property {string|null} target_age
  * @property {string|null} genre
+ * @property {number|null} duration_minutes
  */
 
 /**

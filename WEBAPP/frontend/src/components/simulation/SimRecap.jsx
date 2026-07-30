@@ -30,13 +30,18 @@ export default function SimRecap() {
                 🕐 {prog.from_time}{prog.to_time ? `–${prog.to_time}` : ''}
               </span>
             )}
-          </div>
 
-          {prog.genre && (
-            <div className="rp-pills">
-              <span className="rp-pill">{prog.genre}</span>
-            </div>
-          )}
+            {prog.genre && (
+              <div className="rp-pills">
+                <span className="rp-pill">{prog.genre}</span>
+              </div>
+            )}
+            {prog.duration_minutes && (
+              <div className="rp-pills">
+                <span className="rp-pill">{prog.duration_minutes} min</span>
+              </div>
+            )}
+          </div>
 
           {typeof prog.share_predicted === 'number' && (
             <div className="rp-share-row">
@@ -86,11 +91,23 @@ export default function SimRecap() {
           {hasCand ? (
             <div className="rp-prog-block">
               <div className="rp-prog-name">{cand.program_name}</div>
-              {cand.channel && (
-                <div className="rp-pills">
-                  <span className="rp-pill rp-pill-ch">{cand.channel}</span>
-                </div>
-              )}
+              <div className="rp-pills">
+                {cand.channel && (
+                  <div className="rp-pills">
+                    <span className="rp-pill rp-pill-ch">{cand.channel}</span>
+                  </div>
+                )}
+                {cand.genre && (
+                  <div className="rp-pills">
+                    <span className="rp-pill">{cand.genre}</span>
+                  </div>
+                )}
+                {cand.duration_minutes && (
+                  <div className="rp-pills">
+                    <span className="rp-pill">{cand.duration_minutes} min</span>
+                  </div>
+                )}
+              </div>
               {typeof cand.share_storico === 'number' && (
                 <div className="rp-share-row">
                   <span className="rp-share-lbl">Share storico</span>
