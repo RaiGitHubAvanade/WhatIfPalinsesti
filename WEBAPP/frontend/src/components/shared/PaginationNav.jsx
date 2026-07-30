@@ -37,71 +37,77 @@ export default function PaginationNav({
   onPageSizeChange,
   pageSizeLabel = 'Elementi per pagina',
 }) {
-  if (totalPages <= 1) return null
-
-  const hasRange =
-    Number.isFinite(rangeStart)
-    && Number.isFinite(rangeEnd)
-    && Number.isFinite(totalItems)
   const hasPageSize =
     Array.isArray(pageSizeOptions)
     && pageSizeOptions.length > 0
     && typeof onPageSizeChange === 'function'
+  const hasRange =
+    Number.isFinite(rangeStart)
+    && Number.isFinite(rangeEnd)
+    && Number.isFinite(totalItems)
+  const hasPagination = totalPages > 1
 
-  const items = buildPageItems(currentPage, totalPages)
+  if (!hasPagination && !hasPageSize && !hasRange) return null
+
+  const items = hasPagination ? buildPageItems(currentPage, totalPages) : []
 
   return (
     <div className="pnav">
-      <div className="pnav-center">
-        <button
-          className="pnav-nav"
-          disabled={currentPage <= 1}
-          onClick={() => onPageChange(currentPage - 1)}
-        >
-          ←
-        </button>
+      {hasPagination && (
+        <div className="pnav-center">
+          <button
+            className="pnav-nav"
+            disabled={currentPage <= 1}
+            onClick={() => onPageChange(currentPage - 1)}
+          >
+            ←
+          </button>
 
-        {items.map((item, i) => (
-          item === 'ELLIPSIS'
-            ? <span key={`ell-${i}`} className="pnav-ell">…</span>
-            : (
-              <button
-                key={item}
-                className={`pnav-num${currentPage === item ? ' active' : ''}`}
-                onClick={() => onPageChange(item)}
-              >
-                {item}
-              </button>
-            )
-        ))}
+          {items.map((item, i) => (
+            item === 'ELLIPSIS'
+              ? <span key={`ell-${i}`} className="pnav-ell">…</span>
+              : (
+                <button
+                  key={item}
+                  className={`pnav-num${currentPage === item ? ' active' : ''}`}
+                  onClick={() => onPageChange(item)}
+                >
+                  {item}
+                </button>
+              )
+          ))}
 
-        <button
-          className="pnav-nav"
-          disabled={currentPage >= totalPages}
-          onClick={() => onPageChange(currentPage + 1)}
-        >
-          →
-        </button>
-        {hasRange && (
-          <span className="pnav-info">{rangeStart}–{rangeEnd} di {totalItems}</span>
-        )}
-      </div>
+          <button
+            className="pnav-nav"
+            disabled={currentPage >= totalPages}
+            onClick={() => onPageChange(currentPage + 1)}
+          >
+            →
+          </button>
+          {hasRange && (
+            <span className="pnav-info">{rangeStart}–{rangeEnd} di {totalItems}</span>
+          )}
+        </div>
+      )}
 
-      {hasPageSize && (
+      {(hasPageSize || hasRange) && (
         <div className="pnav-right">
-          <label className="pnav-size" htmlFor="pnav-size-select">
-            <span className="pnav-size-label">{pageSizeLabel}</span>
-            <select
-            id="pnav-size-select"
-            className="pnav-size-select"
-            value={String(pageSizeValue ?? pageSizeOptions[0])}
-            onChange={e => onPageSizeChange(Number.parseInt(e.target.value, 10))}
-            >
-            {pageSizeOptions.map(opt => (
-                <option key={opt} value={String(opt)}>{opt}</option>
-            ))}
-            </select>
-          </label>
+
+          {hasPageSize && (
+            <label className="pnav-size" htmlFor="pnav-size-select">
+              <span className="pnav-size-label">{pageSizeLabel}</span>
+              <select
+                id="pnav-size-select"
+                className="pnav-size-select"
+                value={String(pageSizeValue ?? pageSizeOptions[0])}
+                onChange={e => onPageSizeChange(Number.parseInt(e.target.value, 10))}
+              >
+                {pageSizeOptions.map(opt => (
+                  <option key={opt} value={String(opt)}>{opt}</option>
+                ))}
+              </select>
+            </label>
+          )}
         </div>
       )}
     </div>

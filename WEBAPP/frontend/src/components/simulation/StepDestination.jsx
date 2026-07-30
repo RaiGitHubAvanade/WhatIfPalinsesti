@@ -187,7 +187,7 @@ export default function StepDestination() {
           )}
 
           {/* Pagination */}
-          {totalPages > 1 && (
+          {filteredSchedule.length > 0 && (
             <PaginationNav
               currentPage={safePage}
               totalPages={totalPages}

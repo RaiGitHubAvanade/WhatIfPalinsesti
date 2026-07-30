@@ -194,7 +194,7 @@ export default function StepProgram() {
         </div>
       )}
 
-      {!loading && totalPages > 1 && (
+      {!loading && programs.length > 0 && (
         <PaginationNav
           currentPage={safePage}
           totalPages={totalPages}

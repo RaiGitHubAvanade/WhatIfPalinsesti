@@ -201,7 +201,7 @@ export default function StepCandidates() {
           )}
 
           {/* Pagination */}
-          {totalPages > 1 && (
+          {displayed.length > 0 && (
             <PaginationNav
               currentPage={safePage}
               totalPages={totalPages}
