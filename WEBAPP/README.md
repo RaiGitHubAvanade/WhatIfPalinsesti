@@ -33,7 +33,7 @@ npm run build --prefix frontend ; api\.venv\Scripts\python serve.py
 ```
 
 If authentication fails, it could be that the secret setted in the .env file has changed.
-To get the new secret go to DatabrciksApp portal -> Settings (clicking on your profile icon) -> Identity and Access -> Service Principal -> Select the Service Principal used by the webapp -> Secrets -> If the secret has expired, generate a new one.
+To get the new secret go to DatabricksApp portal -> Settings (clicking on your profile icon) -> Workspace Admin (admin permissions are needed to see this section) -> Identity and Access -> Service Principal -> Select the Service Principal used by the webapp -> Secrets -> If the secret has expired, generate a new one.
 
 
 ## Deploy
