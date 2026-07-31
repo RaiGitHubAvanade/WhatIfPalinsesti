@@ -7,7 +7,7 @@ import PaginationNav from '../shared/PaginationNav'
 import { TimePicker } from './TimeSelector'
 import {
   CH_CLS,
-  PROGRAM_PAGE_SIZE as PAGE_SIZE,
+  DEFAULT_PROGRAM_PAGE_SIZE as PAGE_SIZE,
   PROGRAM_PAGE_SIZE_OPTIONS,
 } from '../../utils/constants'
 import { fmtDate, toMinutes } from '../../utils/dateUtils'

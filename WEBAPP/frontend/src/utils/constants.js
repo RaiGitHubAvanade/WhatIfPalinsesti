@@ -11,8 +11,8 @@ export const CH_CLS = { 'Rai 1': 'prow-r1', 'Rai 2': 'prow-r2', 'Rai 3': 'prow-r
 export const MAX_SIMULATIONS_PER_SCENARIO = 3
 
 /** Numero di programmi per pagina nelle liste di selezione */
-export const PROGRAM_PAGE_SIZE = 8
 export const PROGRAM_PAGE_SIZE_OPTIONS = [8, 12, 16, 20, 24]
+export const DEFAULT_PROGRAM_PAGE_SIZE = 8
 
 /** Numero di scenari visualizzati per pagina nella pagina Scenari */
 export const SCENARIOS_PAGE_SIZE_OPTIONS = [3, 6, 9, 12, 15]

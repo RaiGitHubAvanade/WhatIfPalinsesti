@@ -3,7 +3,7 @@ import { useApp } from '../../context/useApp'
 import { getCandidatePrograms } from '../../services/apiSimulation'
 import {
   CH_CLS,
-  PROGRAM_PAGE_SIZE as PAGE_SIZE,
+  DEFAULT_PROGRAM_PAGE_SIZE as PAGE_SIZE,
   PROGRAM_PAGE_SIZE_OPTIONS,
 } from '../../utils/constants'
 import CustomSelect from '../shared/CustomSelect'

@@ -10,7 +10,7 @@ import { retrySostituzione, retrySpostamento } from '../services/apiSimulation'
 import ScenCard from '../components/scenarios/ScenCard'
 import SimulationDetail from '../components/scenarios/SimulationDetail'
 import DaySelector from '../components/shared/DaySelector'
-import CustomSelect from '../components/shared/CustomSelect'
+import ElementsPerPage from '../components/shared/ElementsPerPage'
 import SimulationTypeSelector from '../components/simulation/SimulationTypeSelector'
 import TextInputFilter from '../components/shared/TextInputFilter'
 import {
@@ -288,21 +288,6 @@ export default function Scenarios() {
             onChange={v => { setDateFilter(v); setPage(1) }}
           />
 
-          <div className="scen-filter-sep" />
-
-          <div className="scen-page-size-filter">
-            <span className="scen-page-size-label">Scenari per pagina</span>
-            <CustomSelect
-              value={String(scenariosPerPage)}
-              onChange={v => {
-                const next = sanitizePageSize(v)
-                setPerPageValue(String(next))
-                setPage(1)
-              }}
-              options={SCENARIOS_PAGE_SIZE_OPTIONS.map(n => ({ value: String(n), label: String(n) }))}
-            />
-          </div>
-
           {hasActiveFilter && (
             <button className="scen-filter-reset" onClick={resetFilters}>✕ Azzera</button>
           )}
@@ -401,34 +386,51 @@ export default function Scenarios() {
               ))}
             </div>
 
-            {totalPages > 1 && (
-              <div className="scen-pagination">
-                <button
-                  className="scen-page-nav"
-                  disabled={currentPage <= 1}
-                  onClick={() => changePage(currentPage - 1)}
-                >←</button>
+            <div className="scen-pagination-row">
+              {totalPages > 1 && (
+                <div className="scen-pagination">
+                  <button
+                    className="scen-page-nav"
+                    disabled={currentPage <= 1}
+                    onClick={() => changePage(currentPage - 1)}
+                  >←</button>
 
-                {buildPageNums(currentPage, totalPages).map((p, i, arr) => {
-                  const gap = i > 0 && p - arr[i - 1] > 1
-                  return (
-                    <span key={p} style={{ display: 'contents' }}>
-                      {gap && <span className="scen-page-ellipsis">…</span>}
-                      <button
-                        className={`scen-page-num${p === currentPage ? ' active' : ''}`}
-                        onClick={() => changePage(p)}
-                      >{p}</button>
-                    </span>
-                  )
-                })}
+                  {buildPageNums(currentPage, totalPages).map((p, i, arr) => {
+                    const gap = i > 0 && p - arr[i - 1] > 1
+                    return (
+                      <span key={p} style={{ display: 'contents' }}>
+                        {gap && <span className="scen-page-ellipsis">…</span>}
+                        <button
+                          className={`scen-page-num${p === currentPage ? ' active' : ''}`}
+                          onClick={() => changePage(p)}
+                        >{p}</button>
+                      </span>
+                    )
+                  })}
 
-                <button
-                  className="scen-page-nav"
-                  disabled={currentPage >= totalPages}
-                  onClick={() => changePage(currentPage + 1)}
-                >→</button>
-              </div>
-            )}
+                  <button
+                    className="scen-page-nav"
+                    disabled={currentPage >= totalPages}
+                    onClick={() => changePage(currentPage + 1)}
+                  >→</button>
+                </div>
+              )}
+
+              {total > 0 && (
+                <div className="scen-pagination-right">
+                  <ElementsPerPage
+                    id="scen-size-select"
+                    label="Scenari per pagina"
+                    value={String(scenariosPerPage)}
+                    options={SCENARIOS_PAGE_SIZE_OPTIONS}
+                    onChange={next => {
+                      setPerPageValue(String(sanitizePageSize(next)))
+                      setPage(1)
+                    }}
+                  />
+                </div>
+              )}
+            </div>
           </div>
         )}
 

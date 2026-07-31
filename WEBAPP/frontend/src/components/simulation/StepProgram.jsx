@@ -8,7 +8,7 @@ import TimeSelector from './TimeSelector'
 import TextInputFilter from '../shared/TextInputFilter'
 import {
   CH_CLS,
-  PROGRAM_PAGE_SIZE as PAGE_SIZE,
+  DEFAULT_PROGRAM_PAGE_SIZE as PAGE_SIZE,
   PROGRAM_PAGE_SIZE_OPTIONS,
   TARGET_PROGRAMS_CACHE_TTL_MS,
 } from '../../utils/constants'
