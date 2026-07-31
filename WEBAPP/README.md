@@ -6,18 +6,34 @@ React + Vite frontend with a Python Flask backend.
 - Node.js (LTS recommended)
 - Python 3.14
 - Databricks VsCode extension
+- Databricks CLI
 
 
 ### First-time setup
 Open a terminal in the project root folder (WEBAPP folder) and execute the following commands in order:
 ```powershell
-New-Item -Path api\.env -ItemType File
+Copy-Item api\.env.example api\.env
 python -m venv api\.venv
 api\.venv\Scripts\activate
 api\.venv\Scripts\pip install --no-cache -r requirements.txt
 npm install --prefix frontend
 npm install exceljs --prefix frontend
 ```
+
+
+### Local Databricks authentication (recommended)
+Use profile-based Databricks auth so you do not need to update DATABRICKS_CLIENT_SECRET in api/.env every time it rotates.
+
+1. Login once with OAuth:
+```powershell
+databricks auth login --host INSERT_HOST_HERE
+```
+
+2. Set DATABRICKS_CONFIG_PROFILE in api/.env (example: dev-all-api).
+
+3. Keep DATABRICKS_CLIENT_ID and DATABRICKS_CLIENT_SECRET empty in api/.env unless you explicitly want SP-secret auth.
+
+4. You can also leave DATABRICKS_WAREHOUSE_ID empty in local: the backend falls back to the sql_warehouse id defined in WEBAPP/databricks.yml.
 
 
 ## Running the app
@@ -32,8 +48,11 @@ Run both together (frontend precompiled, single terminal):
 npm run build --prefix frontend ; api\.venv\Scripts\python serve.py
 ```
 
-If authentication fails, it could be that the secret setted in the .env file has changed.
-To get the new secret go to DatabricksApp portal -> Settings (clicking on your profile icon) -> Workspace Admin (admin permissions are needed to see this section) -> Identity and Access -> Service Principal -> Select the Service Principal used by the webapp -> Secrets -> If the secret has expired, generate a new one.
+If authentication fails while using profile auth, run:
+```powershell
+databricks auth describe --host INSERT_HOST_HERE
+```
+and verify that the selected profile is valid and authorized on the SQL warehouse.
 
 
 ## Deploy

@@ -4,13 +4,13 @@ import time
 import requests
 
 from app.config import Config
-from databricks.sdk.core import Config as DatabricksConfig
+from app.utils.databricks_config_utils import build_databricks_config
 
 class AiService:
     def __init__(self) -> None:
         self._logger = logging.getLogger(__name__)
         
-        cfg = DatabricksConfig()
+        cfg = build_databricks_config()
         self._host = cfg.host
         self._headers = {
             **cfg.authenticate(),
