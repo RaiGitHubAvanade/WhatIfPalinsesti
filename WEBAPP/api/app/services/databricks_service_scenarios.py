@@ -6,8 +6,7 @@ from app.utils.date_time_utils import DateTimeUtils
 
 
 class DatabricksServiceScenarios(DatabricksService):
-    """Production scenarios service backed by real Databricks SQL."""
-
+    
 
     def _base_params(self, search: str | None, program_date: str | None) -> tuple[list[str], dict]:
         """Build the shared WHERE conditions and named parameters."""
@@ -120,7 +119,6 @@ class DatabricksServiceScenarios(DatabricksService):
 
 
     def delete_simulation_sostituzione(self, simulation_id: str) -> None:
-        """Delete a row from webapp_simulations_sostituzione."""
         query = """
             DELETE FROM ta_coll.whatif.webapp_simulations_sostituzione
             WHERE id = :simulation_id
@@ -134,7 +132,6 @@ class DatabricksServiceScenarios(DatabricksService):
             
 
     def delete_simulation_spostamento(self, simulation_id: str) -> None:
-        """Delete a row from webapp_simulations_spostamento."""
         query = """
             DELETE FROM ta_coll.whatif.webapp_simulations_spostamento
             WHERE id = :simulation_id
@@ -148,7 +145,6 @@ class DatabricksServiceScenarios(DatabricksService):
 
 
     def delete_scenario_if_empty(self, scenario_id: str) -> None:
-        """Delete the scenario if it has no remaining simulations in either table."""
         query = """
             DELETE FROM ta_coll.whatif.webapp_scenarios
             WHERE id = :id_scenario
@@ -172,7 +168,6 @@ class DatabricksServiceScenarios(DatabricksService):
 
 
     def delete_scenario(self, scenario_id: str) -> None:
-        """Delete the scenario if it has no remaining simulations in either table."""
         query = """
             DELETE FROM ta_coll.whatif.webapp_scenarios
             WHERE id = :id_scenario
@@ -190,7 +185,6 @@ class DatabricksServiceScenarios(DatabricksService):
         search: str | None = None,
         program_date: str | None = None,
     ) -> list[Scenario]:
-        """Return flat rows from webapp_scenarios LEFT JOIN webapp_simulations_spostamento."""
         conditions, params = self._base_params(search, program_date)
         extra_where = (" AND " + " AND ".join(conditions)) if conditions else ""
 
@@ -248,7 +242,6 @@ class DatabricksServiceScenarios(DatabricksService):
 
 
     def get_simulations_status(self, simulation_ids: list[str]) -> list[dict]:
-        """Return status fields for the provided simulation IDs across both simulation tables."""
         if not simulation_ids:
             return []
 
@@ -345,7 +338,6 @@ class DatabricksServiceScenarios(DatabricksService):
 
 
     def toggle_evento_forte(self, competitor_id: str) -> None:
-        """Toggle the evento_forte boolean on a single row in vw_output_palinsesto_futuro_ui."""
         query = """
             UPDATE ta_coll.whatif.output_palinsesto_competitor
             SET evento_forte = NOT evento_forte

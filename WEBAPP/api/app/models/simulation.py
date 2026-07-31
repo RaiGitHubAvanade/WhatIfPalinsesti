@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 @dataclass
 class SimulationSost:
-    """Maps one row of ta_coll.whatif.webapp_simulations_sostituzione."""
+    
     id: str
     id_scenario: str
     new_program_name: str | None

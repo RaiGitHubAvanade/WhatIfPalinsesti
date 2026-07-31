@@ -7,14 +7,12 @@ from app.services.databricks_service import DatabricksService
 
 
 class DatabricksServiceSimulation(DatabricksService):
-    """Production simulation service backed by real Databricks SQL."""
 
 
     def get_target_programs(
         self,
         day: date,
     ) -> list[TargetProgram]:
-        """Fetch all programs for the given day (channel/time filtering done client-side)."""
         query = """
             SELECT ID, Canale, Data, Programma, orario_inizio, orario_fine,
                    share_predetto, target_genere, target_eta, DES_GENERE_ESTESA_INT, durata_minuti
@@ -37,7 +35,6 @@ class DatabricksServiceSimulation(DatabricksService):
         self,
         day: date,
     ) -> list[DestinationProgram]:
-        """Fetch schedule programs for a specific day (client-side channel/time filtering)."""
         query = """
             SELECT ID, Canale, Data, Programma, orario_inizio, orario_fine,
                      share_predetto, target_genere, target_eta, DES_GENERE_ESTESA_INT, durata_minuti
@@ -57,7 +54,6 @@ class DatabricksServiceSimulation(DatabricksService):
     
 
     def get_candidate_programs(self, share_predicted: float, min_duration: int, max_duration: int) -> list[CandidateProgram]:
-        """Fetch all candidate replacement programs (filtering done client-side)."""
         query = """
             SELECT titolo, canale, tipologia, genere, eta, share_storico_pct, durata_minuti
             FROM ta_coll.whatif.output_lista_programmi_sostituzione
@@ -80,7 +76,6 @@ class DatabricksServiceSimulation(DatabricksService):
 
 
     def insert_scenario(self, scenario: dict) -> None:
-        """Insert a new row into webapp_scenarios."""
         query = """
             INSERT INTO ta_coll.whatif.webapp_scenarios
                 (id, scenario_type, program_id, program_name, program_channel,
@@ -98,8 +93,6 @@ class DatabricksServiceSimulation(DatabricksService):
 
 
     def update_scenario(self, scenario_id: str, modified_date: datetime) -> None:
-        """Update an existing row in webapp_scenarios."""
-        
         query = f"""
             UPDATE ta_coll.whatif.webapp_scenarios
             SET modified_date = :modified_date

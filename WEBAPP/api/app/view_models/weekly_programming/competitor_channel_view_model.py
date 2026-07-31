@@ -6,6 +6,7 @@ from app.view_models.weekly_programming.competitor_program_view_model import Com
 
 @dataclass
 class CompetitorChannelViewModel:
+    
     channel: str
     channel_type: str
     programs: list[CompetitorProgramViewModel] = field(default_factory=list)

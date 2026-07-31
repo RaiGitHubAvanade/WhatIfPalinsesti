@@ -15,7 +15,6 @@ class BusinessLogicWeeklyProgramming:
 
 
     def _in_prime_window(self, orario_inizio: str | None, orario_fine: str | None) -> bool:
-        """Return True when the program falls within the configured prime-time window."""
         if not orario_inizio or not orario_fine:
             return False
         start = DateTimeUtils.hhmm_to_minutes(orario_inizio.strip()[:5])
@@ -32,12 +31,6 @@ class BusinessLogicWeeklyProgramming:
 
 
     def get_weekly_table(self, channel: str, day: date) -> WeeklyTableViewModel:
-        """Return a WeeklyTableViewModel for the given channel and day.
-
-        Source selection:
-          - day is before the current week's Monday → use _delta table (historical)
-          - day is on the current week or a future week  → use _predict table
-        """
         from_day = day - timedelta(days=day.weekday())
         to_day = from_day + timedelta(days=6)
 
@@ -75,9 +68,7 @@ class BusinessLogicWeeklyProgramming:
         from_time: str,
         to_time: str,
         program_name: str,
-    ) -> CompetitorProgramsViewModel:
-        """Return a CompetitorProgramsViewModel with all channels overlapping [from_time, to_time]."""
-        
+    ) -> CompetitorProgramsViewModel:        
         channel_order = [c for c in Config.CHANNEL_ORDER if c != channel]
         
         all_rows = []
@@ -124,10 +115,6 @@ class BusinessLogicWeeklyProgramming:
 
 
     def edit_manual_share_batch(self, changes: dict[str, float | None]) -> None:
-        """Persist a batch of manual share overrides in a single request.
-
-        *changes* maps DB row ID strings to the new value (or None to clear).
-        """
         if not changes:
             raise ValueError("Nessuna modifica da salvare")
         try:

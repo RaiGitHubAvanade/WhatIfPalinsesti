@@ -7,13 +7,13 @@ from app.models.simulation import SimulationSposta
 
 @dataclass
 class SimulationSpostViewModel:
-    """One spostamento simulation linked to a scenario."""
+    
     id: str
     new_channel: str | None
     new_date: str | None
     new_from_time: str | None
     share_result: float | None
-    status: str                  # 'Running' | 'Completed' | 'Failed'
+    status: str
     creation_date: str | None
     modified_date: str | None
     last_error: str | None

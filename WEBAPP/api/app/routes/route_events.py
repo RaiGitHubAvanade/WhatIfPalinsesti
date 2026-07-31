@@ -18,7 +18,7 @@ def stream_events():
 
     Accepts an optional ``clientId`` query param so that lock auto-release
     works correctly when the tab is closed.
-    A comment-only keepalive line is flushed every ~20 s so proxies do
+    A comment-only keepalive line is flushed every ~20s (Config.SSE_KEEPALIVE_SECONDS) so proxies do
     not close the idle connection.
     """
     client_id = request.args.get("clientId", "")

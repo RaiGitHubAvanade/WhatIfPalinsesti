@@ -9,7 +9,7 @@ from app.view_models.simulation import SimulationSostViewModel, SimulationSpostV
 
 @dataclass
 class ScenarioViewModel:
-    """One scenario with its nested simulations."""
+    
     id: str
     scenario_type: str           # 'sostituzione' | 'spostamento'
     program_id: str

@@ -4,7 +4,7 @@ from datetime import date
 
 @dataclass
 class Scenario:
-    """Maps one row of ta_coll.whatif.webapp_scenarios."""
+    
     id: str
     scenario_type: str
     program_id: str

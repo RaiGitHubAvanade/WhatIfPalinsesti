@@ -9,6 +9,7 @@ from app.utils.number_utils import NumberUtils
 
 @dataclass
 class RaiProgramViewModel:
+    
     day: str
     from_time: str | None
     to_time: str | None

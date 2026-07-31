@@ -23,9 +23,6 @@ class AiService:
     # ------------------------------------------------------------------ #
 
     def call_sostituzione(self, payload: dict) -> dict:
-        """POST *payload* to the Databricks Serving Endpoint for Sostituzione
-        and return the parsed JSON response.
-        """
         self._logger.info("AiService.call_sostituzione | payload=%s", payload)
         
         if(Config.MOCK_SIMULATION_SOSTITUZIONE_RESULT):
@@ -58,9 +55,6 @@ class AiService:
     # ------------------------------------------------------------------ #
 
     def call_spostamento(self, payload: dict) -> dict:
-        """POST *payload* to the Databricks Serving Endpoint for Spostamento
-        and return the parsed JSON response.
-        """
         self._logger.info("AiService.call_spostamento | payload=%s", payload)
 
         if(Config.MOCK_SIMULATION_SPOSTAMENTO_RESULT):

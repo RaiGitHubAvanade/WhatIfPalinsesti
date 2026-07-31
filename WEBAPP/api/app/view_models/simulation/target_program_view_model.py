@@ -7,6 +7,7 @@ from app.utils.number_utils import NumberUtils
 
 @dataclass
 class TargetProgramViewModel:
+    
     channel: str
     id: str | None = None
     program_name: str | None = None

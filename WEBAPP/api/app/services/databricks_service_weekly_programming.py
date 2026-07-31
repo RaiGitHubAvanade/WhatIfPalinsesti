@@ -16,7 +16,6 @@ class DatabricksServiceWeeklyProgramming(DatabricksService):
             from_day: date,
             to_day: date
     ) -> list[RaiProgram]:
-        """Execute the query and return rows for the week containing *day*."""
         query = """
             SELECT ID, Canale, Data, Programma, orario_inizio, orario_fine, share_predetto, 
                 share_manuale, share_reale 
@@ -46,12 +45,6 @@ class DatabricksServiceWeeklyProgramming(DatabricksService):
             to_day: date,
             today: date,
     ) -> list[RaiProgram]:
-        """Hybrid fetch for the current week.
-
-        Days strictly before *today* are read from the delta table (has share_reale).
-        Today and future days are read from the predict table (no share_reale → NULL).
-        The two legs are merged with a single UNION ALL so only one round-trip is needed.
-        """
         yesterday = today - timedelta(days=1)
         query = """
             SELECT ID, Canale, Data, Programma, orario_inizio, orario_fine,
@@ -92,7 +85,6 @@ class DatabricksServiceWeeklyProgramming(DatabricksService):
             from_day: date,
             to_day: date
     ) -> list[RaiProgram]:
-        """Execute the query and return rows for the week containing *day*."""
         query = """
             SELECT ID, Canale, Data, Programma, orario_inizio, orario_fine, share_predetto, 
                 share_manuale 
@@ -124,7 +116,6 @@ class DatabricksServiceWeeklyProgramming(DatabricksService):
         row_id: str,
         db_value: float | None,
     ) -> None:
-        """Update the share_manuale field on a single row in out_palinsesto_predict."""
         query_set = "share_manuale = NULL" if db_value is None else "share_manuale = :db_value"
         query = f"""
             UPDATE ta_coll.whatif.out_palinsesto_predict
@@ -151,7 +142,6 @@ class DatabricksServiceWeeklyProgramming(DatabricksService):
         from_time: str,
         to_time: str,
     ) -> list[CompetitorProgram]:
-        """Fetch future Rai and Competitorprograms overlapping [from_time, to_time] on the given day."""
         channel_params = {f"ch{i}": ch for i, ch in enumerate(channel_order)}
         placeholders = ", ".join(f":ch{i}" for i in range(len(channel_order)))
         query = f"""

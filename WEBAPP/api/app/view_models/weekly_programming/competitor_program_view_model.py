@@ -6,6 +6,7 @@ from app.utils.number_utils import NumberUtils
 
 @dataclass
 class CompetitorProgramViewModel:
+    
     id: str | None = None
     program_name: str | None = None
     from_time: str | None = None

@@ -7,12 +7,12 @@ from app.models.simulation import SimulationSost
 
 @dataclass
 class SimulationSostViewModel:
-    """One sostituzione simulation linked to a scenario."""
+    
     id: str
     new_program_name: str | None
     new_program_share_storico: float | None
     share_result: float | None
-    status: str                  # 'Running' | 'Completed' | 'Failed'
+    status: str
     creation_date: str | None
     modified_date: str | None
     last_error: str | None

@@ -99,8 +99,6 @@ class BusinessLogicScenarios:
         day: date,
         from_time: str,
     ) -> CompetitorProgramsViewModel:
-        """Return competitor programs overlapping the slot starting at from_time.
-        to_time is computed as from_time + COMPETITORS_SLOT_DURATION_MINUTES."""
         raw_minutes = int(from_time[:2]) * 60 + int(from_time[3:5])
         to_time = DateTimeUtils.minutes_to_hhmm(raw_minutes + Config.COMPETITORS_SLOT_DURATION_MINUTES)
 
@@ -135,7 +133,6 @@ class BusinessLogicScenarios:
 
 
     def toggle_evento_forte(self, competitor_id: str) -> None:
-        """Toggle evento_forte on a competitor program row."""
         try:
             self._service.toggle_evento_forte(competitor_id)
         except Exception as e:

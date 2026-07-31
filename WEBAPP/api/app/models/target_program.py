@@ -4,11 +4,7 @@ from datetime import date
 
 @dataclass
 class TargetProgram:
-    """Databricks row model for simulation target programs.
-
-    Field names intentionally match Databricks column names.
-    """
-
+    
     ID: str | None
     Canale: str
     Data: date

@@ -5,7 +5,7 @@ from dataclasses import dataclass
 
 @dataclass
 class ServingEndpointSostituzioneRequest:
-    """Input data for starting or retrying a sostituzione simulation."""
+    
     program_id: str | None
     program_name: str | None
     program_channel: str | None

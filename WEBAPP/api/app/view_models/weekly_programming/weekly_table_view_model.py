@@ -5,6 +5,7 @@ from app.view_models.weekly_programming.rai_program_view_model import RaiProgram
 
 @dataclass
 class WeeklyTableViewModel:
+    
     week: str
     channel: str
     rows: list[RaiProgramViewModel] = field(default_factory=list)

@@ -4,7 +4,7 @@ from app.services.databricks_service_simulation import DatabricksServiceSimulati
 
 
 class DatabricksServiceSimulationSpostamento(DatabricksServiceSimulation):
-    """Databricks SQL operations specific to simulazioni spostamento."""
+    
 
     def get_scenario_simulation_count(self, program_id: str, scenario_type: str) -> int:
         query = """
@@ -117,7 +117,6 @@ class DatabricksServiceSimulationSpostamento(DatabricksServiceSimulation):
             cursor.execute(query, parameters=params)
 
     def update_simulation(self, simulation_id: str, **fields) -> None:
-        # Filter out fields not present in live schema/environment.
         if "shap_values" in fields:
             fields = {k: v for k, v in fields.items() if k != "shap_values"}
 

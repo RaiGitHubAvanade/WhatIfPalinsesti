@@ -6,6 +6,7 @@ from app.models.competitor_program import CompetitorProgram
 
 @dataclass
 class CompetitorProgramsViewModel:
+    
     channel: str
     day: str
     from_time: str

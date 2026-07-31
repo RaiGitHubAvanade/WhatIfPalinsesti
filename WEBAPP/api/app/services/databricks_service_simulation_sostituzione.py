@@ -4,7 +4,7 @@ from app.services.databricks_service_simulation import DatabricksServiceSimulati
 
 
 class DatabricksServiceSimulationSostituzione(DatabricksServiceSimulation):
-    """Databricks SQL operations specific to simulazioni sostituzione."""
+    
 
     def get_scenario_simulation_count(self, program_id: str, scenario_type: str) -> int:
         query = """

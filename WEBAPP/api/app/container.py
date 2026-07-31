@@ -2,10 +2,6 @@
 
 Services are created lazily on first access within a request and closed
 automatically at the end of the request via teardown_appcontext.
-
-Usage in a route:
-    from app.container import get_databricks_service
-    logic = BusinessLogicWeeklyProgramming(get_databricks_service())
 """
 
 from flask import g

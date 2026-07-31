@@ -211,7 +211,6 @@ class BusinessLogicSimulation:
 
 
     def _run_simulation_async(self, simulation_id: str, payload: dict, simulation_type: str) -> None:
-        """Background thread: calls the AI service and updates the simulation record."""
         logger = logging.getLogger(__name__)
         handler_factory = self._background_handler_factory_provider()
         handler = handler_factory.get_handler(simulation_type)

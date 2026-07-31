@@ -6,7 +6,7 @@ from collections.abc import Iterable
 
 @dataclass
 class ServingEndpointSpostamentoRequest:
-    """Input data for starting or retrying a spostamento simulation."""
+    
     program_id: str | None
     program_name: str | None
     program_channel: str | None
