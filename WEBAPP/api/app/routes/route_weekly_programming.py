@@ -94,38 +94,6 @@ def get_competitor_programs():
     return success(data=asdict(result), message="Programmi concorrenti Databricks ottenuti con successo")
 
 
-@bp.route("/weekly/editManualShare", methods=["POST"])
-def edit_manual_share():
-    body = request.get_json(silent=True) or {}
-    row_id = body.get("id")
-    value = body.get("value")
-
-    if not row_id:
-        return error(message="Il parametro 'id' è obbligatorio", errors=["missing required fields"]), 400
-
-    if value is not None:
-        try:
-            value = float(value)
-        except (TypeError, ValueError):
-            return error(message="Il valore deve essere un numero o null", errors=["invalid value"]), 400
-
-    logger.info("editManualShare called | id=%s value=%s", row_id, value)
-
-    logic = BusinessLogicWeeklyProgramming(get_databricks_service())
-    try:
-        logic.edit_manual_share(row_id, value)
-    except ValueError as e:
-        logger.warning("editManualShare: validation error from logic | error=%s", e)
-        return error(message=str(e), errors=["validation_error"]), 400
-    except RuntimeError as e:
-        logger.error("editManualShare: Databricks error | id=%s error=%s", row_id, e)
-        return error(message=str(e), errors=["databricks_error"]), 502
-
-    logger.info("editManualShare: success | id=%s", row_id)
-    broker.broadcast("weekly_changed", {})
-    return success(data=None, message="Share manuale aggiornato con successo")
-
-
 @bp.route("/weekly/editManualShareBatch", methods=["POST"])
 def edit_manual_share_batch():
     body = request.get_json(silent=True) or {}

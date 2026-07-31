@@ -100,20 +100,6 @@ class BusinessLogicWeeklyProgramming:
         )
 
 
-    def edit_manual_share(
-        self,
-        row_id: str,
-        value: float | None,
-    ) -> None:
-        try:
-            db_value = NumberUtils.percent_to_float(value)
-            self._databricks_service.edit_manual_share_predict(row_id, db_value)
-        except Exception as e:
-            raise RuntimeError(
-                f"Errore durante l'aggiornamento del palinsesto: {e}"
-            ) from e
-
-
     def edit_manual_share_batch(self, changes: dict[str, float | None]) -> None:
         if not changes:
             raise ValueError("Nessuna modifica da salvare")
