@@ -18,67 +18,59 @@ class AiService:
         }
         self._session = requests.Session()
 
-    # ------------------------------------------------------------------ #
-    # Sostituzione
-    # ------------------------------------------------------------------ #
 
     def call_sostituzione(self, payload: dict) -> dict:
-        self._logger.info("AiService.call_sostituzione | payload=%s", payload)
-        
-        if(Config.MOCK_SIMULATION_SOSTITUZIONE_RESULT):
-            time.sleep(30)
-            return {
-                "predictions": {
-                    "predicted_share_pct": round(random.uniform(0, 20), 1),
-                    "shap_values": {},
-                }
-            }
-
-        response = self._session.post(
-            f"{self._host}/serving-endpoints/{Config.SOSTITUZIONE_ENDPOINT}/invocations",
-            headers=self._headers,
-            json=payload,
-            timeout=Config.SOSTITUZIONE_TIMEOUT_SECONDS,
+        return self._invoke_simulation(
+            operation="AiService.call_sostituzione",
+            endpoint=Config.SOSTITUZIONE_ENDPOINT,
+            payload=payload,
+            timeout_seconds=Config.SOSTITUZIONE_TIMEOUT_SECONDS,
+            use_mock=Config.MOCK_SIMULATION_SOSTITUZIONE_RESULT,
         )
-        if not response.ok:
-            self._logger.error(
-                "%s | Databricks error status=%s body=%s",
-                "AiService.call_sostituzione",
-                response.status_code,
-                response.text,
-            )
-        response.raise_for_status()
-        return response.json()
 
-    # ------------------------------------------------------------------ #
-    # Spostamento
-    # ------------------------------------------------------------------ #
 
     def call_spostamento(self, payload: dict) -> dict:
-        self._logger.info("AiService.call_spostamento | payload=%s", payload)
-
-        if(Config.MOCK_SIMULATION_SPOSTAMENTO_RESULT):
-            time.sleep(30)
-            return {
-                "predictions": {
-                    "predicted_share_pct": round(random.uniform(0, 20), 1),
-                    "shap_values": {},
-                }
-            }
-        
-        response = self._session.post(
-            f"{self._host}/serving-endpoints/{Config.SPOSTAMENTO_ENDPOINT}/invocations",
-            headers=self._headers,
-            json=payload,
-            timeout=Config.SPOSTAMENTO_TIMEOUT_SECONDS,
+        return self._invoke_simulation(
+            operation="AiService.call_spostamento",
+            endpoint=Config.SPOSTAMENTO_ENDPOINT,
+            payload=payload,
+            timeout_seconds=Config.SPOSTAMENTO_TIMEOUT_SECONDS,
+            use_mock=Config.MOCK_SIMULATION_SPOSTAMENTO_RESULT,
         )
 
+    
+    def _invoke_simulation(self, operation: str, endpoint: str, payload: dict, timeout_seconds: int, use_mock: bool) -> dict:
+        self._logger.info("%s | payload=%s", operation, payload)
+
+        if use_mock:
+            return self._mock_prediction()
+
+        response = self._post_json(
+            url=f"{self._host}/serving-endpoints/{endpoint}/invocations",
+            headers=self._headers,
+            json=payload,
+            timeout=timeout_seconds,
+        )
+        self._raise_for_status_with_error_body(response, operation)
+        return response.json()
+
+
+    def _raise_for_status_with_error_body(self, response: requests.Response, operation: str) -> None:
         if not response.ok:
             self._logger.error(
                 "%s | Databricks error status=%s body=%s",
-                "AiService.call_spostamento",
+                operation,
                 response.status_code,
                 response.text,
             )
         response.raise_for_status()
-        return response.json()
+
+
+    def _mock_prediction(self) -> dict:
+        time.sleep(30)
+        return {
+            "predictions": {
+                "predicted_share_pct": round(random.uniform(0, 20), 1),
+                "shap_values": {},
+            }
+        }
