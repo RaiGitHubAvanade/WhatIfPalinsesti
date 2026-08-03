@@ -36,6 +36,7 @@ class DatabricksServiceScenarios(DatabricksService):
             SELECT
                 sce.id                       AS scenario_id,
                 sce.scenario_type,
+                sce.scenario_name,
                 sce.program_id,
                 sce.program_name,
                 sce.program_channel,
@@ -192,6 +193,7 @@ class DatabricksServiceScenarios(DatabricksService):
             SELECT
                 sce.id                       AS scenario_id,
                 sce.scenario_type,
+                sce.scenario_name,
                 sce.program_id,
                 sce.program_name,
                 sce.program_channel,
@@ -239,6 +241,25 @@ class DatabricksServiceScenarios(DatabricksService):
                     seen_sim_ids.add(sim_key)
                     scenarios[sce_id].simulations.append(SimulationSposta.MapSimulationSpostaFromDict(row))
         return list(scenarios.values())
+
+
+    def edit_scenario_name(self, scenario_id: str, scenario_name: str, modified_date) -> None:
+        query = """
+            UPDATE ta_coll.whatif.webapp_scenarios
+            SET scenario_name = :scenario_name,
+                modified_date = :modified_date
+            WHERE id = :scenario_id
+        """
+        params = {
+            "scenario_id": scenario_id,
+            "scenario_name": scenario_name,
+            "modified_date": modified_date,
+        }
+
+        self._logger.info("edit_scenario_name | with params %s", {"scenario_id": scenario_id})
+
+        with self._connection.cursor() as cursor:
+            cursor.execute(query, parameters=params)
 
 
     def get_simulations_status(self, simulation_ids: list[str]) -> list[dict]:

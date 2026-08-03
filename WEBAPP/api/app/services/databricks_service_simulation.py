@@ -78,11 +78,11 @@ class DatabricksServiceSimulation(DatabricksService):
     def insert_scenario(self, scenario: dict) -> None:
         query = """
             INSERT INTO ta_coll.whatif.webapp_scenarios
-                (id, scenario_type, program_id, program_name, program_channel,
+                (id, scenario_type, scenario_name, program_id, program_name, program_channel,
                  program_share_predict, program_date, program_from_time, program_to_time,
                  creation_date, modified_date)
             VALUES
-                (:id, :scenario_type, :program_id, :program_name, :program_channel,
+                (:id, :scenario_type, :scenario_name, :program_id, :program_name, :program_channel,
                  :program_share_predict, :program_date, :program_from_time, :program_to_time,
                  :creation_date, :modified_date)
         """
@@ -100,6 +100,24 @@ class DatabricksServiceSimulation(DatabricksService):
         """
         params = {"scenario_id": scenario_id, "modified_date": modified_date}
         self._logger.info(f"update_scenario | with params {params}")
+
+        with self._connection.cursor() as cursor:
+            cursor.execute(query, parameters=params)
+
+
+    def edit_scenario_name(self, scenario_id: str, scenario_name: str, modified_date: datetime) -> None:
+        query = """
+            UPDATE ta_coll.whatif.webapp_scenarios
+            SET scenario_name = :scenario_name,
+                modified_date = :modified_date
+            WHERE id = :scenario_id
+        """
+        params = {
+            "scenario_id": scenario_id,
+            "scenario_name": scenario_name,
+            "modified_date": modified_date,
+        }
+        self._logger.info("edit_scenario_name | with params %s", {"scenario_id": scenario_id})
 
         with self._connection.cursor() as cursor:
             cursor.execute(query, parameters=params)

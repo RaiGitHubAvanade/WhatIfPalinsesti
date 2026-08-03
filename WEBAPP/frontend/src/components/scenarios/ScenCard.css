@@ -48,6 +48,41 @@
   font-family: inherit;
 }
 .scen-title-inp:focus { border-color: var(--rai); }
+.scen-title-edit-btn {
+  background: transparent;
+  border: 0;
+  color: var(--muted);
+  border-radius: 6px;
+  font-size: 14px;
+  line-height: 1;
+  padding: 3px;
+  cursor: pointer;
+  min-width: 22px;
+  min-height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.scen-title-edit-btn:hover:not(:disabled) {
+  color: var(--rai);
+}
+
+.scen-title-edit-btn--action {
+  border: 1px solid var(--border);
+  font-size: 12px;
+  padding: 4px 6px;
+  min-width: 24px;
+  min-height: 24px;
+}
+
+.scen-title-edit-btn--action:hover:not(:disabled) {
+  border-color: var(--rai);
+  background: #f0f6ff;
+}
+.scen-title-edit-btn:disabled {
+  opacity: .5;
+  cursor: default;
+}
 .scen-hcard-badges {
   display: flex;
   flex-wrap: wrap;

@@ -1,5 +1,5 @@
 import logging
-from datetime import date
+from datetime import date, datetime, timezone
 
 from app.models.scenario import Scenario
 from app.services.databricks_service_scenarios import DatabricksServiceScenarios
@@ -91,6 +91,14 @@ class BusinessLogicScenarios:
             self._service.delete_scenario(scenario_id)
         except Exception as e:
             raise RuntimeError(f"Errore nell'eliminazione dello scenario: {e}") from e
+
+
+    def edit_scenario_name(self, scenario_id: str, scenario_name: str) -> None:
+
+        try:
+            self._service.edit_scenario_name(scenario_id, scenario_name, datetime.now(timezone.utc))
+        except Exception as e:
+            raise RuntimeError(f"Errore durante l'aggiornamento del nome scenario: {e}") from e
 
 
     def get_competitor_programs(

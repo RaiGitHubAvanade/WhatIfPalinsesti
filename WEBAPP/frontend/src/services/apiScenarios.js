@@ -47,6 +47,16 @@ export async function deleteScenario(scenarioId) {
   if (!result.success) throw new Error(result.message || 'Errore eliminazione scenario')
 }
 
+/** @returns {Promise<void>} */
+export async function editScenarioName(scenarioId, scenarioName) {
+  const result = await apiFetch(`/api/scenarios/${scenarioId}/edit_scenario_name`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ scenario_name: scenarioName }),
+  })
+  if (!result.success) throw new Error(result.message || 'Errore aggiornamento nome scenario')
+}
+
 /** @returns {Promise<ScenCompetitorProgramsViewModel>} */
 export async function getScenCompetitorPrograms({ channel, day, from_time }) {
   const params = new URLSearchParams({ channel, day, from_time })

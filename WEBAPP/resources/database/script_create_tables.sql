@@ -17,6 +17,7 @@ INSERT INTO ta_coll.whatif.webapp_status (code, description) VALUES
 CREATE TABLE IF NOT EXISTS ta_coll.whatif.webapp_scenarios (
     id                    STRING     NOT NULL,
     scenario_type         STRING     NOT NULL,
+    scenario_name         STRING     NOT NULL,
     program_id            STRING     NOT NULL,
     program_name          STRING     NOT NULL,
     program_channel       STRING     NOT NULL,

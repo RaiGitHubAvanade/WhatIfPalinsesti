@@ -12,6 +12,7 @@ class ScenarioViewModel:
     
     id: str
     scenario_type: str           # 'sostituzione' | 'spostamento'
+    scenario_name: str
     program_id: str
     program_name: str
     program_channel: str
@@ -28,6 +29,7 @@ class ScenarioViewModel:
         return cls(
             id=s.id,
             scenario_type=s.scenario_type,
+            scenario_name=s.scenario_name,
             program_id=s.program_id,
             program_name=s.program_name,
             program_channel=s.program_channel,

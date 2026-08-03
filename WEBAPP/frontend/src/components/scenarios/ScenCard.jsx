@@ -9,18 +9,32 @@ import './ScenCard.css'
  *   sc: { items: any[], anchor: any, type: string|null, createdAt: string|null, title: string|null },
  *   onRemoveItem: (idx: number) => void,
  *   onDelete: () => void,
+ *   onEditScenarioName?: (scenId: string|number, title: string) => Promise<void>,
  *   onAddSim: () => void,
  * }} props
  */
-export default function ScenCard({ scenId, sc, onDelete, onAddSim, onViewDetail, onDeleteSim, onRetrySim }) {
+export default function ScenCard({ scenId, sc, onDelete, onEditScenarioName, onAddSim, onViewDetail, onDeleteSim, onRetrySim }) {
   const [deletingSimIds, setDeletingSimIds] = useState(new Set())
   const [retryingSimIds, setRetryingSimIds] = useState(new Set())
   const [deletingScen, setDeletingScen] = useState(false)
+  const [editingTitle, setEditingTitle] = useState(false)
+  const [draftTitle, setDraftTitle] = useState('')
+  const [savingTitle, setSavingTitle] = useState(false)
 
   const isFull = sc.items.length >= MAX_SIMULATIONS_PER_SCENARIO
   const typeCls = sc.type === 'spostamento' ? 'spostamento' : 'sostituzione'
   const typeLabel = sc.type === 'spostamento' ? 'Spostamento' : sc.type === 'sostituzione' ? 'Sostituzione' : ''
   const displayTitle = sc.title || sc.anchor?.program_name || `Scenario ${scenId}`
+
+  const beginEditTitle = () => {
+    setDraftTitle(displayTitle)
+    setEditingTitle(true)
+  }
+
+  const cancelEditTitle = () => {
+    setDraftTitle('')
+    setEditingTitle(false)
+  }
 
   // Anchor datetime: combine first item date + anchor.time
   let anchorDateTime = '—'
@@ -43,7 +57,61 @@ export default function ScenCard({ scenId, sc, onDelete, onAddSim, onViewDetail,
       {/* ── Head: title + type badge ── */}
       <div className="scen-hcard-head">
         <div className="scen-hcard-title">
-          <span>{displayTitle}</span>
+          {!editingTitle && (
+            <>
+              <span>{displayTitle}</span>
+              {onEditScenarioName && (
+                <button
+                  className="scen-title-edit-btn"
+                  type="button"
+                  title="Modifica nome scenario"
+                  onClick={beginEditTitle}
+                >
+                  ✏️
+                </button>
+              )}
+            </>
+          )}
+
+          {editingTitle && (
+            <>
+              <input
+                className="scen-title-inp"
+                value={draftTitle}
+                maxLength={140}
+                onChange={e => setDraftTitle(e.target.value)}
+                disabled={savingTitle}
+                autoFocus
+              />
+              <button
+                className="scen-title-edit-btn scen-title-edit-btn--action"
+                type="button"
+                disabled={savingTitle || !draftTitle.trim() || draftTitle.trim() === displayTitle}
+                onClick={async () => {
+                  if (!onEditScenarioName) return
+                  setSavingTitle(true)
+                  try {
+                    await onEditScenarioName(scenId, draftTitle.trim())
+                    setEditingTitle(false)
+                  } finally {
+                    setSavingTitle(false)
+                  }
+                }}
+                title="Salva nome scenario"
+              >
+                {savingTitle ? <span className="scen-spinner" /> : '✓'}
+              </button>
+              <button
+                className="scen-title-edit-btn scen-title-edit-btn--action"
+                type="button"
+                disabled={savingTitle}
+                onClick={cancelEditTitle}
+                title="Annulla modifica"
+              >
+                ✕
+              </button>
+            </>
+          )}
         </div>
         <div className="scen-hcard-badges">
           {typeLabel && <span className={`sc-type-badge ${typeCls}`}>{typeLabel}</span>}

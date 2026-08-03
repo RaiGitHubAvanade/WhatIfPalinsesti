@@ -90,6 +90,34 @@ def delete_scenario(scenario_id):
     return success(message="Scenario eliminato con successo")
 
 
+@bp.route("/scenarios/<scenario_id>/edit_scenario_name", methods=["POST"])
+def edit_scenario_name(scenario_id):
+    body = request.get_json(silent=True) or {}
+
+    scenario_name = body.get("scenario_name")
+    normalized_name = str(scenario_name or "").strip()
+
+    if not scenario_id or not normalized_name:
+        return error(
+            message="I parametri 'scenario_id' e 'scenario_name' sono obbligatori",
+            errors=["scenario_id and scenario_name required"],
+        ), 400
+
+    logger.info("editScenarioName | id=%s", scenario_id)
+    try:
+        logic = BusinessLogicScenarios(get_scenarios_service())
+        logic.edit_scenario_name(scenario_id, normalized_name)
+    except RuntimeError as e:
+        logger.error("editScenarioName RuntimeError | id=%s error=%s", scenario_id, e)
+        return error(message=str(e), errors=["databricks_error"]), 502
+    except Exception as e:
+        logger.exception("editScenarioName unexpected | id=%s error=%s", scenario_id, e)
+        return error(message=f"Errore imprevisto: {e}", errors=["internal_error"]), 500
+
+    broker.broadcast("scenarios_changed", {})
+    return success(message="Nome scenario aggiornato con successo")
+
+
 @bp.route("/scenarios/simulation/getCompetitorPrograms")
 def get_competitor_programs():
     channel = request.args.get("channel")

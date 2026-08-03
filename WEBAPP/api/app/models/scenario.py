@@ -7,6 +7,7 @@ class Scenario:
     
     id: str
     scenario_type: str
+    scenario_name: str
     program_id: str
     program_name: str
     program_channel: str
@@ -26,6 +27,7 @@ class Scenario:
         return cls(
             id=str(row.id),
             scenario_type=row.scenario_type,
+            scenario_name=row.scenario_name or row.program_name,
             program_id=str(row.program_id),
             program_name=row.program_name,
             program_channel=row.program_channel,
@@ -46,6 +48,7 @@ class Scenario:
         return cls(
             id=str(row["scenario_id"]),
             scenario_type=row.get("scenario_type") or "",
+            scenario_name=row.get("scenario_name") or row.get("program_name") or "",
             program_id=str(row.get("program_id") or ""),
             program_name=row.get("program_name") or "",
             program_channel=row.get("program_channel") or "",

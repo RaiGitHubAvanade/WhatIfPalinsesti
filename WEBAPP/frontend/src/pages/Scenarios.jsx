@@ -5,6 +5,7 @@ import {
   deleteSimulationSostituzione,
   deleteSimulationSpostamento,
   deleteScenario,
+  editScenarioName,
 } from '../services/apiScenarios'
 import { retrySostituzione, retrySpostamento } from '../services/apiSimulation'
 import ScenCard from '../components/scenarios/ScenCard'
@@ -32,7 +33,7 @@ function sanitizePageSize(value) {
  */
 function mapToDisplay(apiScen) {
   const {
-    id, scenario_type, program_name, program_channel,
+    id, scenario_type, scenario_name, program_name, program_channel,
     program_id,
     program_date, program_from_time, program_to_time, program_share_predict,
     creation_date, modified_date, simulations,
@@ -116,7 +117,7 @@ function mapToDisplay(apiScen) {
       type: scenario_type,
       createdAt: creation_date,
       modifiedAt: modified_date,
-      title: null,
+      title: scenario_name || null,
     },
   }
 }
@@ -203,6 +204,16 @@ export default function Scenarios() {
       await refreshScenarios({ force: true, silent: true })
     } catch (e) {
       toast(e.message || 'Errore rilancio', 'error')
+    }
+  }
+
+  async function handleEditScenarioName(scenId, nextTitle) {
+    try {
+      await editScenarioName(scenId, nextTitle)
+      await refreshScenarios({ force: true, silent: true })
+    } catch (e) {
+      toast(e.message || 'Errore aggiornamento nome scenario', 'error')
+      throw e
     }
   }
 
@@ -360,6 +371,7 @@ export default function Scenarios() {
                   key={id}
                   scenId={id}
                   sc={sc}
+                  onEditScenarioName={handleEditScenarioName}
                   onDelete={() => handleDeleteScen(id)}
                   onAddSim={() => {
                     if (sc.items.length >= MAX_SIMULATIONS_PER_SCENARIO) {
