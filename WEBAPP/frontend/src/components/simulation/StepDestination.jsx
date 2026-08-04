@@ -5,6 +5,7 @@ import ChannelSelector from '../shared/ChannelSelector'
 import DaySelector from '../shared/DaySelector'
 import PaginationNav from '../shared/PaginationNav'
 import { TimePicker } from './TimeSelector'
+import ProgramRowBody from './ProgramRowBody'
 import {
   CH_CLS,
   DEFAULT_PROGRAM_PAGE_SIZE as PAGE_SIZE,
@@ -147,7 +148,7 @@ export default function StepDestination() {
         <div className="psel-loading">Caricamento…</div>
       ) : (
         <>
-          <div className="psel-list-hdr psel-list-hdr-pad" style={{ marginTop: 16 }}>
+          <div className="psel-list-hdr psel-list-hdr-pad">
             <span className="psel-list-lbl">
               Palinsesto · {spDestCh}{spDestDay ? ` · ${fmtDate(spDestDay)}` : ''}
             </span>
@@ -165,20 +166,18 @@ export default function StepDestination() {
               </div>
               {pageItems.map((p) => {
                 const sv = typeof p.share_predicted === 'number' ? p.share_predicted.toFixed(1) + '%' : '–'
-                const cc = CH_CLS[spDestCh] || ''
-                const sub = [p.genre, p.target_age, p.target_sex]
-                  .filter(Boolean)
+                const cc = CH_CLS[p.channel] || ''
 
                 return (
-                  <div key={p.id} className={`prow prow-readonly${cc ? ' ' + cc : ''}`}>
+                  <div
+                    key={p.id || `${p.channel || ''}_${p.from_time || ''}_${p.program_name || ''}`}
+                    className={`prow prow-readonly${cc ? ' ' + cc : ''}`}
+                  >
                     <span className="prow-time">
                       {p.from_time}
                       {p.to_time && <span className="prow-end"> - {p.to_time}</span>}
                     </span>
-                    <div className="prow-body">
-                      <span className="prow-title">{p.program_name}</span>
-                      {sub.length > 0 && <span className="prow-sub">{sub.join(' · ')}</span>}
-                    </div>
+                    <ProgramRowBody program={p} channelClass={cc} />
                     <span className="prow-share">{sv}</span>
                   </div>
                 )

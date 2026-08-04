@@ -9,6 +9,7 @@ import {
 import CustomSelect from '../shared/CustomSelect'
 import ChannelSelector from '../shared/ChannelSelector'
 import PaginationNav from '../shared/PaginationNav'
+import ProgramRowBody from './ProgramRowBody'
 import TextInputFilter from '../shared/TextInputFilter'
 import { durationMinutes } from '../../utils/dateUtils'
 import './StepCandidates.css'
@@ -171,12 +172,6 @@ export default function StepCandidates() {
                 const sel = cand?.channel === p.channel && cand?.program_name === p.program_name
                 const sv = typeof p.share_storico === 'number' ? p.share_storico.toFixed(1) + '%' : '-'
                 const cc = CH_CLS[p.channel] || ''
-                const subMeta = [
-                  p.genre ? `Genere: ${p.genre}` : null,
-                  p.target_sex ? `Sesso: ${p.target_sex}` : null,
-                  p.target_age ? `Età: ${p.target_age}` : null,
-                  p.duration_minutes ? `Durata: ${p.duration_minutes} min` : null,
-                ].filter(Boolean)
 
                 return (
                   <div
@@ -186,13 +181,7 @@ export default function StepCandidates() {
                     onClick={() => set({ cand: sel ? null : p })}
                     onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') set({ cand: sel ? null : p }) }}
                   >
-                    <div className="prow-body">
-                      <span className="prow-title">{p.program_name}</span>
-                      <span className="prow-sub">
-                        <span className={`prow-ch-name${cc ? ' ' + cc : ''}`}>{p.channel || 'N/A'}</span>
-                        {subMeta.length > 0 && ` · ${subMeta.join(' · ')}`}
-                      </span>
-                    </div>
+                    <ProgramRowBody program={p} channelClass={cc} />
                     <span className="prow-share">{sv}</span>
                   </div>
                 )

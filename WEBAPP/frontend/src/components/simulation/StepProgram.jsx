@@ -5,6 +5,7 @@ import ChannelSelector from '../shared/ChannelSelector'
 import DaySelector from '../shared/DaySelector'
 import PaginationNav from '../shared/PaginationNav'
 import TimeSelector from './TimeSelector'
+import ProgramRowBody from './ProgramRowBody'
 import TextInputFilter from '../shared/TextInputFilter'
 import {
   CH_CLS,
@@ -163,11 +164,6 @@ export default function StepProgram() {
             const hasShare = typeof p.share_predicted === 'number'
             const sv = hasShare ? p.share_predicted.toFixed(1) + '%' : '–'
             const cc = CH_CLS[p.channel] || ''
-            const subMeta = []
-            if (p.genre) subMeta.push(p.genre)
-            if (p.target_age) subMeta.push(p.target_age)
-            if (p.target_sex && p.target_sex !== 'Tutti' && p.target_sex !== 'All') subMeta.push(p.target_sex)
-            if (p.duration_minutes) subMeta.push(`${p.duration_minutes} min`)
             return (
               <div
                 key={`${p.channel || ''}_${p.from_time || ''}_${p.program_name || ''}`}
@@ -180,13 +176,7 @@ export default function StepProgram() {
                   {p.from_time}
                   {p.to_time && <span className="prow-end"> - {p.to_time}</span>}
                 </span>
-                <div className="prow-body">
-                  <span className="prow-title">{p.program_name || '—'}</span>
-                  <span className="prow-sub">
-                    <span className={`prow-ch-name${cc ? ' ' + cc : ''}`}>{p.channel}</span>
-                    {subMeta.length > 0 && ` · ${subMeta.join(' · ')}`}
-                  </span>
-                </div>
+                <ProgramRowBody program={p} channelClass={cc} />
                 <span className="prow-share">{sv}</span>
               </div>
             )
