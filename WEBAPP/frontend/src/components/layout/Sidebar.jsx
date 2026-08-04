@@ -35,6 +35,11 @@ export default function Sidebar() {
           </NavLink>
         ))}
       </div>
+
+      <div className="sb-disclaimer" role="note" aria-label="Disclaimer simulazioni AI">
+        Le simulazioni sono generate mediante Intelligenza Artificiale: si raccomanda di verificarne
+        l&apos;accuratezza prima dell&apos;utilizzo per finalità decisionali.
+      </div>
     </nav>
   )
 }

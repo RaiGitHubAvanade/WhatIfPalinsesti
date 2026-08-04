@@ -28,11 +28,20 @@
 .sb-help { display: flex; align-items: center; gap: 8px; font-size: 13px; color: rgba(255,255,255,.5); font-weight: 600; cursor: pointer; }
 .sb-help:hover { color: rgba(255,255,255,.9); }
 
+.sb-disclaimer {
+  margin: 10px 12px 14px;
+  padding: 9px 10px;
+  font-size: 10.5px;
+  line-height: 1.45;
+  color: rgba(255,255,255,.86);
+}
+
 @media (max-width: 768px) {
   .sidebar { width: 70px; }
   .sb-name, .sb-sub { display: none; }
   .sb-item { padding: 12px 8px; gap: 8px; font-size: 12px; justify-content: center; }
   .sb-item span:not(.ico) { display: none; }
+  .sb-disclaimer { display: none; }
 }
 @media (max-width: 480px) {
   .sidebar { width: 60px; }
