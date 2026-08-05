@@ -28,15 +28,13 @@ Use profile-based Databricks auth so you do not need to update DATABRICKS_CLIENT
 ```powershell
 databricks auth login --host INSERT_HOST_HERE
 ```
-
-2. Set DATABRICKS_CONFIG_PROFILE in api/.env (example: dev-all-api).
-
+2. Set DATABRICKS_CONFIG_PROFILE in api/.env (example: dev-profile).
 3. Keep DATABRICKS_CLIENT_ID and DATABRICKS_CLIENT_SECRET empty in api/.env unless you explicitly want SP-secret auth.
-
 4. You can also leave DATABRICKS_WAREHOUSE_ID empty in local: the backend falls back to the sql_warehouse id defined in WEBAPP/databricks.yml.
 
 
 ## Running the app
+Open a terminal in the project root folder (WEBAPP folder) and execute the following commands:
 Run Backend and Frontend indipendently (two open terminals needed)
 ```powershell
 npm run api --prefix frontend
@@ -56,25 +54,60 @@ and verify that the selected profile is valid and authorized on the SQL warehous
 
 
 ## Deploy
-To setup the databricks vscode extension for the first time, it's recommended to open the vscode workspace at the 'WEBAPP' folder level, instead of 'WHATIFPALINSESTI'. So '.databricks' folder will be created by the extension inside 'WEBAPP' folder.
-To generate an access token go to Databricks -> Profile Icon -> Settings -> Developer -> Access Token (Manage button) -> Generate new token
-From there, create an access token with proper permissions and then, on Visual Studio Code:
-Ctrl+Shift+P -> "Databricks: Open Databricks configuration file" and add there the access token
-The configuration file (.databrickscfg) should look like this: (replace HOST and ACCESS-TOKEN with real values)
-```
-[dev-all-api]
-host=HOST
-token=ACCESS-TOKEN
+Open a terminal in the project root folder (WEBAPP folder) and execute the following commands:
+Use OAuth/profile-based authentication for both dev and prod.
 
-[__settings__]
-default_profile = dev-all-api
+1. Login with Databricks OAuth for each workspace you deploy to:
+```powershell
+databricks auth login --host https://<dev-workspace-host>
+```
+Then write "dev-profile"
+
+```powershell
+databricks auth login --host https://<prod-workspace-host>
+```
+Then write "prod-profile"
+
+2. Verify available profiles:
+```powershell
+databricks auth profiles
 ```
 
-Once databricks extension is configured, run the following script to deploy:
+3. From now on, you can just execute the following commands whenever you want to deploy to a specific environment:
+Deploy to dev:
 ```powershell
-.\deploy.ps1
+.\deploy.ps1 -Target dev -Profile dev-profile
 ```
-If it says the 'databricks' command is not recognized, restart the terminal and run:
+Deploy to prod:
 ```powershell
-cd .\WEBAPP\ ; api\.venv\Scripts\activate ; .\deploy.ps1
+.\deploy.ps1 -Target prod -Profile prod-profile
 ```
+
+The deploy script performs:
+- Frontend static build (Vite) to frontend/dist.
+- Databricks bundle deployment.
+- Databricks app start.
+- Databricks app source-code deploy.
+
+
+### Common production errors and fixes
+1. Error: "prod: no such target"
+- Cause: prod target missing in databricks.yml.
+- Fix: ensure targets.prod exists in databricks.yml.
+
+2. Error: "not authorized to use or monitor this SQL Endpoint"
+- Cause: wrong warehouse id for prod or missing warehouse permissions.
+- Fix:
+	- Use the correct prod warehouse id in the prod target override.
+	- Grant app identity CAN_USE and CAN_MONITOR on the prod SQL warehouse.
+
+3. Error: "Cannot deploy app ... as it is not in RUNNING state"
+- Cause: app compute is stopped.
+- Fix: deploy.ps1 now starts the app automatically before app deploy.
+
+4. Runtime API 502 with "INSUFFICIENT_PERMISSIONS ... USE CATALOG"
+- Cause: app runtime identity has no Unity Catalog privileges.
+- Fix: grant permissions to the Databricks app service principal (not only to the deploying user):
+	- USE CATALOG on catalog ta_coll
+	- USE SCHEMA on schema ta_coll.whatif
+	- SELECT and MODIFY on required objects in ta_coll.whatif
