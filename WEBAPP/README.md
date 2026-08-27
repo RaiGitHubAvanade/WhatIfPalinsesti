@@ -89,6 +89,12 @@ The deploy script performs:
 - Databricks app start.
 - Databricks app source-code deploy.
 
+Catalog and schema are now environment-aware and set automatically during deploy:
+- dev target -> DB_CATALOG=ta_coll, DB_SCHEMA=whatif
+- prod target -> DB_CATALOG=ta_prod, DB_SCHEMA=whatif
+
+The backend SQL layer rewrites hardcoded namespace references to the configured DB_CATALOG.DB_SCHEMA at runtime, so the same codebase works for both environments.
+
 
 ### Common production errors and fixes
 1. Error: "prod: no such target"
@@ -108,6 +114,6 @@ The deploy script performs:
 4. Runtime API 502 with "INSUFFICIENT_PERMISSIONS ... USE CATALOG"
 - Cause: app runtime identity has no Unity Catalog privileges.
 - Fix: grant permissions to the Databricks app service principal (not only to the deploying user):
-	- USE CATALOG on catalog ta_coll
-	- USE SCHEMA on schema ta_coll.whatif
-	- SELECT and MODIFY on required objects in ta_coll.whatif
+	- USE CATALOG on the catalog configured for the target (ta_coll for dev, ta_prod for prod)
+	- USE SCHEMA on <catalog>.whatif
+	- SELECT and MODIFY on required objects in <catalog>.whatif

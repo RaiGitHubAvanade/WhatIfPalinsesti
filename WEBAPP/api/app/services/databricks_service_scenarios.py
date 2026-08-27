@@ -65,7 +65,7 @@ class DatabricksServiceScenarios(DatabricksService):
 
         self._logger.info(f"get_sostituzione_scenarios | with params {params}")
 
-        with self._connection.cursor() as cursor:
+        with self.cursor() as cursor:
             cursor.execute(query, parameters=params)
             columns = [col[0] for col in cursor.description]
             rows = [dict(zip(columns, row)) for row in cursor.fetchall()]
@@ -95,7 +95,7 @@ class DatabricksServiceScenarios(DatabricksService):
 
         self._logger.info(f"get_scenario_id_for_sostituzione_simulation | with params {params}")
 
-        with self._connection.cursor() as cursor:
+        with self.cursor() as cursor:
             cursor.execute(query, parameters=params)
             row = cursor.fetchone()
 
@@ -112,7 +112,7 @@ class DatabricksServiceScenarios(DatabricksService):
 
         self._logger.info(f"get_scenario_id_for_spostamento_simulation | with params {params}")
 
-        with self._connection.cursor() as cursor:
+        with self.cursor() as cursor:
             cursor.execute(query, parameters=params)
             row = cursor.fetchone()
 
@@ -128,7 +128,7 @@ class DatabricksServiceScenarios(DatabricksService):
 
         self._logger.info(f"delete_simulation_sostituzione | with params {params}")
 
-        with self._connection.cursor() as cursor:
+        with self.cursor() as cursor:
             cursor.execute(query, parameters=params)
             
 
@@ -141,7 +141,7 @@ class DatabricksServiceScenarios(DatabricksService):
 
         self._logger.info(f"delete_simulation_spostamento | with params {params}")
 
-        with self._connection.cursor() as cursor:
+        with self.cursor() as cursor:
             cursor.execute(query, parameters=params)
 
 
@@ -164,7 +164,7 @@ class DatabricksServiceScenarios(DatabricksService):
 
         self._logger.info(f"delete_scenario_if_empty | with params {params}")
 
-        with self._connection.cursor() as cursor:
+        with self.cursor() as cursor:
             cursor.execute(query, parameters=params)
 
 
@@ -177,7 +177,7 @@ class DatabricksServiceScenarios(DatabricksService):
 
         self._logger.info(f"delete_scenario | with params {params}")
 
-        with self._connection.cursor() as cursor:
+        with self.cursor() as cursor:
             cursor.execute(query, parameters=params)
 
 
@@ -223,7 +223,7 @@ class DatabricksServiceScenarios(DatabricksService):
         
         self._logger.info(f"get_spostamento_scenarios | with params {params}")
 
-        with self._connection.cursor() as cursor:
+        with self.cursor() as cursor:
             cursor.execute(query, parameters=params)
             columns = [col[0] for col in cursor.description]
             rows = [dict(zip(columns, row)) for row in cursor.fetchall()]
@@ -258,7 +258,7 @@ class DatabricksServiceScenarios(DatabricksService):
 
         self._logger.info("edit_scenario_name | with params %s", {"scenario_id": scenario_id})
 
-        with self._connection.cursor() as cursor:
+        with self.cursor() as cursor:
             cursor.execute(query, parameters=params)
 
 
@@ -293,7 +293,7 @@ class DatabricksServiceScenarios(DatabricksService):
 
         self._logger.info("get_simulations_status | ids=%d", len(simulation_ids))
 
-        with self._connection.cursor() as cursor:
+        with self.cursor() as cursor:
             cursor.execute(query, parameters=params)
             columns = [col[0] for col in cursor.description]
             rows = [dict(zip(columns, row)) for row in cursor.fetchall()]
@@ -351,7 +351,7 @@ class DatabricksServiceScenarios(DatabricksService):
 
         self._logger.info(f"get_vw_output_palinsesto_futuro | with params {params}")
 
-        with self._connection.cursor() as cursor:
+        with self.cursor() as cursor:
             cursor.execute(query, parameters=params)
             rows = cursor.fetchall()
 
@@ -366,5 +366,5 @@ class DatabricksServiceScenarios(DatabricksService):
         """
         params = {"competitor_id": competitor_id}
         self._logger.info(f"toggle_evento_forte | with params {params}")
-        with self._connection.cursor() as cursor:
+        with self.cursor() as cursor:
             cursor.execute(query, parameters=params)

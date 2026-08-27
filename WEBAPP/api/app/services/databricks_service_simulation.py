@@ -1,4 +1,4 @@
-﻿from datetime import date, datetime
+from datetime import date, datetime
 
 from app.models.candidate_program import CandidateProgram
 from app.models.destination_program import DestinationProgram
@@ -24,7 +24,7 @@ class DatabricksServiceSimulation(DatabricksService):
         
         self._logger.info(f"get_target_programs | with params {params}")
 
-        with self._connection.cursor() as cursor:
+        with self.cursor() as cursor:
             cursor.execute(query, parameters=params)
             rows = cursor.fetchall()
 
@@ -46,7 +46,7 @@ class DatabricksServiceSimulation(DatabricksService):
 
         self._logger.info(f"get_schedule_programs | with params {params}")
 
-        with self._connection.cursor() as cursor:
+        with self.cursor() as cursor:
             cursor.execute(query, parameters=params)
             rows = cursor.fetchall()
 
@@ -68,7 +68,7 @@ class DatabricksServiceSimulation(DatabricksService):
         }
         self._logger.info(f"get_candidate_programs | with params {params}")
 
-        with self._connection.cursor() as cursor:
+        with self.cursor() as cursor:
             cursor.execute(query, parameters=params)
             rows = cursor.fetchall()
 
@@ -88,7 +88,7 @@ class DatabricksServiceSimulation(DatabricksService):
         """
         self._logger.info(f"insert_scenario | with id {scenario.get('id')}")
 
-        with self._connection.cursor() as cursor:
+        with self.cursor() as cursor:
             cursor.execute(query, parameters=scenario)
 
 
@@ -101,7 +101,7 @@ class DatabricksServiceSimulation(DatabricksService):
         params = {"scenario_id": scenario_id, "modified_date": modified_date}
         self._logger.info(f"update_scenario | with params {params}")
 
-        with self._connection.cursor() as cursor:
+        with self.cursor() as cursor:
             cursor.execute(query, parameters=params)
 
 
@@ -119,5 +119,5 @@ class DatabricksServiceSimulation(DatabricksService):
         }
         self._logger.info("edit_scenario_name | with params %s", {"scenario_id": scenario_id})
 
-        with self._connection.cursor() as cursor:
+        with self.cursor() as cursor:
             cursor.execute(query, parameters=params)

@@ -27,7 +27,10 @@ def build_databricks_config() -> DatabricksConfig:
 
     _apply_cli_token_fallback(cfg)
     if not getattr(cfg, "warehouse_id", None):
-        fallback_id = _resolve_local_warehouse_id()
+        fallback_id = _resolve_local_warehouse_id(
+            preferred_host=getattr(cfg, "host", None),
+            preferred_profile=os.getenv("DATABRICKS_CONFIG_PROFILE") or getattr(cfg, "profile", None),
+        )
         if fallback_id:
             cfg.warehouse_id = fallback_id
     return cfg
@@ -43,7 +46,10 @@ def _build_config_from_cli_token() -> DatabricksConfig | None:
     if not token:
         return None
 
-    warehouse_id = os.getenv("DATABRICKS_WAREHOUSE_ID") or _resolve_local_warehouse_id()
+    warehouse_id = os.getenv("DATABRICKS_WAREHOUSE_ID") or _resolve_local_warehouse_id(
+        preferred_host=host,
+        preferred_profile=profile,
+    )
     kwargs: dict[str, str] = {
         "host": host,
         "token": token,
@@ -169,7 +175,10 @@ def _read_profile_value(profile: str | None, key: str) -> str | None:
     return value or None
 
 
-def _resolve_local_warehouse_id() -> str | None:
+def _resolve_local_warehouse_id(
+    preferred_host: str | None = None,
+    preferred_profile: str | None = None,
+) -> str | None:
     env_warehouse_id = os.getenv("DATABRICKS_WAREHOUSE_ID")
     if env_warehouse_id:
         return env_warehouse_id
@@ -180,6 +189,21 @@ def _resolve_local_warehouse_id() -> str | None:
         return None
 
     content = bundle_file.read_text(encoding="utf-8")
+
+    resolved_host = (preferred_host or "").strip()
+    if not resolved_host and preferred_profile:
+        resolved_host = (_read_profile_value(preferred_profile, "host") or "").strip()
+
+    if resolved_host:
+        target_id = _resolve_target_warehouse_id_for_host(content, resolved_host)
+        if target_id:
+            return target_id
+
+    default_id = _resolve_default_resources_warehouse_id(content)
+    if default_id:
+        return default_id
+
+    # Last resort: keep previous broad behavior.
     match = re.search(
         r"sql_warehouse:\s*\n\s*id:\s*['\"]?([^'\"\n]+)['\"]?",
         content,
@@ -189,3 +213,96 @@ def _resolve_local_warehouse_id() -> str | None:
         return None
 
     return match.group(1).strip()
+
+
+def _resolve_target_warehouse_id_for_host(content: str, host: str) -> str | None:
+    target_name = _find_target_name_for_host(content, host)
+    if not target_name:
+        return None
+
+    target_block = _extract_named_top_level_block(content, "targets", target_name)
+    if not target_block:
+        return None
+
+    match = re.search(
+        r"sql_warehouse:\s*\n\s*id:\s*['\"]?([^'\"\n]+)['\"]?",
+        target_block,
+        flags=re.IGNORECASE,
+    )
+    if not match:
+        return None
+    return match.group(1).strip()
+
+
+def _resolve_default_resources_warehouse_id(content: str) -> str | None:
+    resources_block = _extract_top_level_block(content, "resources")
+    if not resources_block:
+        return None
+
+    match = re.search(
+        r"sql_warehouse:\s*\n\s*id:\s*['\"]?([^'\"\n]+)['\"]?",
+        resources_block,
+        flags=re.IGNORECASE,
+    )
+    if not match:
+        return None
+    return match.group(1).strip()
+
+
+def _find_target_name_for_host(content: str, host: str) -> str | None:
+    targets_block = _extract_top_level_block(content, "targets")
+    if not targets_block:
+        return None
+
+    for match in re.finditer(r"^\s{2}([A-Za-z0-9_-]+):\s*$", targets_block, flags=re.MULTILINE):
+        target_name = match.group(1)
+        target_block = _extract_named_top_level_block(content, "targets", target_name)
+        if not target_block:
+            continue
+        host_match = re.search(r"^\s{6}host:\s*(.+?)\s*$", target_block, flags=re.MULTILINE)
+        if host_match and host_match.group(1).strip() == host.strip():
+            return target_name
+
+    return None
+
+
+def _extract_top_level_block(content: str, key: str) -> str:
+    lines = content.splitlines()
+    collecting = False
+    block: list[str] = []
+
+    for line in lines:
+        if not collecting and re.match(rf"^{re.escape(key)}:\s*$", line):
+            collecting = True
+            block.append(line)
+            continue
+
+        if collecting:
+            if line and not line.startswith((" ", "\t")):
+                break
+            block.append(line)
+
+    return "\n".join(block)
+
+
+def _extract_named_top_level_block(content: str, parent_key: str, child_key: str) -> str:
+    parent = _extract_top_level_block(content, parent_key)
+    if not parent:
+        return ""
+
+    lines = parent.splitlines()
+    collecting = False
+    block: list[str] = []
+
+    for line in lines:
+        if not collecting and re.match(rf"^\s{{2}}{re.escape(child_key)}:\s*$", line):
+            collecting = True
+            block.append(line)
+            continue
+
+        if collecting:
+            if re.match(r"^\s{2}[A-Za-z0-9_-]+:\s*$", line):
+                break
+            block.append(line)
+
+    return "\n".join(block)

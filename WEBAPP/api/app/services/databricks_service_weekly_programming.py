@@ -32,7 +32,7 @@ class DatabricksServiceWeeklyProgramming(DatabricksService):
 
         self._logger.info(f"get_palinsesto_delta | with params {params}")
 
-        with self._connection.cursor() as cursor:
+        with self.cursor() as cursor:
             cursor.execute(query, parameters=params)
             rows = cursor.fetchall()
 
@@ -73,7 +73,7 @@ class DatabricksServiceWeeklyProgramming(DatabricksService):
 
         self._logger.info(f"get_palinsesto_current_week | with params {params}")
 
-        with self._connection.cursor() as cursor:
+        with self.cursor() as cursor:
             cursor.execute(query, parameters=params)
             rows = cursor.fetchall()
 
@@ -101,7 +101,7 @@ class DatabricksServiceWeeklyProgramming(DatabricksService):
         
         self._logger.info(f"get_palinsesto_predict | with params {params}")
 
-        with self._connection.cursor() as cursor:
+        with self.cursor() as cursor:
             cursor.execute(query, parameters=params)
             rows = cursor.fetchall()
 
@@ -128,7 +128,7 @@ class DatabricksServiceWeeklyProgramming(DatabricksService):
 
         self._logger.info(f"edit_manual_share_predict | with params {params}")
 
-        with self._connection.cursor() as cursor:
+        with self.cursor() as cursor:
             cursor.execute(query, parameters=params)
 
 
@@ -171,7 +171,7 @@ class DatabricksServiceWeeklyProgramming(DatabricksService):
 
         self._logger.info(f"get_vw_output_palinsesto_futuro | with params {params}")
 
-        with self._connection.cursor() as cursor:
+        with self.cursor() as cursor:
             cursor.execute(query, parameters=params)
             rows = cursor.fetchall()
 

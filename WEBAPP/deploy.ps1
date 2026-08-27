@@ -31,9 +31,8 @@ if ($LASTEXITCODE -ne 0) { Write-Error "App start failed"; exit 1 }
 $appsArgs = @(
 	"apps",
 	"deploy",
-	"rai-whatif-webapp",
-	"--source-code-path",
-	"/Workspace/Shared/DeployedWebApp/bundle/rai-whatif-webapp/files"
+	"--target",
+	$Target
 )
 if ($Profile) {
 	$appsArgs += @("--profile", $Profile)

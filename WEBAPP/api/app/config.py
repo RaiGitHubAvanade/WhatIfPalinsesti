@@ -5,6 +5,8 @@ load_dotenv()  # loads .env if present; no-op on Databricks where env vars are i
 
 
 class Config:
+    DB_CATALOG = os.getenv("DB_CATALOG", "ta_coll")
+    DB_SCHEMA = os.getenv("DB_SCHEMA", "whatif")
     CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:5173").split(",")
     WEEK_TABLE_START = os.getenv("WEEK_TABLE_START", "12:30")
     WEEK_TABLE_END = os.getenv("WEEK_TABLE_END", "23:30")

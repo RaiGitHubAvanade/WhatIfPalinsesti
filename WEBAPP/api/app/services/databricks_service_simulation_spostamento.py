@@ -22,7 +22,7 @@ class DatabricksServiceSimulationSpostamento(DatabricksServiceSimulation):
 
         self._logger.info(f"get_scenario_simulation_count | with params {params}")
 
-        with self._connection.cursor() as cursor:
+        with self.cursor() as cursor:
             cursor.execute(query, parameters=params)
             row = cursor.fetchone()
 
@@ -86,7 +86,7 @@ class DatabricksServiceSimulationSpostamento(DatabricksServiceSimulation):
 
         self._logger.info(f"get_scenario_simulations | with params {params}")
 
-        with self._connection.cursor() as cursor:
+        with self.cursor() as cursor:
             cursor.execute(query, parameters=params)
             columns = [col[0] for col in cursor.description]
             rows = [dict(zip(columns, row)) for row in cursor.fetchall()]
@@ -113,7 +113,7 @@ class DatabricksServiceSimulationSpostamento(DatabricksServiceSimulation):
 
         self._logger.info(f"insert_simulation | with id {simulation.get('id')}, scenario_id {simulation.get('id_scenario')}")
 
-        with self._connection.cursor() as cursor:
+        with self.cursor() as cursor:
             cursor.execute(query, parameters=params)
 
     def update_simulation(self, simulation_id: str, **fields) -> None:
@@ -144,7 +144,7 @@ class DatabricksServiceSimulationSpostamento(DatabricksServiceSimulation):
 
         self._logger.info(f"update_simulation | with id {simulation_id}")
 
-        with self._connection.cursor() as cursor:
+        with self.cursor() as cursor:
             cursor.execute(query, parameters=params)
 
     def get_simulation_for_retry(self, simulation_id: str) -> dict | None:
@@ -176,7 +176,7 @@ class DatabricksServiceSimulationSpostamento(DatabricksServiceSimulation):
 
         self._logger.info(f"get_simulation_for_retry | with params {params}")
 
-        with self._connection.cursor() as cursor:
+        with self.cursor() as cursor:
             cursor.execute(query, parameters=params)
             columns = [col[0] for col in cursor.description]
             row = cursor.fetchone()
