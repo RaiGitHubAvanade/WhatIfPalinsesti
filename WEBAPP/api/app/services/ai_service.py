@@ -45,7 +45,7 @@ class AiService:
         if use_mock:
             return self._mock_prediction()
 
-        response = self._post_json(
+        response = self._session.post(
             url=f"{self._host}/serving-endpoints/{endpoint}/invocations",
             headers=self._headers,
             json=payload,
