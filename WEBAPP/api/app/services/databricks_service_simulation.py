@@ -16,7 +16,7 @@ class DatabricksServiceSimulation(DatabricksService):
         query = """
             SELECT ID, Canale, Data, Programma, orario_inizio, orario_fine,
                    share_predetto, target_genere, target_eta, DES_GENERE_ESTESA_INT, durata_minuti
-            FROM ta_coll.whatif.out_palinsesto_predict_all_slots
+            FROM out_palinsesto_predict_all_slots
             WHERE Data = :day
             ORDER BY orario_inizio
         """
@@ -38,7 +38,7 @@ class DatabricksServiceSimulation(DatabricksService):
         query = """
             SELECT ID, Canale, Data, Programma, orario_inizio, orario_fine,
                      share_predetto, target_genere, target_eta, DES_GENERE_ESTESA_INT, durata_minuti
-            FROM ta_coll.whatif.out_palinsesto_predict_all_slots
+            FROM out_palinsesto_predict_all_slots
             WHERE Data = :day
             ORDER BY orario_inizio
         """
@@ -56,7 +56,7 @@ class DatabricksServiceSimulation(DatabricksService):
     def get_candidate_programs(self, share_predicted: float, min_duration: int, max_duration: int) -> list[CandidateProgram]:
         query = """
             SELECT titolo, canale, tipologia, genere, eta, share_storico_pct, durata_minuti
-            FROM ta_coll.whatif.output_lista_programmi_sostituzione
+            FROM output_lista_programmi_sostituzione
             WHERE share_storico_pct >= :share_predicted
               AND durata_minuti BETWEEN :min_duration AND :max_duration
             ORDER BY share_storico_pct DESC
@@ -77,7 +77,7 @@ class DatabricksServiceSimulation(DatabricksService):
 
     def insert_scenario(self, scenario: dict) -> None:
         query = """
-            INSERT INTO ta_coll.whatif.webapp_scenarios
+            INSERT INTO webapp_scenarios
                 (id, scenario_type, scenario_name, program_id, program_name, program_channel,
                  program_share_predict, program_date, program_from_time, program_to_time,
                  creation_date, modified_date)
@@ -94,7 +94,7 @@ class DatabricksServiceSimulation(DatabricksService):
 
     def update_scenario(self, scenario_id: str, modified_date: datetime) -> None:
         query = f"""
-            UPDATE ta_coll.whatif.webapp_scenarios
+            UPDATE webapp_scenarios
             SET modified_date = :modified_date
             WHERE id = :scenario_id
         """
@@ -107,7 +107,7 @@ class DatabricksServiceSimulation(DatabricksService):
 
     def edit_scenario_name(self, scenario_id: str, scenario_name: str, modified_date: datetime) -> None:
         query = """
-            UPDATE ta_coll.whatif.webapp_scenarios
+            UPDATE webapp_scenarios
             SET scenario_name = :scenario_name,
                 modified_date = :modified_date
             WHERE id = :scenario_id

@@ -7,59 +7,45 @@ sync:
   exclude:
     - .databricks/**
     - frontend/src/**
-    - frontend/public/**
     - frontend/node_modules/**
     - frontend/index.html
     - frontend/vite.config.js
     - frontend/eslint.config.js
     - frontend/package.json
     - frontend/package-lock.json
-    - frontend/README.md
     - resources/**
 
 workspace:
-  host: https://adb-2148885194133801.1.azuredatabricks.net
   root_path: /Workspace/Shared/DeployedWebApp/bundle/${bundle.name}
-
-variables:
-  db_catalog:
-    default: ta_coll
-  db_schema:
-    default: whatif
 
 targets:
   dev:
-    default: true
-    variables:
-      db_catalog: ta_coll
-      db_schema: whatif
-  prod:
     workspace:
-      host: https://adb-2743854327825858.18.azuredatabricks.net
-    variables:
-      db_catalog: ta_prod
-      db_schema: whatif
+      host: https://adb-2148885194133801.1.azuredatabricks.net
     resources:
       apps:
         rai_whatif_webapp:
           name: rai-whatif-webapp
+          source_code_path: .
+          description: RAI What-If Web App
+          resources:
+            - name: "sql-warehouse"
+              sql_warehouse:
+                id: "738aa0db2c1d3421"
+                permission: "CAN_USE"
+  prod:
+    workspace:
+      host: https://adb-2743854327825858.18.azuredatabricks.net
+    resources:
+      apps:
+        rai_whatif_webapp:
+          name: rai-whatif-webapp
+          source_code_path: .
+          description: RAI What-If Web App
           resources:
             - name: "sql-warehouse"
               sql_warehouse:
                 id: "165dc3dd62b7a90e"
                 permission: "CAN_USE"
 
-resources:
-  apps:
-    rai_whatif_webapp:
-      name: rai-whatif-webapp
-      source_code_path: .
-      description: RAI What-If Web App
-      resources:
-        - name: "sql-warehouse"
-          sql_warehouse:
-            id: "738aa0db2c1d3421"
-            permission: "CAN_USE"
-      permissions:
-        - level: CAN_MANAGE
-          group_name: users
+

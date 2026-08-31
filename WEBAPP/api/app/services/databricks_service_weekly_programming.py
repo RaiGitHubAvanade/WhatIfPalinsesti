@@ -19,7 +19,7 @@ class DatabricksServiceWeeklyProgramming(DatabricksService):
         query = """
             SELECT ID, Canale, Data, Programma, orario_inizio, orario_fine, share_predetto, 
                 share_manuale, share_reale 
-            FROM ta_coll.whatif.output_palinsesto_delta 
+            FROM output_palinsesto_delta 
             WHERE Canale = :channel 
                 AND Data BETWEEN :from_day AND :to_day 
             ORDER BY Data, orario_inizio
@@ -49,7 +49,7 @@ class DatabricksServiceWeeklyProgramming(DatabricksService):
         query = """
             SELECT ID, Canale, Data, Programma, orario_inizio, orario_fine,
                    share_predetto, share_manuale, share_reale
-            FROM ta_coll.whatif.output_palinsesto_delta
+            FROM output_palinsesto_delta
             WHERE Canale = :channel
               AND Data BETWEEN :from_day AND :yesterday
 
@@ -57,7 +57,7 @@ class DatabricksServiceWeeklyProgramming(DatabricksService):
 
             SELECT ID, Canale, Data, Programma, orario_inizio, orario_fine,
                    share_predetto, share_manuale, NULL AS share_reale
-            FROM ta_coll.whatif.out_palinsesto_predict
+            FROM out_palinsesto_predict
             WHERE Canale = :channel
               AND Data BETWEEN :today AND :to_day
 
@@ -88,7 +88,7 @@ class DatabricksServiceWeeklyProgramming(DatabricksService):
         query = """
             SELECT ID, Canale, Data, Programma, orario_inizio, orario_fine, share_predetto, 
                 share_manuale 
-            FROM ta_coll.whatif.out_palinsesto_predict 
+            FROM out_palinsesto_predict 
             WHERE Canale = :channel 
                 AND Data BETWEEN :from_day AND :to_day 
             ORDER BY Data, orario_inizio
@@ -118,7 +118,7 @@ class DatabricksServiceWeeklyProgramming(DatabricksService):
     ) -> None:
         query_set = "share_manuale = NULL" if db_value is None else "share_manuale = :db_value"
         query = f"""
-            UPDATE ta_coll.whatif.out_palinsesto_predict
+            UPDATE out_palinsesto_predict
             SET {query_set}
             WHERE ID = :row_id
         """
@@ -146,7 +146,7 @@ class DatabricksServiceWeeklyProgramming(DatabricksService):
         placeholders = ", ".join(f":ch{i}" for i in range(len(channel_order)))
         query = f"""
             SELECT ID, Canale, Data, Programma, orario_inizio, orario_fine, share_storico, evento_forte
-            FROM ta_coll.whatif.vw_output_palinsesto_futuro 
+            FROM vw_output_palinsesto_futuro 
             WHERE Data = :day 
             AND Canale IN ({placeholders}) 
             AND (

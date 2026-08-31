@@ -9,8 +9,8 @@ class DatabricksServiceSimulationSostituzione(DatabricksServiceSimulation):
     def get_scenario_simulation_count(self, program_id: str, scenario_type: str) -> int:
         query = """
             SELECT COUNT(sim.id) AS simulation_count
-            FROM ta_coll.whatif.webapp_scenarios sce
-            LEFT JOIN ta_coll.whatif.webapp_simulations_sostituzione sim
+            FROM webapp_scenarios sce
+            LEFT JOIN webapp_simulations_sostituzione sim
                    ON sce.id = sim.id_scenario
             WHERE sce.program_id = :program_id
               AND sce.scenario_type = :scenario_type
@@ -61,8 +61,8 @@ class DatabricksServiceSimulationSostituzione(DatabricksServiceSimulation):
                 sim.last_error,
                 sim.is_retry,
                 sim.user_email
-            FROM ta_coll.whatif.webapp_scenarios sce
-            LEFT JOIN ta_coll.whatif.webapp_simulations_sostituzione sim
+            FROM webapp_scenarios sce
+            LEFT JOIN webapp_simulations_sostituzione sim
                    ON sce.id = sim.id_scenario
             WHERE sce.program_id        = :program_id
               AND sce.program_name      = :program_name
@@ -93,7 +93,7 @@ class DatabricksServiceSimulationSostituzione(DatabricksServiceSimulation):
 
     def insert_simulation(self, simulation: dict) -> None:
         query = """
-            INSERT INTO ta_coll.whatif.webapp_simulations_sostituzione
+            INSERT INTO webapp_simulations_sostituzione
                 (id, id_scenario, new_program_name, new_program_share_storico,
                  share_result, status, creation_date, modified_date,
                  last_error, is_retry, user_email)
@@ -126,7 +126,7 @@ class DatabricksServiceSimulationSostituzione(DatabricksServiceSimulation):
                 params[key] = value
 
         query = f"""
-            UPDATE ta_coll.whatif.webapp_simulations_sostituzione
+            UPDATE webapp_simulations_sostituzione
             SET    {', '.join(set_parts)}
             WHERE  id = :simulation_id
         """
@@ -154,8 +154,8 @@ class DatabricksServiceSimulationSostituzione(DatabricksServiceSimulation):
                 sce.program_from_time,
                 sce.program_to_time,
                 sce.program_share_predict
-            FROM ta_coll.whatif.webapp_simulations_sostituzione sim
-            JOIN ta_coll.whatif.webapp_scenarios sce
+            FROM webapp_simulations_sostituzione sim
+            JOIN webapp_scenarios sce
               ON sim.id_scenario = sce.id
             WHERE sim.id = :simulation_id
         """

@@ -21,16 +21,13 @@ npm install exceljs --prefix frontend
 ```
 
 
-### Local Databricks authentication (recommended)
-Use profile-based Databricks auth so you do not need to update DATABRICKS_CLIENT_SECRET in api/.env every time it rotates.
+### Local Databricks runtime authentication
+Runtime authentication is Service Principal only. Set these variables in `api/.env`:
 
-1. Login once with OAuth:
-```powershell
-databricks auth login --host INSERT_HOST_HERE
-```
-2. Set DATABRICKS_CONFIG_PROFILE in api/.env (example: dev-profile).
-3. Keep DATABRICKS_CLIENT_ID and DATABRICKS_CLIENT_SECRET empty in api/.env unless you explicitly want SP-secret auth.
-4. You can also leave DATABRICKS_WAREHOUSE_ID empty in local: the backend falls back to the sql_warehouse id defined in WEBAPP/databricks.yml.
+- `DATABRICKS_HOST`
+- `DATABRICKS_CLIENT_ID`
+- `DATABRICKS_CLIENT_SECRET`
+- `DATABRICKS_WAREHOUSE_ID`
 
 
 ## Running the app
@@ -46,16 +43,16 @@ Run both together (frontend precompiled, single terminal):
 npm run build --prefix frontend ; api\.venv\Scripts\python serve.py
 ```
 
-If authentication fails while using profile auth, run:
+If deployment authentication fails, run:
 ```powershell
 databricks auth describe --host INSERT_HOST_HERE
 ```
-and verify that the selected profile is valid and authorized on the SQL warehouse.
+and verify the selected profile is valid.
 
 
 ## Deploy
 Open a terminal in the project root folder (WEBAPP folder) and execute the following commands:
-Use OAuth/profile-based authentication for both dev and prod.
+Use OAuth profiles for deployment commands.
 
 1. Login with Databricks OAuth for each workspace you deploy to:
 ```powershell
@@ -87,33 +84,11 @@ The deploy script performs:
 - Frontend static build (Vite) to frontend/dist.
 - Databricks bundle deployment.
 - Databricks app start.
-- Databricks app source-code deploy.
+- Databricks app deploy.
+- Temporary app.yaml rendering for target-specific values (`DB_CATALOG`, `DB_SCHEMA`, `CORS_ORIGINS`) and automatic restore of the template file.
 
-Catalog and schema are now environment-aware and set automatically during deploy:
+The deploy script enforces environment-safe variable automation by rendering target values before deploy:
 - dev target -> DB_CATALOG=ta_coll, DB_SCHEMA=whatif
 - prod target -> DB_CATALOG=ta_prod, DB_SCHEMA=whatif
 
-The backend SQL layer rewrites hardcoded namespace references to the configured DB_CATALOG.DB_SCHEMA at runtime, so the same codebase works for both environments.
-
-
-### Common production errors and fixes
-1. Error: "prod: no such target"
-- Cause: prod target missing in databricks.yml.
-- Fix: ensure targets.prod exists in databricks.yml.
-
-2. Error: "not authorized to use or monitor this SQL Endpoint"
-- Cause: wrong warehouse id for prod or missing warehouse permissions.
-- Fix:
-	- Use the correct prod warehouse id in the prod target override.
-	- Grant app identity CAN_USE and CAN_MONITOR on the prod SQL warehouse.
-
-3. Error: "Cannot deploy app ... as it is not in RUNNING state"
-- Cause: app compute is stopped.
-- Fix: deploy.ps1 now starts the app automatically before app deploy.
-
-4. Runtime API 502 with "INSUFFICIENT_PERMISSIONS ... USE CATALOG"
-- Cause: app runtime identity has no Unity Catalog privileges.
-- Fix: grant permissions to the Databricks app service principal (not only to the deploying user):
-	- USE CATALOG on the catalog configured for the target (ta_coll for dev, ta_prod for prod)
-	- USE SCHEMA on <catalog>.whatif
-	- SELECT and MODIFY on required objects in <catalog>.whatif
+At runtime, the backend opens the SQL connection and sets the session namespace once with `USE CATALOG` and `USE SCHEMA`. Queries then use unqualified table names.

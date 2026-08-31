@@ -8,7 +8,7 @@ env:
   - name: "DB_SCHEMA"
     value: "${var.db_schema}"
   - name: "CORS_ORIGINS"
-    value: "https://rai-whatif-webapp-2148885194133801.1.azure.databricksapps.com"
+    value: "${var.cors_origins}"
   - name: "WEEK_TABLE_START"
     value: "12:30"
   - name: "WEEK_TABLE_END"

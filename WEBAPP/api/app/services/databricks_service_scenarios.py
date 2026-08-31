@@ -56,8 +56,8 @@ class DatabricksServiceScenarios(DatabricksService):
                 sim.last_error,
                 sim.is_retry,
                 sim.user_email
-            FROM ta_coll.whatif.webapp_scenarios sce
-            LEFT JOIN ta_coll.whatif.webapp_simulations_sostituzione sim
+            FROM webapp_scenarios sce
+            LEFT JOIN webapp_simulations_sostituzione sim
                    ON sce.id = sim.id_scenario
             WHERE sce.scenario_type = 'sostituzione'{extra_where}
             ORDER BY sce.modified_date DESC, sim.creation_date ASC
@@ -88,7 +88,7 @@ class DatabricksServiceScenarios(DatabricksService):
     def get_scenario_id_for_sostituzione_simulation(self, simulation_id: str) -> str | None:
         query = """
             SELECT id_scenario
-            FROM ta_coll.whatif.webapp_simulations_sostituzione
+            FROM webapp_simulations_sostituzione
             WHERE id = :simulation_id
         """
         params = {"simulation_id": simulation_id}
@@ -105,7 +105,7 @@ class DatabricksServiceScenarios(DatabricksService):
     def get_scenario_id_for_spostamento_simulation(self, simulation_id: str) -> str | None:
         query = """
             SELECT id_scenario
-            FROM ta_coll.whatif.webapp_simulations_spostamento
+            FROM webapp_simulations_spostamento
             WHERE id = :simulation_id
         """
         params = {"simulation_id": simulation_id}
@@ -121,7 +121,7 @@ class DatabricksServiceScenarios(DatabricksService):
 
     def delete_simulation_sostituzione(self, simulation_id: str) -> None:
         query = """
-            DELETE FROM ta_coll.whatif.webapp_simulations_sostituzione
+            DELETE FROM webapp_simulations_sostituzione
             WHERE id = :simulation_id
         """
         params = {"simulation_id": simulation_id}
@@ -134,7 +134,7 @@ class DatabricksServiceScenarios(DatabricksService):
 
     def delete_simulation_spostamento(self, simulation_id: str) -> None:
         query = """
-            DELETE FROM ta_coll.whatif.webapp_simulations_spostamento
+            DELETE FROM webapp_simulations_spostamento
             WHERE id = :simulation_id
         """
         params = {"simulation_id": simulation_id}
@@ -147,16 +147,16 @@ class DatabricksServiceScenarios(DatabricksService):
 
     def delete_scenario_if_empty(self, scenario_id: str) -> None:
         query = """
-            DELETE FROM ta_coll.whatif.webapp_scenarios
+            DELETE FROM webapp_scenarios
             WHERE id = :id_scenario
             AND NOT EXISTS (
                 SELECT 1
-                    FROM ta_coll.whatif.webapp_simulations_sostituzione
+                    FROM webapp_simulations_sostituzione
                     WHERE id_scenario = :id_scenario
                 )
                 AND NOT EXISTS (
                     SELECT 1
-                    FROM ta_coll.whatif.webapp_simulations_spostamento
+                    FROM webapp_simulations_spostamento
                     WHERE id_scenario = :id_scenario
                 )
         """
@@ -170,7 +170,7 @@ class DatabricksServiceScenarios(DatabricksService):
 
     def delete_scenario(self, scenario_id: str) -> None:
         query = """
-            DELETE FROM ta_coll.whatif.webapp_scenarios
+            DELETE FROM webapp_scenarios
             WHERE id = :id_scenario
         """
         params = {"id_scenario": scenario_id}
@@ -214,8 +214,8 @@ class DatabricksServiceScenarios(DatabricksService):
                 sim.last_error,
                 sim.is_retry,
                 sim.user_email
-            FROM ta_coll.whatif.webapp_scenarios sce
-            LEFT JOIN ta_coll.whatif.webapp_simulations_spostamento sim
+            FROM webapp_scenarios sce
+            LEFT JOIN webapp_simulations_spostamento sim
                    ON sce.id = sim.id_scenario
             WHERE sce.scenario_type = 'spostamento'{extra_where}
             ORDER BY sce.modified_date DESC, sim.creation_date ASC
@@ -245,7 +245,7 @@ class DatabricksServiceScenarios(DatabricksService):
 
     def edit_scenario_name(self, scenario_id: str, scenario_name: str, modified_date) -> None:
         query = """
-            UPDATE ta_coll.whatif.webapp_scenarios
+            UPDATE webapp_scenarios
             SET scenario_name = :scenario_name,
                 modified_date = :modified_date
             WHERE id = :scenario_id
@@ -276,7 +276,7 @@ class DatabricksServiceScenarios(DatabricksService):
                 sim.share_result,
                 sim.last_error,
                 sim.modified_date
-            FROM ta_coll.whatif.webapp_simulations_sostituzione sim
+            FROM webapp_simulations_sostituzione sim
             WHERE sim.id IN ({placeholders})
 
             UNION ALL
@@ -287,7 +287,7 @@ class DatabricksServiceScenarios(DatabricksService):
                 sim.share_result,
                 sim.last_error,
                 sim.modified_date
-            FROM ta_coll.whatif.webapp_simulations_spostamento sim
+            FROM webapp_simulations_spostamento sim
             WHERE sim.id IN ({placeholders})
         """
 
@@ -326,7 +326,7 @@ class DatabricksServiceScenarios(DatabricksService):
         placeholders = ", ".join(f":ch{i}" for i in range(len(channel_order)))
         query = f"""
             SELECT ID, Canale, Data, Programma, orario_inizio, orario_fine, share_storico, evento_forte
-            FROM ta_coll.whatif.vw_output_palinsesto_futuro 
+            FROM vw_output_palinsesto_futuro 
             WHERE Data = :day
             AND Canale IN ({placeholders})
             AND (
@@ -360,7 +360,7 @@ class DatabricksServiceScenarios(DatabricksService):
 
     def toggle_evento_forte(self, competitor_id: str) -> None:
         query = """
-            UPDATE ta_coll.whatif.output_palinsesto_competitor
+            UPDATE output_palinsesto_competitor
             SET evento_forte = NOT evento_forte
             WHERE ID = :competitor_id
         """
