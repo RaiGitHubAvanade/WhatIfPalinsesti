@@ -75,3 +75,24 @@ CREATE TABLE IF NOT EXISTS ta_coll.whatif.webapp_simulations_spostamento (
     CONSTRAINT fk_webapp_simulations_spostamento_status     FOREIGN KEY (status)      REFERENCES ta_coll.whatif.webapp_status (code)
 )
 USING DELTA;
+
+-- 5. Route audit log table
+CREATE TABLE IF NOT EXISTS ta_coll.whatif.webapp_audit_log (
+    id                 STRING    NOT NULL,
+    event_time_utc     TIMESTAMP NOT NULL,
+    operation_name     STRING    NOT NULL,
+    http_method        STRING,
+    route_path         STRING,
+    endpoint           STRING,
+    duration_ms        BIGINT,
+    user_email         STRING,
+    identity_source    STRING,
+    user_agent         STRING,
+    client_ip          STRING,
+    request_id         STRING,
+    client_session_id  STRING,
+    parameters_json    STRING,
+
+    CONSTRAINT pk_webapp_audit_log PRIMARY KEY (id)
+)
+USING DELTA;

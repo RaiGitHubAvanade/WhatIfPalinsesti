@@ -6,6 +6,7 @@ automatically at the end of the request via teardown_appcontext.
 
 from flask import g
 
+from app.services.databricks_service import DatabricksService
 from app.services.databricks_service_weekly_programming import DatabricksServiceWeeklyProgramming
 from app.services.databricks_service_simulation import DatabricksServiceSimulation
 from app.services.databricks_service_simulation_sostituzione import DatabricksServiceSimulationSostituzione
@@ -122,5 +123,19 @@ def get_scenarios_service() -> DatabricksServiceScenarios:
 def teardown_scenarios_service(exception=None) -> None:
     """Close the scenarios service connection at end of request."""
     svc = g.pop("scenarios_service", None)
+    if svc is not None:
+        svc.close()
+
+
+def get_audit_service() -> DatabricksService:
+    """Return a generic DatabricksService used for request audit logging."""
+    if "audit_service" not in g:
+        g.audit_service = DatabricksService()
+    return g.audit_service
+
+
+def teardown_audit_service(exception=None) -> None:
+    """Close the audit service connection at end of request."""
+    svc = g.pop("audit_service", None)
     if svc is not None:
         svc.close()

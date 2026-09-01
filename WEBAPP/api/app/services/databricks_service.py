@@ -1,4 +1,6 @@
 import logging
+import json
+from datetime import datetime, timezone
 from databricks import sql
 
 from app.config import Config
@@ -49,3 +51,50 @@ class DatabricksService:
 
     def __exit__(self, *_) -> None:
         self.close()
+
+    def write_webapp_audit_log(self, record: dict) -> None:
+        """Write one audit event row into the configured webapp_* audit table."""
+        event_time_utc = record.get("event_time_utc") or datetime.now(timezone.utc)
+        if not isinstance(event_time_utc, datetime):
+            event_time_utc = datetime.now(timezone.utc)
+
+        parameters = record.get("parameters")
+        if parameters is None:
+            parameters_json = "{}"
+        elif isinstance(parameters, str):
+            parameters_json = parameters
+        else:
+            parameters_json = json.dumps(parameters, ensure_ascii=True, separators=(",", ":"))
+
+        query = f"""
+            INSERT INTO webapp_audit_log
+                (id, event_time_utc, operation_name,
+                 http_method, route_path, endpoint, duration_ms,
+                 user_email, identity_source, user_agent, client_ip,
+                 request_id, client_session_id, parameters_json)
+            VALUES
+                (:id, :event_time_utc, :operation_name,
+                 :http_method, :route_path, :endpoint, :duration_ms,
+                 :user_email, :identity_source, :user_agent, :client_ip,
+                 :request_id, :client_session_id, :parameters_json)
+        """
+
+        params = {
+            "id": record.get("id"),
+            "event_time_utc": event_time_utc,
+            "operation_name": record.get("operation_name"),
+            "http_method": record.get("http_method"),
+            "route_path": record.get("route_path"),
+            "endpoint": record.get("endpoint"),
+            "duration_ms": record.get("duration_ms"),
+            "user_email": record.get("user_email"),
+            "identity_source": record.get("identity_source"),
+            "user_agent": record.get("user_agent"),
+            "client_ip": record.get("client_ip"),
+            "request_id": record.get("request_id"),
+            "client_session_id": record.get("client_session_id"),
+            "parameters_json": parameters_json,
+        }
+
+        with self.cursor() as cursor:
+            cursor.execute(query, parameters=params)
