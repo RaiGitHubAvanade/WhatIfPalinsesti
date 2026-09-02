@@ -188,16 +188,13 @@ function DetailSpostamento({ result, onClose }) {
 
   return (
     <div className="card res-card">
-      <div className="res-move-summary">
-        <div className="res-move-header">
-          <span className="res-move-icon">🕐</span>
-          <span className="res-move-title">Riepilogo Spostamento</span>
+      <div className="res-recap-inline">
+        <div className="res-recap-title">
+          Spostamento di <span className="res-prog-highlight">{r.prog_title}</span>
         </div>
+      </div>
+      <div className="res-move-summary">
         <div className="res-move-body">
-          <div className="res-move-program">
-            <span className="res-move-prog-label">Programma:</span>
-            <span className="res-move-prog-name">{r.prog_title}</span>
-          </div>
           <div className="res-move-slots">
             <div className="res-move-slot res-move-slot-orig">
               <div className="res-move-slot-label">Slot Originale</div>
