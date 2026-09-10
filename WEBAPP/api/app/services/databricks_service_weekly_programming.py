@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import date
 
 from app.models.competitor_program import CompetitorProgram
 from app.models.rai_program import RaiProgram
@@ -31,47 +31,6 @@ class DatabricksServiceWeeklyProgramming(DatabricksService):
         }
 
         self._logger.info(f"get_palinsesto_delta | with params {params}")
-
-        with self.cursor() as cursor:
-            cursor.execute(query, parameters=params)
-            rows = cursor.fetchall()
-
-        return [RaiProgram.map_from_row(row) for row in rows]
-
-    def get_palinsesto_current_week(
-            self,
-            channel: str,
-            from_day: date,
-            to_day: date,
-            today: date,
-    ) -> list[RaiProgram]:
-        yesterday = today - timedelta(days=1)
-        query = """
-            SELECT ID, Canale, Data, Programma, orario_inizio, orario_fine,
-                   share_predetto, share_manuale, share_reale
-            FROM output_palinsesto_delta
-            WHERE Canale = :channel
-              AND Data BETWEEN :from_day AND :yesterday
-
-            UNION ALL
-
-            SELECT ID, Canale, Data, Programma, orario_inizio, orario_fine,
-                   share_predetto, share_manuale, NULL AS share_reale
-            FROM out_palinsesto_predict
-            WHERE Canale = :channel
-              AND Data BETWEEN :today AND :to_day
-
-            ORDER BY Data, orario_inizio
-        """
-        params = {
-            "channel":  channel,
-            "from_day": from_day,
-            "yesterday": yesterday,
-            "today":    today,
-            "to_day":   to_day,
-        }
-
-        self._logger.info(f"get_palinsesto_current_week | with params {params}")
 
         with self.cursor() as cursor:
             cursor.execute(query, parameters=params)

@@ -1,5 +1,6 @@
 import logging
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
+from zoneinfo import ZoneInfo
 
 from app.services.databricks_service_weekly_programming import DatabricksServiceWeeklyProgramming
 from app.view_models.weekly_programming import WeeklyTableViewModel, CompetitorProgramsViewModel, RaiProgramViewModel
@@ -34,13 +35,30 @@ class BusinessLogicWeeklyProgramming:
         from_day = day - timedelta(days=day.weekday())
         to_day = from_day + timedelta(days=6)
 
-        today = date.today()
+        italian_time_now = datetime.now(ZoneInfo("Europe/Rome"))
+        today = italian_time_now.date()
+        
         all_rows = []
         try:
             if DateTimeUtils.is_past_week(day):
                 all_rows = self._databricks_service.get_palinsesto_delta(channel, from_day, to_day)
             elif DateTimeUtils.is_current_week(day):
-                all_rows = self._databricks_service.get_palinsesto_current_week(channel, from_day, to_day, today)
+                yesterday = today - timedelta(days=1)
+
+                # Monday case in current-week view: only predict is needed.
+                if yesterday < from_day:
+                    all_rows = self._databricks_service.get_palinsesto_predict(channel, from_day, to_day)
+                else:
+                    # First call: load all past days up to yesterday from delta.
+                    delta_rows = self._databricks_service.get_palinsesto_delta(channel, from_day, yesterday)
+                    all_rows.extend(delta_rows)
+
+                    # If yesterday is available in delta, predict starts from today.
+                    has_yesterday_in_delta = any(r.Data == yesterday for r in delta_rows)
+                    predict_from_day = today if has_yesterday_in_delta else yesterday
+                    all_rows.extend(self._databricks_service.get_palinsesto_predict(channel, predict_from_day, to_day))
+
+                    all_rows.sort(key=lambda r: (r.Data, r.orario_inizio or ""))
             else:
                 all_rows = self._databricks_service.get_palinsesto_predict(channel, from_day, to_day)
         except Exception as e:
