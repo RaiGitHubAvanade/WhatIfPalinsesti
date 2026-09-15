@@ -10,12 +10,6 @@ from app.utils.databricks_config_utils import build_databricks_config
 class DatabricksService:
     """Service that opens a single SQL Connector connection for its lifetime.
 
-        Runtime authentication is Service Principal only:
-            - DATABRICKS_HOST
-            - DATABRICKS_CLIENT_ID
-            - DATABRICKS_CLIENT_SECRET
-            - DATABRICKS_WAREHOUSE_ID
-
     The SQL connector maps Spark types to Python types automatically:
       date   ? datetime.date
       double ? float
