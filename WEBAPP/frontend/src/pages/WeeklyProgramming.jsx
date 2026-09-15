@@ -6,7 +6,7 @@ import { useSSEEvent } from '../hooks/useSSEEvent'
 /** @typedef {import('../models/weekly_programming/raiProgramViewModel').RaiProgramViewModel} RaiProgramViewModel */
 /** @typedef {import('../models/weekly_programming/weeklyTableViewModel').WeeklyTableViewModel} WeeklyTableViewModel */
 import ChannelSelector from '../components/shared/ChannelSelector'
-import DaySelector from '../components/shared/DaySelector'
+import WeekSelector from '../components/weeklyprogramming/WeekSelector'
 import WeekTable from '../components/weeklyprogramming/WeekTable'
 import './WeeklyProgramming.css'
 
@@ -68,9 +68,11 @@ export default function WeeklyProgramming() {
 
   // ── Release lock on unmount (user navigates to another page) ────────────
   useEffect(() => {
+    const clientId = clientIdRef.current
+
     return () => {
       if (isEditModeRef.current && weekStartRef.current) {
-        releaseLock({ weekMonday: weekStartRef.current, clientId: clientIdRef.current })
+        releaseLock({ weekMonday: weekStartRef.current, clientId })
       }
     }
   }, [])
@@ -228,7 +230,7 @@ export default function WeeklyProgramming() {
           <div className="pw-ctrl-sep" />
 
           <div className="pw-ctrl-group">
-            <DaySelector
+            <WeekSelector
               label="Settimana"
               value={selectedDay}
               onChange={setSelectedDay}

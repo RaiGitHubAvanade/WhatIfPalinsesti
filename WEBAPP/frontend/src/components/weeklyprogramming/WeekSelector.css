@@ -1,0 +1,180 @@
+.wk-sel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.wk-sel__lbl {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .6px;
+  color: var(--muted);
+}
+
+.wk-sel__trigger {
+  min-width: 250px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 7px 12px;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--muted);
+  background: #fff;
+  outline: none;
+  cursor: pointer;
+  transition: border-color .15s, box-shadow .15s;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  text-align: left;
+}
+
+.wk-sel__trigger:focus,
+.wk-sel__trigger:hover {
+  border-color: var(--rai);
+}
+
+.wk-sel__trigger:focus {
+  box-shadow: 0 0 0 3px rgba(11, 61, 145, .08);
+}
+
+.wk-sel__value {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wk-sel__chev {
+  flex-shrink: 0;
+  color: var(--rai);
+  font-size: 12px;
+}
+
+.wk-sel__panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 20;
+  width: 340px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 10px 24px rgba(11, 61, 145, .14);
+  padding: 10px;
+}
+
+.wk-sel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.wk-sel__month {
+  font-size: 13px;
+  text-transform: capitalize;
+  color: var(--rai);
+}
+
+.wk-sel__nav {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border);
+  background: #fff;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.wk-sel__nav:hover {
+  border-color: var(--rai);
+  color: var(--rai);
+}
+
+.wk-sel__cal {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.wk-sel__cal th {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--muted);
+  text-align: center;
+  padding: 6px 0;
+}
+
+.wk-sel__cal td {
+  text-align: center;
+  font-size: 12px;
+  padding: 7px 0;
+  border-radius: 0;
+  transition: background .12s, color .12s;
+}
+
+.wk-sel__week {
+  cursor: pointer;
+}
+
+.wk-sel__week:hover td {
+  background: rgba(11, 61, 145, .09);
+  color: var(--rai);
+}
+
+.wk-sel__week:hover td:first-child {
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+}
+
+.wk-sel__week:hover td:last-child {
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
+.wk-sel__week.is-selected td {
+  background: var(--rai);
+  color: #fff;
+}
+
+.wk-sel__week.is-selected td:first-child {
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+}
+
+.wk-sel__week.is-selected td:last-child {
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
+.wk-sel__week.is-disabled {
+  cursor: not-allowed;
+}
+
+.wk-sel__week.is-disabled td {
+  color: #b3b8c4;
+  background: transparent;
+}
+
+.wk-sel__week.is-disabled:hover td {
+  color: #b3b8c4;
+  background: transparent;
+}
+
+.wk-sel__cal td.is-out {
+  opacity: .45;
+}
+
+@media (max-width: 780px) {
+  .wk-sel__trigger {
+    min-width: 220px;
+  }
+
+  .wk-sel__panel {
+    width: min(92vw, 340px);
+  }
+}
