@@ -9,7 +9,8 @@ import {
 } from '../services/apiScenarios'
 import { retrySostituzione, retrySpostamento } from '../services/apiSimulation'
 import ScenCard from '../components/scenarios/ScenCard'
-import SimulationDetail from '../components/scenarios/SimulationDetail'
+import SostituzioneDetail from '../components/scenarios/SostituzioneDetail'
+import SpostamentoDetail from '../components/scenarios/SpostamentoDetail'
 import DaySelector from '../components/shared/DaySelector'
 import ElementsPerPage from '../components/shared/ElementsPerPage'
 import SimulationTypeSelector from '../components/simulation/SimulationTypeSelector'
@@ -266,7 +267,14 @@ export default function Scenarios() {
   return (
     <div>
       {selectedItem && (
-        <SimulationDetail item={selectedItem} onClose={() => setSelectedItem(null)} />
+        <>
+          {selectedItem.mode === 'sostituzione' && (
+            <SostituzioneDetail item={selectedItem} onClose={() => setSelectedItem(null)} />
+          )}
+          {selectedItem.mode === 'spostamento' && (
+            <SpostamentoDetail item={selectedItem} onClose={() => setSelectedItem(null)} />
+          )}
+        </>
       )}
       {!selectedItem && (
       <>
