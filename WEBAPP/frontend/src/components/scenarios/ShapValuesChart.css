@@ -10,6 +10,13 @@
   --shap-neutral: #FCFCFC;
 }
 
+.res-shap-desc {
+  margin: 8px 0 14px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
 .res-shap-list {
   display: flex;
   flex-direction: column;

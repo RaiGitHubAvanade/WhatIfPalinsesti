@@ -36,6 +36,8 @@ Open a terminal in the project root folder (WEBAPP folder) and execute the follo
 Run Backend and Frontend indipendently (two open terminals needed)
 ```powershell
 npm run api --prefix frontend
+```
+```powershell
 npm run dev --prefix frontend
 ```
 
