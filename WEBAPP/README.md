@@ -13,6 +13,7 @@ React + Vite frontend with a Python Flask backend.
 Open a terminal in the project root folder (WEBAPP folder) and execute the following commands in order:
 ```powershell
 Copy-Item api\.env.example api\.env
+Copy-Item app.yaml.example app.yaml
 python -m venv api\.venv
 api\.venv\Scripts\activate
 api\.venv\Scripts\pip install --no-cache -r requirements.txt
