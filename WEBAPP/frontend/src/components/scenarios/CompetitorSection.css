@@ -14,16 +14,57 @@
 }
 
 .btn-comp-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 34px;
   align-self: flex-start;
+  background: #fff;
+  border: 1.5px solid var(--border);
+  border-radius: 9px;
+  color: var(--text);
   padding: 6px 12px !important;
   font-size: 11.5px !important;
-  font-weight: 500 !important;
+  font-weight: 600 !important;
+  line-height: 1;
   width: auto !important;
   white-space: nowrap;
+  cursor: pointer;
+  font-family: inherit;
+  transition: .15s;
+}
+
+.btn-comp-toggle:hover:not(:disabled) {
+  border-color: var(--rai);
+  background: #f0f6ff;
+}
+
+.btn-comp-toggle:disabled {
+  opacity: .55;
+  cursor: default;
+}
+
+.btn-comp-back {
+  color: var(--muted);
+}
+
+.btn-comp-back:hover:not(:disabled) {
+  color: var(--text);
+}
+
+.btn-comp-main {
+  border-color: #bbd2ff;
+  color: var(--rai);
 }
 
 .btn-comp-main {
   margin-left: auto;
+}
+
+.btn-comp-main:hover:not(:disabled) {
+  border-color: var(--rai);
+  color: #0a2f77;
 }
 
 .res-comp-section {
