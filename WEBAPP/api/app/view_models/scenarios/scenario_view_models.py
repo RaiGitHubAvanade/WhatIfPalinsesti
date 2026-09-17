@@ -3,8 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 from app.models.scenario import Scenario
-from app.models.simulation import SimulationSost
-from app.view_models.simulation import SimulationSostViewModel, SimulationSpostViewModel
+from app.models.simulation_sostituzione import SimulationSostituzione
+from app.view_models.simulation import SimulationSostituzioneViewModel, SimulationSpostamentoViewModel
 
 
 @dataclass
@@ -22,7 +22,7 @@ class ScenarioViewModel:
     program_share_predict: float | None
     creation_date: str | None
     modified_date: str | None
-    simulations: list[SimulationSostViewModel | SimulationSpostViewModel] = field(default_factory=list)
+    simulations: list[SimulationSostituzioneViewModel | SimulationSpostamentoViewModel] = field(default_factory=list)
 
     @classmethod
     def MapScenarioViewModelFromScenario(cls, s: Scenario) -> "ScenarioViewModel":
@@ -40,9 +40,9 @@ class ScenarioViewModel:
             creation_date=s.creation_date,
             modified_date=s.modified_date,
             simulations=[
-                SimulationSostViewModel.MapSimulationSostViewModelFromSimulationSost(sim)
-                if isinstance(sim, SimulationSost)
-                else SimulationSpostViewModel.MapSimulationSpostaViewModelFromSimulationSposta(sim)
+                SimulationSostituzioneViewModel.map_simulation_sostituzione_view_model_from_simulation_sostituzione(sim)
+                if isinstance(sim, SimulationSostituzione)
+                else SimulationSpostamentoViewModel.map_simulation_spostamento_view_model_from_simulation_spostamento(sim)
                 for sim in s.simulations
             ],
         )

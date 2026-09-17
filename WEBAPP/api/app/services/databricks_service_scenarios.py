@@ -1,7 +1,8 @@
 from app.services.databricks_service import DatabricksService
 from app.models.competitor_program import CompetitorProgram
 from app.models.scenario import Scenario
-from app.models.simulation import SimulationSost, SimulationSposta
+from app.models.simulation_sostituzione import SimulationSostituzione
+from app.models.simulation_spostamento import SimulationSpostamento
 from app.utils.date_time_utils import DateTimeUtils
 from app.utils.value_parsing_utils import parse_string_float_map
 
@@ -64,7 +65,7 @@ class DatabricksServiceScenarios(DatabricksService):
                 sim_key = str(sim_id)
                 if sim_key not in seen_sim_ids:
                     seen_sim_ids.add(sim_key)
-                    scenarios[sce_id].simulations.append(SimulationSost.MapSimulationSostFromDict(row))
+                    scenarios[sce_id].simulations.append(SimulationSostituzione.map_simulation_sostituzione_from_dict(row))
         
         return list(scenarios.values())
 
@@ -219,7 +220,7 @@ class DatabricksServiceScenarios(DatabricksService):
                 sim_key = str(sim_id)
                 if sim_key not in seen_sim_ids:
                     seen_sim_ids.add(sim_key)
-                    scenarios[sce_id].simulations.append(SimulationSposta.MapSimulationSpostaFromDict(row))
+                    scenarios[sce_id].simulations.append(SimulationSpostamento.map_simulation_spostamento_from_dict(row))
         return list(scenarios.values())
 
 

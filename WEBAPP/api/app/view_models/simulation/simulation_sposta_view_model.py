@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from app.models.simulation import SimulationSposta
+from app.models.simulation_spostamento import SimulationSpostamento
 
 
 @dataclass
-class SimulationSpostViewModel:
+class SimulationSpostamentoViewModel:
     
     id: str
     new_channel: str | None
@@ -22,7 +22,10 @@ class SimulationSpostViewModel:
     user_email: str | None
 
     @classmethod
-    def MapSimulationSpostaViewModelFromSimulationSposta(cls, sim: SimulationSposta) -> "SimulationSpostViewModel":
+    def map_simulation_spostamento_view_model_from_simulation_spostamento(
+        cls,
+        sim: SimulationSpostamento,
+    ) -> "SimulationSpostamentoViewModel":
         return cls(
             id=sim.id,
             new_channel=sim.new_channel,
