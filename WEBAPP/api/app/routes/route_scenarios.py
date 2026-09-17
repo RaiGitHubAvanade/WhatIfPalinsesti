@@ -16,22 +16,11 @@ bp = Blueprint("scenarios", __name__)
 
 @bp.route("/scenarios")
 def get_scenarios():
-    search        = request.args.get("search") or None
-    scenario_type = request.args.get("type")   or None
-    program_date  = request.args.get("date")   or None
-
-    logger.info(
-        "getScenarios | search=%s type=%s date=%s",
-        search, scenario_type, program_date,
-    )
+    logger.info("getScenarios")
 
     try:
         logic  = BusinessLogicScenarios(get_scenarios_service())
-        result = logic.get_scenarios(
-            search=search,
-            scenario_type=scenario_type,
-            program_date=program_date,
-        )
+        result = logic.get_scenarios()
     except RuntimeError as e:
         logger.error("getScenarios RuntimeError: %s", e)
         return error(message=str(e), errors=["databricks_error"]), 502

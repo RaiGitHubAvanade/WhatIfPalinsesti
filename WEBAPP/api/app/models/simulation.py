@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+from app.utils.value_parsing_utils import parse_string_float_map
+
 
 @dataclass
 class SimulationSost:
@@ -9,6 +11,7 @@ class SimulationSost:
     new_program_name: str | None
     new_program_share_storico: float | None
     share_result: float | None
+    shap_values: dict[str, float] | None
     status: str
     creation_date: str | None
     modified_date: str | None
@@ -24,6 +27,7 @@ class SimulationSost:
             new_program_name=row.new_program_name,
             new_program_share_storico=row.new_program_share_storico,
             share_result=row.share_result,
+            shap_values=parse_string_float_map(getattr(row, "shap_values", None)),
             status=row.status or "Unknown",
             creation_date=_to_iso(row.creation_date),
             modified_date=_to_iso(row.modified_date),
@@ -40,6 +44,7 @@ class SimulationSost:
             new_program_name=row.get("new_program_name"),
             new_program_share_storico=row.get("new_program_share_storico"),
             share_result=row.get("share_result"),
+            shap_values=parse_string_float_map(row.get("shap_values")),
             status=row.get("status") or "Unknown",
             creation_date=_to_iso(row.get("simulation_creation_date")),
             modified_date=_to_iso(row.get("simulation_modified_date")),
@@ -58,6 +63,7 @@ class SimulationSposta:
     new_date: str | None
     new_from_time: str | None
     share_result: float | None
+    shap_values: dict[str, float] | None
     status: str
     creation_date: str | None
     modified_date: str | None
@@ -74,6 +80,7 @@ class SimulationSposta:
             new_date=_to_iso(row.new_date),
             new_from_time=str(row.new_from_time) if row.new_from_time else None,
             share_result=row.share_result,
+            shap_values=parse_string_float_map(getattr(row, "shap_values", None)),
             status=row.status or "Unknown",
             creation_date=_to_iso(row.creation_date),
             modified_date=_to_iso(row.modified_date),
@@ -91,6 +98,7 @@ class SimulationSposta:
             new_date=_to_iso(row.get("new_date")),
             new_from_time=str(row["new_from_time"]) if row.get("new_from_time") else None,
             share_result=row.get("share_result"),
+            shap_values=parse_string_float_map(row.get("shap_values")),
             status=row.get("status") or "Unknown",
             creation_date=_to_iso(row.get("simulation_creation_date")),
             modified_date=_to_iso(row.get("simulation_modified_date")),
@@ -106,3 +114,5 @@ def _to_iso(val) -> str | None:
     if hasattr(val, "isoformat"):
         return val.isoformat()
     return str(val)
+
+

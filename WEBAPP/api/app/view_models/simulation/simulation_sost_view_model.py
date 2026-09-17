@@ -12,6 +12,7 @@ class SimulationSostViewModel:
     new_program_name: str | None
     new_program_share_storico: float | None
     share_result: float | None
+    shap_values: dict[str, float] | None
     status: str
     creation_date: str | None
     modified_date: str | None
@@ -26,6 +27,7 @@ class SimulationSostViewModel:
             new_program_name=sim.new_program_name,
             new_program_share_storico=sim.new_program_share_storico,
             share_result=sim.share_result,
+            shap_values=sim.shap_values,
             status=sim.status,
             creation_date=sim.creation_date,
             modified_date=sim.modified_date,

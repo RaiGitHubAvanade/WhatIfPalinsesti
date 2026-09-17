@@ -1,5 +1,6 @@
 import { fmtDate, durationMinutes, endTimeFromStartAndDuration } from '../../utils/dateUtils'
 import CompetitorSection from './CompetitorSection'
+import ShapValuesChart from './ShapValuesChart'
 import VerdictPill from './VerdictPill'
 import './SpostamentoDetail.css'
 
@@ -68,6 +69,8 @@ export default function SpostamentoDetail({ item, onClose }) {
         </div>
         <VerdictPill delta={delta} />
       </div>
+
+      <ShapValuesChart shapValues={r.shap_values} />
 
       <CompetitorSection channel={r.dest_ch} day={r.dest_date} from_time={r.dest_time} onBack={onClose} />
     </div>

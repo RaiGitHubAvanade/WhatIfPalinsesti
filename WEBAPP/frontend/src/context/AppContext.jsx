@@ -27,7 +27,7 @@ export function AppProvider({ children }) {
     if (!force && scenariosLoadedRef.current) return scenariosDataRef.current
     if (!silent) setScenariosLoading(true)
     try {
-      const data = await getScenarios({ search: '', type: '', date: '' }, { signal })
+      const data = await getScenarios({ signal })
       const next = data.scenarios || []
       setScenariosData(next)
       setScenariosLoaded(true)

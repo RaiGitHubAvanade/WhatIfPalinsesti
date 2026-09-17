@@ -6,18 +6,13 @@
 import { apiFetch } from './apiService'
 
 /** @returns {Promise<ScenarioListViewModel>} */
-export async function getScenarios({ search = '', type = '', date = '' } = {}, requestOptions = {}) {
-  const params = new URLSearchParams()
-  if (search) params.set('search', search)
-  if (type)   params.set('type', type)
-  if (date)   params.set('date', date)
-  const qs = params.toString()
-  const result = await apiFetch(`/api/scenarios${qs ? '?' + qs : ''}`, requestOptions)
+export async function getScenarios(requestOptions = {}) {
+  const result = await apiFetch('/api/scenarios', requestOptions)
   if (!result.success) throw new Error(result.message || 'Errore caricamento scenari')
   return result.data
 }
 
-/** @returns {Promise<{items: Array<{id: string, status: 'Running'|'Completed'|'Failed', share_result: number|null, last_error: string|null, modified_date: string|null}>}>} */
+/** @returns {Promise<{items: Array<{id: string, status: 'Running'|'Completed'|'Failed', share_result: number|null, shap_values: Object.<string, number>|null, last_error: string|null, modified_date: string|null}>}>} */
 export async function getSimulationsStatus(simulationIds, requestOptions = {}) {
   const result = await apiFetch('/api/scenarios/simulations/status', {
     method: 'POST',

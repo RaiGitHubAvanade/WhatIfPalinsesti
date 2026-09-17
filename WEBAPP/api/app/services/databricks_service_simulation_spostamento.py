@@ -117,9 +117,6 @@ class DatabricksServiceSimulationSpostamento(DatabricksServiceSimulation):
             cursor.execute(query, parameters=params)
 
     def update_simulation(self, simulation_id: str, **fields) -> None:
-        if "shap_values" in fields:
-            fields = {k: v for k, v in fields.items() if k != "shap_values"}
-
         if not fields:
             return
 

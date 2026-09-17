@@ -1,5 +1,6 @@
 import { fmtDate } from '../../utils/dateUtils'
 import CompetitorSection from './CompetitorSection'
+import ShapValuesChart from './ShapValuesChart'
 import VerdictPill from './VerdictPill'
 import './SostituzioneDetail.css'
 
@@ -56,6 +57,8 @@ export default function SostituzioneDetail({ item, onClose }) {
         </div>
         <VerdictPill delta={delta} />
       </div>
+
+      <ShapValuesChart shapValues={r.shap_values} />
 
       <CompetitorSection channel={r.orig_ch} day={item.date} from_time={r.orig_time} onBack={onClose} />
     </div>

@@ -20,25 +20,13 @@ class BusinessLogicScenarios:
 
     def get_scenarios(
         self,
-        search: str | None = None,
-        scenario_type: str | None = None,
-        program_date: str | None = None,
     ) -> ScenarioListViewModel:
-        run_sost   = not scenario_type or scenario_type == "sostituzione"
-        run_sposta = not scenario_type or scenario_type == "spostamento"
-
         try:
-            sost_scenarios: list[Scenario] = (
-                self._service.get_sostituzione_scenarios(search=search, program_date=program_date)
-                if run_sost else []
-            )
-            sposta_scenarios: list[Scenario] = (
-                self._service.get_spostamento_scenarios(search=search, program_date=program_date)
-                if run_sposta else []
-            )
+            sost_scenarios: list[Scenario] = self._service.get_sostituzione_scenarios()
+            sposta_scenarios: list[Scenario] = self._service.get_spostamento_scenarios()
         except Exception as e:
             raise RuntimeError(f"Errore nel recupero degli scenari: {e}") from e
-
+        
         view_models = [
             ScenarioViewModel.MapScenarioViewModelFromScenario(s)
             for s in sost_scenarios + sposta_scenarios

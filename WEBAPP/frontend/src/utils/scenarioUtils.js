@@ -47,6 +47,9 @@ export function patchScenariosWithStatuses(scenarios, statusItems) {
         ...simulation,
         status: patch.status,
         share_result: patch.share_result,
+        shap_values: Object.prototype.hasOwnProperty.call(patch, 'shap_values')
+          ? patch.shap_values
+          : simulation.shap_values,
         last_error: patch.last_error,
         modified_date: patch.modified_date,
       }
@@ -54,6 +57,7 @@ export function patchScenariosWithStatuses(scenarios, statusItems) {
       if (
         nextSimulation.status !== simulation.status
         || nextSimulation.share_result !== simulation.share_result
+        || nextSimulation.shap_values !== simulation.shap_values
         || nextSimulation.last_error !== simulation.last_error
         || nextSimulation.modified_date !== simulation.modified_date
       ) {

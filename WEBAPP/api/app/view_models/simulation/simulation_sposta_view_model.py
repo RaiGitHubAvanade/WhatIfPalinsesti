@@ -13,6 +13,7 @@ class SimulationSpostViewModel:
     new_date: str | None
     new_from_time: str | None
     share_result: float | None
+    shap_values: dict[str, float] | None
     status: str
     creation_date: str | None
     modified_date: str | None
@@ -28,6 +29,7 @@ class SimulationSpostViewModel:
             new_date=sim.new_date,
             new_from_time=sim.new_from_time,
             share_result=sim.share_result,
+            shap_values=sim.shap_values,
             status=sim.status,
             creation_date=sim.creation_date,
             modified_date=sim.modified_date,

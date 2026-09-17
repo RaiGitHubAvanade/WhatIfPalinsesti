@@ -5,6 +5,7 @@
  * @property {string|null} new_date
  * @property {string|null} new_from_time
  * @property {number|null} share_result
+ * @property {Object.<string, number>|null} shap_values
  * @property {'Running'|'Completed'|'Failed'} status
  * @property {string|null} creation_date
  * @property {string|null} modified_date

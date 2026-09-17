@@ -3,36 +3,18 @@ from app.models.competitor_program import CompetitorProgram
 from app.models.scenario import Scenario
 from app.models.simulation import SimulationSost, SimulationSposta
 from app.utils.date_time_utils import DateTimeUtils
+from app.utils.value_parsing_utils import parse_string_float_map
 
 
 class DatabricksServiceScenarios(DatabricksService):
-    
 
-    def _base_params(self, search: str | None, program_date: str | None) -> tuple[list[str], dict]:
-        """Build the shared WHERE conditions and named parameters."""
-        conditions: list[str] = []
-        params: dict = {}
-
-        if search:
-            conditions.append("LOWER(sce.program_name) LIKE :search")
-            params["search"] = f"%{search.lower()}%"
-        if program_date:
-            conditions.append("sce.program_date = :program_date")
-            params["program_date"] = program_date
-
-        return conditions, params
 
 
     def get_sostituzione_scenarios(
         self,
-        search: str | None = None,
-        program_date: str | None = None,
     ) -> list[Scenario]:
         """Return flat rows from webapp_scenarios LEFT JOIN webapp_simulations_sostituzione."""
-        conditions, params = self._base_params(search, program_date)
-        extra_where = (" AND " + " AND ".join(conditions)) if conditions else ""
-
-        query = f"""
+        query = """
             SELECT
                 sce.id                       AS scenario_id,
                 sce.scenario_type,
@@ -50,6 +32,7 @@ class DatabricksServiceScenarios(DatabricksService):
                 sim.new_program_name,
                 sim.new_program_share_storico,
                 sim.share_result,
+                to_json(sim.shap_values)      AS shap_values,
                 sim.status,
                 sim.creation_date            AS simulation_creation_date,
                 sim.modified_date            AS simulation_modified_date,
@@ -59,14 +42,14 @@ class DatabricksServiceScenarios(DatabricksService):
             FROM webapp_scenarios sce
             LEFT JOIN webapp_simulations_sostituzione sim
                    ON sce.id = sim.id_scenario
-            WHERE sce.scenario_type = 'sostituzione'{extra_where}
+            WHERE sce.scenario_type = 'sostituzione'
             ORDER BY sce.modified_date DESC, sim.creation_date ASC
         """
 
-        self._logger.info(f"get_sostituzione_scenarios | with params {params}")
+        self._logger.info("get_sostituzione_scenarios")
 
         with self.cursor() as cursor:
-            cursor.execute(query, parameters=params)
+            cursor.execute(query)
             columns = [col[0] for col in cursor.description]
             rows = [dict(zip(columns, row)) for row in cursor.fetchall()]
 
@@ -82,6 +65,7 @@ class DatabricksServiceScenarios(DatabricksService):
                 if sim_key not in seen_sim_ids:
                     seen_sim_ids.add(sim_key)
                     scenarios[sce_id].simulations.append(SimulationSost.MapSimulationSostFromDict(row))
+        
         return list(scenarios.values())
 
 
@@ -183,13 +167,8 @@ class DatabricksServiceScenarios(DatabricksService):
 
     def get_spostamento_scenarios(
         self,
-        search: str | None = None,
-        program_date: str | None = None,
     ) -> list[Scenario]:
-        conditions, params = self._base_params(search, program_date)
-        extra_where = (" AND " + " AND ".join(conditions)) if conditions else ""
-
-        query = f"""
+        query = """
             SELECT
                 sce.id                       AS scenario_id,
                 sce.scenario_type,
@@ -208,6 +187,7 @@ class DatabricksServiceScenarios(DatabricksService):
                 sim.new_date,
                 sim.new_from_time,
                 sim.share_result,
+                to_json(sim.shap_values)      AS shap_values,
                 sim.status,
                 sim.creation_date            AS simulation_creation_date,
                 sim.modified_date            AS simulation_modified_date,
@@ -217,14 +197,14 @@ class DatabricksServiceScenarios(DatabricksService):
             FROM webapp_scenarios sce
             LEFT JOIN webapp_simulations_spostamento sim
                    ON sce.id = sim.id_scenario
-            WHERE sce.scenario_type = 'spostamento'{extra_where}
+            WHERE sce.scenario_type = 'spostamento'
             ORDER BY sce.modified_date DESC, sim.creation_date ASC
         """
-        
-        self._logger.info(f"get_spostamento_scenarios | with params {params}")
+
+        self._logger.info("get_spostamento_scenarios")
 
         with self.cursor() as cursor:
-            cursor.execute(query, parameters=params)
+            cursor.execute(query)
             columns = [col[0] for col in cursor.description]
             rows = [dict(zip(columns, row)) for row in cursor.fetchall()]
 
@@ -274,6 +254,7 @@ class DatabricksServiceScenarios(DatabricksService):
                 sim.id,
                 sim.status,
                 sim.share_result,
+                to_json(sim.shap_values) AS shap_values,
                 sim.last_error,
                 sim.modified_date
             FROM webapp_simulations_sostituzione sim
@@ -285,6 +266,7 @@ class DatabricksServiceScenarios(DatabricksService):
                 sim.id,
                 sim.status,
                 sim.share_result,
+                to_json(sim.shap_values) AS shap_values,
                 sim.last_error,
                 sim.modified_date
             FROM webapp_simulations_spostamento sim
@@ -305,6 +287,7 @@ class DatabricksServiceScenarios(DatabricksService):
                 "id": sim_id,
                 "status": row.get("status"),
                 "share_result": row.get("share_result"),
+                "shap_values": parse_string_float_map(row.get("shap_values")),
                 "last_error": row.get("last_error"),
                 "modified_date": row.get("modified_date").isoformat() if hasattr(row.get("modified_date"), "isoformat") else str(row.get("modified_date")) if row.get("modified_date") is not None else None,
             }
