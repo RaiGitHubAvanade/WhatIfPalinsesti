@@ -1,6 +1,9 @@
 import { useState } from 'react'
 import { fmtDateShort } from '../../utils/dateUtils'
-import { MAX_SIMULATIONS_PER_SCENARIO } from '../../utils/constants'
+import {
+  MAX_SIMULATIONS_PER_SCENARIO,
+  SCENARIO_CARD_SCROLL_AFTER_SIMULATIONS,
+} from '../../utils/constants'
 import './ScenCard.css'
 
 /**
@@ -22,6 +25,7 @@ export default function ScenCard({ scenId, sc, onDelete, onEditScenarioName, onA
   const [savingTitle, setSavingTitle] = useState(false)
 
   const isFull = sc.items.length >= MAX_SIMULATIONS_PER_SCENARIO
+  const shouldScrollSimulations = sc.items.length > SCENARIO_CARD_SCROLL_AFTER_SIMULATIONS
   const canModify = sc.canModify === true
   const typeCls = sc.type === 'spostamento' ? 'spostamento' : 'sostituzione'
   const typeLabel = sc.type === 'spostamento' ? 'Spostamento' : sc.type === 'sostituzione' ? 'Sostituzione' : ''
@@ -135,7 +139,9 @@ export default function ScenCard({ scenId, sc, onDelete, onEditScenarioName, onA
       <div className="scen-hcard-count">{sc.items.length} / {MAX_SIMULATIONS_PER_SCENARIO} simulazioni</div>
 
       {/* ── Item rows ── */}
-      <div className="scen-hcard-items">
+      <div
+        className={`scen-hcard-items${shouldScrollSimulations ? ' scen-hcard-items--scrollable' : ''}`}
+      >
         {sc.items.map((item, idx) => {
           const isSpost = item.mode === 'spostamento'
           const emoji = isSpost ? '🕐' : '🔄'

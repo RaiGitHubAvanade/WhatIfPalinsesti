@@ -125,6 +125,18 @@
 
 /* Item rows */
 .scen-hcard-items { display: flex; flex-direction: column; gap: 6px; flex: 1; }
+.scen-hcard-items--scrollable {
+  max-height: 230px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+.scen-hcard-items--scrollable::-webkit-scrollbar {
+  width: 8px;
+}
+.scen-hcard-items--scrollable::-webkit-scrollbar-thumb {
+  background: #d6dfef;
+  border-radius: 8px;
+}
 .scen-hcard-item {
   display: flex;
   flex-direction: column;
@@ -160,6 +172,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  min-height: 25px;
   gap: 8px;
 }
 .scen-item-pred { font-size: 12px; font-weight: 600; flex-shrink: 0; }
