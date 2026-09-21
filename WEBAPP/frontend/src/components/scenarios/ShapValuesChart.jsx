@@ -12,15 +12,15 @@ function normalizeShapValues(shapValues) {
   if (!shapValues || typeof shapValues !== 'object') return []
 
   const rows = Object.entries(shapValues)
-    .slice(0, MAX_SHAP_VALUES_DISPLAYED)
     .map(([name, raw]) => {
       const value = Number(raw)
       if (!Number.isFinite(value)) return null
       return { name: toDisplayName(name), value }
     })
     .filter(Boolean)
+    .sort((a, b) => Math.abs(b.value) - Math.abs(a.value))
+    .slice(0, MAX_SHAP_VALUES_DISPLAYED)
 
-  rows.sort((a, b) => Math.abs(b.value) - Math.abs(a.value))  
   return rows
 }
 
