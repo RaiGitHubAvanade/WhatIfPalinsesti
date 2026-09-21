@@ -1,5 +1,5 @@
 /**
- * @typedef {Object} SimulationSost
+ * @typedef {Object} SimulationSostituzioneViewModel
  * @property {string} id
  * @property {string|null} new_program_name
  * @property {number|null} new_program_share_storico

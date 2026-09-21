@@ -1,5 +1,5 @@
 /**
- * @typedef {Object} SimulationSposta
+ * @typedef {Object} SimulationSpostamentoViewModel
  * @property {string} id
  * @property {string|null} new_channel
  * @property {string|null} new_date

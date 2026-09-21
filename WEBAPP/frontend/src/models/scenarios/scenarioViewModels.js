@@ -1,6 +1,6 @@
 /**
- * @typedef {import('../simulation/simulationSostViewModel').SimulationSost} SimulationSost
- * @typedef {import('../simulation/simulationSpostaViewModel').SimulationSposta} SimulationSposta
+ * @typedef {import('../simulation/simulationSostituzioneViewModel').SimulationSostituzioneViewModel} SimulationSostituzioneViewModel
+ * @typedef {import('../simulation/simulationSpostamentoViewModel').SimulationSpostamentoViewModel} SimulationSpostamentoViewModel
  * @typedef {import('../weekly_programming/competitorProgramsViewModel').CompetitorProgramsViewModel} CompetitorProgramsViewModel
  */
 
@@ -20,7 +20,7 @@
  * @property {boolean} can_modify
  * @property {string|null} creation_date
  * @property {string|null} modified_date
- * @property {(SimulationSost|SimulationSposta)[]} simulations
+ * @property {(SimulationSostituzioneViewModel|SimulationSpostamentoViewModel)[]} simulations
  */
 
 /**
