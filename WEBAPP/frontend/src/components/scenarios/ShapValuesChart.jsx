@@ -1,4 +1,5 @@
 import './ShapValuesChart.css'
+import { MAX_SHAP_VALUES_DISPLAYED } from '../../utils/constants'
 
 function toDisplayName(name) {
   return String(name || '')
@@ -11,6 +12,7 @@ function normalizeShapValues(shapValues) {
   if (!shapValues || typeof shapValues !== 'object') return []
 
   const rows = Object.entries(shapValues)
+    .slice(0, MAX_SHAP_VALUES_DISPLAYED)
     .map(([name, raw]) => {
       const value = Number(raw)
       if (!Number.isFinite(value)) return null
@@ -18,7 +20,7 @@ function normalizeShapValues(shapValues) {
     })
     .filter(Boolean)
 
-  rows.sort((a, b) => Math.abs(b.value) - Math.abs(a.value))
+  rows.sort((a, b) => Math.abs(b.value) - Math.abs(a.value))  
   return rows
 }
 

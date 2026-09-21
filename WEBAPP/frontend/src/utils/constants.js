@@ -10,6 +10,9 @@ export const CH_CLS = { 'Rai 1': 'prow-r1', 'Rai 2': 'prow-r2', 'Rai 3': 'prow-r
 /** Max number of Simulations for a single Scenario */
 export const MAX_SIMULATIONS_PER_SCENARIO = 3
 
+/** Max number of shap values displayed in the chart, in Simulation Detail pages */
+export const MAX_SHAP_VALUES_DISPLAYED = 3
+
 /** Numero di programmi per pagina nelle liste di selezione */
 export const PROGRAM_PAGE_SIZE_OPTIONS = [8, 12, 16, 20, 24]
 export const DEFAULT_PROGRAM_PAGE_SIZE = 8
