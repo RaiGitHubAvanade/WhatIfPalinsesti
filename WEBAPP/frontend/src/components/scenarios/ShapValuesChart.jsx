@@ -34,6 +34,9 @@ export default function ShapValuesChart({ shapValues }) {
   return (
     <div className="res-shap-box">
       <div className="res-main-hdr">Fattori rilevanti</div>
+      <p className="res-shap-desc">
+        Il grafico evidenzia i fattori che hanno maggiormente influenzato la previsione del modello per il caso analizzato. I contributi positivi (barra rossa) spingono la previsione di share verso valori più elevati, mentre i contributi negativi (barra blu) riducono la previsione di share.
+      </p>
 
       {rows.length === 0 ? (
         <p className="res-shap-empty">Nessun fattore disponibile.</p>
