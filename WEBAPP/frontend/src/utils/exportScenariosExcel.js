@@ -54,6 +54,9 @@ export function flattenScenariosForExport(filtered) {
 
     completedItems.forEach((item, idx) => {
       const r = item.result ?? {}
+      const shapValuesJson = r.shap_values && typeof r.shap_values === 'object'
+        ? JSON.stringify(r.shap_values)
+        : ''
 
       // ── sostituzione-specific ──────────────────────────────────────────────
       const isSost = item.mode === 'sostituzione'
@@ -80,6 +83,7 @@ export function flattenScenariosForExport(filtered) {
         'ID Simulazione':  item._sim_id ?? '',
         'Email Utente':      item._user_email ?? '',
         'Stato':           item._status ?? '',
+        'Valori Shap':     shapValuesJson,
         ...sostCols,
         ...spostaCols,
       })
@@ -107,6 +111,7 @@ const COL_WIDTHS = {
   'ID Simulazione':                        34,
   'Email Utente':                          20,
   'Stato':                                 12,
+  'Valori Shap':                           40,
   'Programma Sostituto':                   30,
   'Share Storico Sostituto (%)':           24,
   'Share Previsto Post-Sostituzione (%)':  30,
