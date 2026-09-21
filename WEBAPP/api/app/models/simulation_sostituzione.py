@@ -17,7 +17,6 @@ class SimulationSostituzione:
     modified_date: str | None
     last_error: str | None
     is_retry: bool
-    user_email: str | None
 
     @classmethod
     def map_simulation_sostituzione_from_row(cls, row) -> "SimulationSostituzione":
@@ -33,7 +32,6 @@ class SimulationSostituzione:
             modified_date=to_iso_string(row.modified_date),
             last_error=row.last_error,
             is_retry=bool(row.is_retry),
-            user_email=row.user_email,
         )
 
     @classmethod
@@ -50,5 +48,4 @@ class SimulationSostituzione:
             modified_date=to_iso_string(row.get("simulation_modified_date")),
             last_error=row.get("last_error"),
             is_retry=bool(row.get("is_retry", False)),
-            user_email=row.get("user_email"),
         )

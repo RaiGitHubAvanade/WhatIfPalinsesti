@@ -7,6 +7,7 @@ from flask import Blueprint, request
 from app.container import get_scenarios_service
 from app.logics.business_logic_scenarios import BusinessLogicScenarios
 from app.models.api_response import error, success
+from app.utils.request_identity import resolve_request_user_identity
 from app.utils.sse_broker import broker
 
 logger = logging.getLogger(__name__)
@@ -16,11 +17,12 @@ bp = Blueprint("scenarios", __name__)
 
 @bp.route("/scenarios")
 def get_scenarios():
+    actor_identity, _ = resolve_request_user_identity(request)
     logger.info("getScenarios")
 
     try:
         logic  = BusinessLogicScenarios(get_scenarios_service())
-        result = logic.get_scenarios()
+        result = logic.get_scenarios(actor_identity=actor_identity)
     except RuntimeError as e:
         logger.error("getScenarios RuntimeError: %s", e)
         return error(message=str(e), errors=["databricks_error"]), 502
@@ -33,10 +35,13 @@ def get_scenarios():
 
 @bp.route("/scenarios/simulation/sostituzione/<simulation_id>/delete", methods=["DELETE"])
 def delete_simulation_sostituzione(simulation_id):
-    logger.info("deleteSimulationSostituzione | id=%s", simulation_id)
+    actor_identity, identity_source = resolve_request_user_identity(request)
+    logger.info("deleteSimulationSostituzione | id=%s user_email=%s user_email_source=%s", simulation_id, actor_identity, identity_source)
     try:
         logic = BusinessLogicScenarios(get_scenarios_service())
-        logic.delete_simulation_sostituzione(simulation_id)
+        logic.delete_simulation_sostituzione(simulation_id, actor_identity=actor_identity)
+    except PermissionError as e:
+        return error(message=str(e), errors=["forbidden"]), 403
     except RuntimeError as e:
         logger.error("deleteSimulationSostituzione RuntimeError: %s", e)
         return error(message=str(e), errors=["databricks_error"]), 502
@@ -49,10 +54,13 @@ def delete_simulation_sostituzione(simulation_id):
 
 @bp.route("/scenarios/simulation/spostamento/<simulation_id>/delete", methods=["DELETE"])
 def delete_simulation_spostamento(simulation_id):
-    logger.info("deleteSimulationSpostamento | id=%s", simulation_id)
+    actor_identity, identity_source = resolve_request_user_identity(request)
+    logger.info("deleteSimulationSpostamento | id=%s user_email=%s user_email_source=%s", simulation_id, actor_identity, identity_source)
     try:
         logic = BusinessLogicScenarios(get_scenarios_service())
-        logic.delete_simulation_spostamento(simulation_id)
+        logic.delete_simulation_spostamento(simulation_id, actor_identity=actor_identity)
+    except PermissionError as e:
+        return error(message=str(e), errors=["forbidden"]), 403
     except RuntimeError as e:
         logger.error("deleteSimulationSpostamento RuntimeError: %s", e)
         return error(message=str(e), errors=["databricks_error"]), 502
@@ -65,10 +73,13 @@ def delete_simulation_spostamento(simulation_id):
 
 @bp.route("/scenarios/<scenario_id>/delete", methods=["DELETE"])
 def delete_scenario(scenario_id):
-    logger.info("deleteScenario | id=%s", scenario_id)
+    actor_identity, identity_source = resolve_request_user_identity(request)
+    logger.info("deleteScenario | id=%s user_email=%s user_email_source=%s", scenario_id, actor_identity, identity_source)
     try:
         logic = BusinessLogicScenarios(get_scenarios_service())
-        logic.delete_scenario(scenario_id)
+        logic.delete_scenario(scenario_id, actor_identity=actor_identity)
+    except PermissionError as e:
+        return error(message=str(e), errors=["forbidden"]), 403
     except RuntimeError as e:
         logger.error("deleteScenario RuntimeError: %s", e)
         return error(message=str(e), errors=["databricks_error"]), 502
@@ -83,6 +94,8 @@ def delete_scenario(scenario_id):
 def edit_scenario_name(scenario_id):
     body = request.get_json(silent=True) or {}
 
+    actor_identity, identity_source = resolve_request_user_identity(request)
+
     scenario_name = body.get("scenario_name")
     normalized_name = str(scenario_name or "").strip()
 
@@ -92,10 +105,12 @@ def edit_scenario_name(scenario_id):
             errors=["scenario_id and scenario_name required"],
         ), 400
 
-    logger.info("editScenarioName | id=%s", scenario_id)
+    logger.info("editScenarioName | id=%s user_email=%s user_email_source=%s", scenario_id, actor_identity, identity_source)
     try:
         logic = BusinessLogicScenarios(get_scenarios_service())
-        logic.edit_scenario_name(scenario_id, normalized_name)
+        logic.edit_scenario_name(scenario_id, normalized_name, actor_identity=actor_identity)
+    except PermissionError as e:
+        return error(message=str(e), errors=["forbidden"]), 403
     except RuntimeError as e:
         logger.error("editScenarioName RuntimeError | id=%s error=%s", scenario_id, e)
         return error(message=str(e), errors=["databricks_error"]), 502

@@ -208,6 +208,14 @@
   font-family: inherit;
 }
 .scen-add-sim-btn:hover { background: #edf2ff; border-style: solid; }
+.scen-add-sim-btn:disabled {
+  cursor: default;
+  opacity: .55;
+  border-style: solid;
+  color: var(--muted);
+  border-color: var(--border);
+  background: #f7f7f7;
+}
 
 /* Creation timestamp */
 .scen-hcard-created { font-size: 10.5px; color: var(--muted); font-weight: 400; opacity: .7; }

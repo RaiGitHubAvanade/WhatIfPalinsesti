@@ -16,6 +16,8 @@
  * @property {string|null} program_from_time
  * @property {string|null} program_to_time
  * @property {number|null} program_share_predict
+ * @property {string|null} created_by
+ * @property {boolean} can_modify
  * @property {string|null} creation_date
  * @property {string|null} modified_date
  * @property {(SimulationSost|SimulationSposta)[]} simulations

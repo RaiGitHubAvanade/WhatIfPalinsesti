@@ -6,7 +6,7 @@ import './ScenCard.css'
 /**
  * @param {{
  *   scenId: number,
- *   sc: { items: any[], anchor: any, type: string|null, createdAt: string|null, title: string|null },
+ *   sc: { items: any[], anchor: any, type: string|null, createdAt: string|null, title: string|null, createdBy?: string|null, canModify?: boolean },
  *   onRemoveItem: (idx: number) => void,
  *   onDelete: () => void,
  *   onEditScenarioName?: (scenId: string|number, title: string) => Promise<void>,
@@ -22,6 +22,7 @@ export default function ScenCard({ scenId, sc, onDelete, onEditScenarioName, onA
   const [savingTitle, setSavingTitle] = useState(false)
 
   const isFull = sc.items.length >= MAX_SIMULATIONS_PER_SCENARIO
+  const canModify = sc.canModify === true
   const typeCls = sc.type === 'spostamento' ? 'spostamento' : 'sostituzione'
   const typeLabel = sc.type === 'spostamento' ? 'Spostamento' : sc.type === 'sostituzione' ? 'Sostituzione' : ''
   const displayTitle = sc.title || sc.anchor?.program_name || `Scenario ${scenId}`
@@ -60,7 +61,7 @@ export default function ScenCard({ scenId, sc, onDelete, onEditScenarioName, onA
           {!editingTitle && (
             <>
               <span>{displayTitle}</span>
-              {onEditScenarioName && (
+              {onEditScenarioName && canModify && (
                 <button
                   className="scen-title-edit-btn"
                   type="button"
@@ -198,7 +199,7 @@ export default function ScenCard({ scenId, sc, onDelete, onEditScenarioName, onA
                   <span className="scen-item-status-lbl scen-item-status-lbl--failed">Fallita</span>
                 ) : <span />}
                 <div className="scen-item-actions" onClick={e => e.stopPropagation()}>
-                  {item._status === 'Failed' && onRetrySim && !deletingSimIds.has(item._sim_id) && (
+                  {canModify && item._status === 'Failed' && onRetrySim && !deletingSimIds.has(item._sim_id) && (
                     <button
                       className="scen-icon-btn"
                       disabled={retryingSimIds.has(item._sim_id)}
@@ -220,7 +221,7 @@ export default function ScenCard({ scenId, sc, onDelete, onEditScenarioName, onA
                         : '⟳'}
                     </button>
                   )}
-                  {item._status !== 'Running' && onDeleteSim && !retryingSimIds.has(item._sim_id) && (
+                  {canModify && item._status !== 'Running' && onDeleteSim && !retryingSimIds.has(item._sim_id) && (
                     <button
                       className="scen-icon-btn"
                       disabled={deletingSimIds.has(item._sim_id)}
@@ -250,27 +251,34 @@ export default function ScenCard({ scenId, sc, onDelete, onEditScenarioName, onA
         })}
       </div>
 
-      {!isFull && (
-        <button className="scen-add-sim-btn" onClick={onAddSim}>
+      {canModify && !isFull && (
+        <button
+          className="scen-add-sim-btn"
+          onClick={onAddSim}
+          disabled={isFull}
+        >
           + Aggiungi simulazione
         </button>
       )}
 
+      <div className="scen-hcard-created">Creato da: {sc.createdBy || '—'}</div>
       <div className="scen-hcard-created">Ultimo aggiornamento: {modifiedTs}</div>
 
-      <div className="scen-hcard-actions">
-        <button
-          className="scen-clear-btn"
-          disabled={deletingScen}
-          onClick={async () => {
-            setDeletingScen(true)
-            try { await onDelete() }
-            finally { setDeletingScen(false) }
-          }}
-        >
-          {deletingScen ? <span className="scen-spinner" /> : 'Elimina Scenario'}
-        </button>
-      </div>
+      {canModify && (
+        <div className="scen-hcard-actions">
+          <button
+            className="scen-clear-btn"
+            disabled={deletingScen}
+            onClick={async () => {
+              setDeletingScen(true)
+              try { await onDelete() }
+              finally { setDeletingScen(false) }
+            }}
+          >
+            {deletingScen ? <span className="scen-spinner" /> : 'Elimina Scenario'}
+          </button>
+        </div>
+      )}
 
     </div>
   )

@@ -16,21 +16,23 @@ class SostituzioneSimulationHandler:
         self._service = service
         self._ai_service = ai_service
 
-    def get_scenario_simulations(self, req: ServingEndpointSostituzioneRequest) -> list[dict]:
+    def get_scenario_simulations(self, req: ServingEndpointSostituzioneRequest, created_by: str | None) -> list[dict]:
         return self._service.get_scenario_simulations(
             program_id=req.program_id,
-            program_name=req.program_name,
-            program_channel=req.program_channel,
-            program_date=req.program_date,
-            program_from_time=req.program_from_time,
-            program_to_time=req.program_to_time,
             scenario_type=req.scenario_type,
+            created_by=created_by,
         )
 
-    def get_scenario_simulation_count(self, program_id: str, scenario_type: str) -> int:
+    def get_scenario_simulation_count(
+        self,
+        program_id: str,
+        scenario_type: str,
+        created_by: str | None,
+    ) -> int:
         return self._service.get_scenario_simulation_count(
             program_id=program_id,
             scenario_type=scenario_type,
+            created_by=created_by,
         )
 
     def is_same_simulation(self, row: dict, req: ServingEndpointSostituzioneRequest) -> bool:
@@ -41,7 +43,6 @@ class SostituzioneSimulationHandler:
         simulation_id: str,
         scenario_id: str,
         req: ServingEndpointSostituzioneRequest,
-        actor_identity: str | None,
         now: datetime,
     ) -> None:
         self._service.insert_simulation({
@@ -55,14 +56,13 @@ class SostituzioneSimulationHandler:
             "modified_date": now,
             "last_error": None,
             "is_retry": False,
-            "user_email": actor_identity,
         })
 
     def update_simulation(self, simulation_id: str, **fields) -> None:
         self._service.update_simulation(simulation_id, **fields)
 
-    def get_simulation_for_retry(self, simulation_id: str) -> dict | None:
-        return self._service.get_simulation_for_retry(simulation_id)
+    def get_simulation_for_retry(self, simulation_id: str, created_by: str | None) -> dict | None:
+        return self._service.get_simulation_for_retry(simulation_id, created_by)
 
     def build_retry_request(self, row: dict) -> ServingEndpointSostituzioneRequest:
         return ServingEndpointSostituzioneRequest(
@@ -111,21 +111,23 @@ class SpostamentoSimulationHandler:
         self._service = service
         self._ai_service = ai_service
 
-    def get_scenario_simulations(self, req: ServingEndpointSpostamentoRequest) -> list[dict]:
+    def get_scenario_simulations(self, req: ServingEndpointSpostamentoRequest, created_by: str | None) -> list[dict]:
         return self._service.get_scenario_simulations(
             program_id=req.program_id,
-            program_name=req.program_name,
-            program_channel=req.program_channel,
-            program_date=req.program_date,
-            program_from_time=req.program_from_time,
-            program_to_time=req.program_to_time,
             scenario_type=req.scenario_type,
+            created_by=created_by,
         )
 
-    def get_scenario_simulation_count(self, program_id: str, scenario_type: str) -> int:
+    def get_scenario_simulation_count(
+        self,
+        program_id: str,
+        scenario_type: str,
+        created_by: str | None,
+    ) -> int:
         return self._service.get_scenario_simulation_count(
             program_id=program_id,
             scenario_type=scenario_type,
+            created_by=created_by,
         )
 
     def is_same_simulation(self, row: dict, req: ServingEndpointSpostamentoRequest) -> bool:
@@ -140,7 +142,6 @@ class SpostamentoSimulationHandler:
         simulation_id: str,
         scenario_id: str,
         req: ServingEndpointSpostamentoRequest,
-        actor_identity: str | None,
         now: datetime,
     ) -> None:
         self._service.insert_simulation({
@@ -156,14 +157,13 @@ class SpostamentoSimulationHandler:
             "modified_date": now,
             "last_error": None,
             "is_retry": False,
-            "user_email": actor_identity,
         })
 
     def update_simulation(self, simulation_id: str, **fields) -> None:
         self._service.update_simulation(simulation_id, **fields)
 
-    def get_simulation_for_retry(self, simulation_id: str) -> dict | None:
-        return self._service.get_simulation_for_retry(simulation_id)
+    def get_simulation_for_retry(self, simulation_id: str, created_by: str | None) -> dict | None:
+        return self._service.get_simulation_for_retry(simulation_id, created_by)
 
     def build_retry_request(self, row: dict) -> ServingEndpointSpostamentoRequest:
         return ServingEndpointSpostamentoRequest(

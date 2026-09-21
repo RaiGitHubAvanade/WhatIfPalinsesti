@@ -37,6 +37,7 @@ function mapToDisplay(apiScen) {
     id, scenario_type, scenario_name, program_name, program_channel,
     program_id,
     program_date, program_from_time, program_to_time, program_share_predict,
+    created_by, can_modify,
     creation_date, modified_date, simulations,
   } = apiScen
 
@@ -79,7 +80,6 @@ function mapToDisplay(apiScen) {
         ch: program_channel,
         _status: sim.status,
         _sim_id: sim.id,
-        _user_email: sim.user_email || '',
       }
     } else {
       return {
@@ -107,7 +107,6 @@ function mapToDisplay(apiScen) {
         spDestTime: sim.new_from_time,
         _status: sim.status,
         _sim_id: sim.id,
-        _user_email: sim.user_email || '',
       }
     }
   })
@@ -121,6 +120,8 @@ function mapToDisplay(apiScen) {
       createdAt: creation_date,
       modifiedAt: modified_date,
       title: scenario_name || null,
+      createdBy: created_by || null,
+      canModify: can_modify === true,
     },
   }
 }
@@ -384,6 +385,11 @@ export default function Scenarios() {
                   onEditScenarioName={handleEditScenarioName}
                   onDelete={() => handleDeleteScen(id)}
                   onAddSim={() => {
+                    if (sc.canModify === false) {
+                      toast('Solo il creatore dello scenario può aggiungere simulazioni.', 'warning')
+                      return
+                    }
+
                     if (sc.items.length >= MAX_SIMULATIONS_PER_SCENARIO) {
                       toast(`Limite massimo di ${MAX_SIMULATIONS_PER_SCENARIO} simulazioni raggiunto per questo scenario.`, 'warning')
                       return

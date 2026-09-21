@@ -49,6 +49,7 @@ export function flattenScenariosForExport(filtered) {
       'Data Messa in Onda':       sc.anchor?.date           ?? '',
       'Ora Originale':            sc.anchor?.from_time      ? sc.anchor.from_time.slice(0, 5) : '',
       'Share Originale Previsto (%)': sc.anchor?.share_predicted ?? '',
+      'Creato da':                sc.createdBy              ?? '',
       'Creato il':                sc.createdAt              ?? '',
     }
 
@@ -81,7 +82,6 @@ export function flattenScenariosForExport(filtered) {
         ...scenarioBase,
         'N° Simulazione':  idx + 1,
         'ID Simulazione':  item._sim_id ?? '',
-        'Email Utente':      item._user_email ?? '',
         'Stato':           item._status ?? '',
         'Valori Shap':     shapValuesJson,
         ...sostCols,
@@ -106,10 +106,10 @@ const COL_WIDTHS = {
   'Data Messa in Onda':                    18,
   'Ora Originale':                         12,
   'Share Originale Previsto (%)':          24,
+  'Creato da':                             22,
   'Creato il':                             20,
   'N° Simulazione':                        14,
   'ID Simulazione':                        34,
-  'Email Utente':                          20,
   'Stato':                                 12,
   'Valori Shap':                           40,
   'Programma Sostituto':                   30,

@@ -27,6 +27,7 @@ class DatabricksServiceScenarios(DatabricksService):
                 sce.program_from_time,
                 sce.program_to_time,
                 sce.program_share_predict,
+                sce.created_by,
                 sce.creation_date            AS scenario_creation_date,
                 sce.modified_date            AS scenario_modified_date,
                 sim.id                       AS simulation_id,
@@ -38,11 +39,10 @@ class DatabricksServiceScenarios(DatabricksService):
                 sim.creation_date            AS simulation_creation_date,
                 sim.modified_date            AS simulation_modified_date,
                 sim.last_error,
-                sim.is_retry,
-                sim.user_email
+                sim.is_retry
             FROM webapp_scenarios sce
             LEFT JOIN webapp_simulations_sostituzione sim
-                   ON sce.id = sim.id_scenario
+                ON sce.id = sim.id_scenario
             WHERE sce.scenario_type = 'sostituzione'
             ORDER BY sce.modified_date DESC, sim.creation_date ASC
         """
@@ -70,13 +70,16 @@ class DatabricksServiceScenarios(DatabricksService):
         return list(scenarios.values())
 
 
-    def get_scenario_id_for_sostituzione_simulation(self, simulation_id: str) -> str | None:
+    def get_scenario_id_for_sostituzione_simulation(self, simulation_id: str, created_by: str | None) -> str | None:
         query = """
-            SELECT id_scenario
-            FROM webapp_simulations_sostituzione
-            WHERE id = :simulation_id
+            SELECT sim.id_scenario
+            FROM webapp_simulations_sostituzione sim
+            JOIN webapp_scenarios sce
+                ON sim.id_scenario = sce.id
+            WHERE sim.id = :simulation_id
+                AND sce.created_by <=> :created_by
         """
-        params = {"simulation_id": simulation_id}
+        params = {"simulation_id": simulation_id, "created_by": created_by}
 
         self._logger.info(f"get_scenario_id_for_sostituzione_simulation | with params {params}")
 
@@ -87,13 +90,16 @@ class DatabricksServiceScenarios(DatabricksService):
         return str(row[0]) if row else None
 
 
-    def get_scenario_id_for_spostamento_simulation(self, simulation_id: str) -> str | None:
+    def get_scenario_id_for_spostamento_simulation(self, simulation_id: str, created_by: str | None) -> str | None:
         query = """
-            SELECT id_scenario
-            FROM webapp_simulations_spostamento
-            WHERE id = :simulation_id
+            SELECT sim.id_scenario
+            FROM webapp_simulations_spostamento sim
+            JOIN webapp_scenarios sce
+                ON sim.id_scenario = sce.id
+            WHERE sim.id = :simulation_id
+                AND sce.created_by <=> :created_by
         """
-        params = {"simulation_id": simulation_id}
+        params = {"simulation_id": simulation_id, "created_by": created_by}
 
         self._logger.info(f"get_scenario_id_for_spostamento_simulation | with params {params}")
 
@@ -134,8 +140,8 @@ class DatabricksServiceScenarios(DatabricksService):
         query = """
             DELETE FROM webapp_scenarios
             WHERE id = :id_scenario
-            AND NOT EXISTS (
-                SELECT 1
+                AND NOT EXISTS (
+                    SELECT 1
                     FROM webapp_simulations_sostituzione
                     WHERE id_scenario = :id_scenario
                 )
@@ -166,6 +172,25 @@ class DatabricksServiceScenarios(DatabricksService):
             cursor.execute(query, parameters=params)
 
 
+    def is_scenario_owned(self, scenario_id: str, created_by: str | None) -> bool:
+        query = """
+            SELECT 1
+            FROM webapp_scenarios
+            WHERE id = :scenario_id
+                AND created_by <=> :created_by
+            LIMIT 1
+        """
+        params = {"scenario_id": scenario_id, "created_by": created_by}
+
+        self._logger.info("is_scenario_owned | with params %s", {"scenario_id": scenario_id})
+
+        with self.cursor() as cursor:
+            cursor.execute(query, parameters=params)
+            row = cursor.fetchone()
+
+        return row is not None
+
+
     def get_spostamento_scenarios(
         self,
     ) -> list[Scenario]:
@@ -181,6 +206,7 @@ class DatabricksServiceScenarios(DatabricksService):
                 sce.program_from_time,
                 sce.program_to_time,
                 sce.program_share_predict,
+                sce.created_by,
                 sce.creation_date            AS scenario_creation_date,
                 sce.modified_date            AS scenario_modified_date,
                 sim.id                       AS simulation_id,
@@ -193,11 +219,10 @@ class DatabricksServiceScenarios(DatabricksService):
                 sim.creation_date            AS simulation_creation_date,
                 sim.modified_date            AS simulation_modified_date,
                 sim.last_error,
-                sim.is_retry,
-                sim.user_email
+                sim.is_retry
             FROM webapp_scenarios sce
             LEFT JOIN webapp_simulations_spostamento sim
-                   ON sce.id = sim.id_scenario
+                ON sce.id = sim.id_scenario
             WHERE sce.scenario_type = 'spostamento'
             ORDER BY sce.modified_date DESC, sim.creation_date ASC
         """
@@ -312,19 +337,19 @@ class DatabricksServiceScenarios(DatabricksService):
             SELECT ID, Canale, Data, Programma, orario_inizio, orario_fine, share_storico, evento_forte
             FROM vw_output_palinsesto_futuro 
             WHERE Data = :day
-            AND Canale IN ({placeholders})
-            AND (
-                CASE WHEN INT(split(orario_inizio, ':')[0]) < 6
-                    THEN INT(split(orario_inizio, ':')[0]) * 60 + INT(split(orario_inizio, ':')[1]) + 1440
-                    ELSE INT(split(orario_inizio, ':')[0]) * 60 + INT(split(orario_inizio, ':')[1])
-                END
-            ) < :overlap_to
-            AND (
-                CASE WHEN INT(split(orario_fine, ':')[0]) < 6
-                    THEN INT(split(orario_fine, ':')[0]) * 60 + INT(split(orario_fine, ':')[1]) + 1440
-                    ELSE INT(split(orario_fine, ':')[0]) * 60 + INT(split(orario_fine, ':')[1])
-                END
-            ) > :overlap_from
+                AND Canale IN ({placeholders})
+                AND (
+                    CASE WHEN INT(split(orario_inizio, ':')[0]) < 6
+                        THEN INT(split(orario_inizio, ':')[0]) * 60 + INT(split(orario_inizio, ':')[1]) + 1440
+                        ELSE INT(split(orario_inizio, ':')[0]) * 60 + INT(split(orario_inizio, ':')[1])
+                    END
+                ) < :overlap_to
+                AND (
+                    CASE WHEN INT(split(orario_fine, ':')[0]) < 6
+                        THEN INT(split(orario_fine, ':')[0]) * 60 + INT(split(orario_fine, ':')[1]) + 1440
+                        ELSE INT(split(orario_fine, ':')[0]) * 60 + INT(split(orario_fine, ':')[1])
+                    END
+                ) > :overlap_from
         """
         params = {
             "day": day,

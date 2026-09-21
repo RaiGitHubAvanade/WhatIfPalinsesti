@@ -10,6 +10,7 @@ from app.view_models.scenarios import (
 from app.view_models.weekly_programming import CompetitorProgramsViewModel
 from app.config import Config
 from app.utils.date_time_utils import DateTimeUtils
+from app.utils.messages import Messages
 
 
 class BusinessLogicScenarios:
@@ -20,6 +21,7 @@ class BusinessLogicScenarios:
 
     def get_scenarios(
         self,
+        actor_identity: str | None = None,
     ) -> ScenarioListViewModel:
         try:
             sost_scenarios: list[Scenario] = self._service.get_sostituzione_scenarios()
@@ -28,7 +30,7 @@ class BusinessLogicScenarios:
             raise RuntimeError(f"Errore nel recupero degli scenari: {e}") from e
         
         view_models = [
-            ScenarioViewModel.MapScenarioViewModelFromScenario(s)
+            ScenarioViewModel.MapScenarioViewModelFromScenario(s, actor_identity=actor_identity)
             for s in sost_scenarios + sposta_scenarios
         ]
 
@@ -36,11 +38,11 @@ class BusinessLogicScenarios:
         return ScenarioListViewModel(scenarios=sorted_list, total=len(sorted_list))
 
 
-    def delete_simulation_sostituzione(self, simulation_id: str) -> None:
+    def delete_simulation_sostituzione(self, simulation_id: str, actor_identity: str | None = None) -> None:
         try:
-            id_scenario = self._service.get_scenario_id_for_sostituzione_simulation(simulation_id)
+            id_scenario = self._service.get_scenario_id_for_sostituzione_simulation(simulation_id, actor_identity)
             if id_scenario is None:
-                raise ValueError(f"Simulazione non trovata: {simulation_id}")
+                raise PermissionError(Messages.SCENARIO_MODIFICATION_FORBIDDEN)
 
             self._logger.info(
                 "delete_simulation_sostituzione | id=%s id_scenario=%s",
@@ -50,15 +52,17 @@ class BusinessLogicScenarios:
 
             self._service.delete_simulation_sostituzione(simulation_id)
             self._service.delete_scenario_if_empty(id_scenario)
+        except PermissionError:
+            raise
         except Exception as e:
             raise RuntimeError(f"Errore nell'eliminazione della simulazione: {e}") from e
 
 
-    def delete_simulation_spostamento(self, simulation_id: str) -> None:
+    def delete_simulation_spostamento(self, simulation_id: str, actor_identity: str | None = None) -> None:
         try:
-            id_scenario = self._service.get_scenario_id_for_spostamento_simulation(simulation_id)
+            id_scenario = self._service.get_scenario_id_for_spostamento_simulation(simulation_id, actor_identity)
             if id_scenario is None:
-                raise ValueError(f"Simulazione non trovata: {simulation_id}")
+                raise PermissionError(Messages.SCENARIO_MODIFICATION_FORBIDDEN)
 
             self._logger.info(
                 "delete_simulation_spostamento | id=%s id_scenario=%s",
@@ -68,23 +72,34 @@ class BusinessLogicScenarios:
 
             self._service.delete_simulation_spostamento(simulation_id)
             self._service.delete_scenario_if_empty(id_scenario)
+        except PermissionError:
+            raise
         except Exception as e:
             raise RuntimeError(f"Errore nell'eliminazione della simulazione: {e}") from e
 
 
-    def delete_scenario(self, scenario_id: str) -> None:
+    def delete_scenario(self, scenario_id: str, actor_identity: str | None = None) -> None:
         try:
             self._logger.info("delete_scenario | id=%s", scenario_id)
 
+            if not self._service.is_scenario_owned(scenario_id, actor_identity):
+                raise PermissionError(Messages.SCENARIO_MODIFICATION_FORBIDDEN)
+
             self._service.delete_scenario(scenario_id)
+        except PermissionError:
+            raise
         except Exception as e:
             raise RuntimeError(f"Errore nell'eliminazione dello scenario: {e}") from e
 
 
-    def edit_scenario_name(self, scenario_id: str, scenario_name: str) -> None:
+    def edit_scenario_name(self, scenario_id: str, scenario_name: str, actor_identity: str | None = None) -> None:
 
         try:
+            if not self._service.is_scenario_owned(scenario_id, actor_identity):
+                raise PermissionError(Messages.SCENARIO_MODIFICATION_FORBIDDEN)
             self._service.edit_scenario_name(scenario_id, scenario_name, datetime.now(timezone.utc))
+        except PermissionError:
+            raise
         except Exception as e:
             raise RuntimeError(f"Errore durante l'aggiornamento del nome scenario: {e}") from e
 

@@ -8,7 +8,7 @@ export const NETWORK_RETRY_DELAY_MS = 1500
 export const CH_CLS = { 'Rai 1': 'prow-r1', 'Rai 2': 'prow-r2', 'Rai 3': 'prow-r3' }
 
 /** Max number of Simulations for a single Scenario */
-export const MAX_SIMULATIONS_PER_SCENARIO = 3
+export const MAX_SIMULATIONS_PER_SCENARIO = 10
 
 /** Max number of shap values displayed in the chart, in Simulation Detail pages */
 export const MAX_SHAP_VALUES_DISPLAYED = 3

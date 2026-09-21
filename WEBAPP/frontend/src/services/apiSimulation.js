@@ -36,7 +36,10 @@ export async function getSchedulePrograms({ day = '' } = {}) {
   return result.data
 }
 
-export async function checkScenarioLimit({ programId, scenarioType }) {
+export async function checkScenarioLimit({
+  programId,
+  scenarioType,
+}) {
   const params = new URLSearchParams()
   params.set('program_id', programId)
   params.set('scenario_type', scenarioType)

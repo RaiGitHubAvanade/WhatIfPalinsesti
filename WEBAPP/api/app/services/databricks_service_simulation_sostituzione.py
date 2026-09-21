@@ -6,18 +6,25 @@ from app.services.databricks_service_simulation import DatabricksServiceSimulati
 class DatabricksServiceSimulationSostituzione(DatabricksServiceSimulation):
     
 
-    def get_scenario_simulation_count(self, program_id: str, scenario_type: str) -> int:
+    def get_scenario_simulation_count(
+        self,
+        program_id: str,
+        scenario_type: str,
+        created_by: str | None,
+    ) -> int:
         query = """
             SELECT COUNT(sim.id) AS simulation_count
             FROM webapp_scenarios sce
             LEFT JOIN webapp_simulations_sostituzione sim
-                   ON sce.id = sim.id_scenario
+                ON sce.id = sim.id_scenario
             WHERE sce.program_id = :program_id
-              AND sce.scenario_type = :scenario_type
+                AND sce.scenario_type = :scenario_type
+                AND sce.created_by <=> :created_by
         """
         params = {
             "program_id": program_id,
             "scenario_type": scenario_type,
+            "created_by": created_by,
         }
 
         self._logger.info(f"get_scenario_simulation_count | with params {params}")
@@ -31,12 +38,8 @@ class DatabricksServiceSimulationSostituzione(DatabricksServiceSimulation):
     def get_scenario_simulations(
         self,
         program_id: str,
-        program_name: str,
-        program_channel: str,
-        program_date: str,
-        program_from_time: str,
-        program_to_time: str | None,
         scenario_type: str,
+        created_by: str | None,
     ) -> list[dict]:
         query = """
             SELECT
@@ -59,27 +62,18 @@ class DatabricksServiceSimulationSostituzione(DatabricksServiceSimulation):
                 sim.creation_date    AS sim_creation_date,
                 sim.modified_date,
                 sim.last_error,
-                sim.is_retry,
-                sim.user_email
+                sim.is_retry
             FROM webapp_scenarios sce
             LEFT JOIN webapp_simulations_sostituzione sim
-                   ON sce.id = sim.id_scenario
+                ON sce.id = sim.id_scenario
             WHERE sce.program_id        = :program_id
-              AND sce.program_name      = :program_name
-              AND sce.program_channel   = :program_channel
-              AND sce.program_date      = :program_date
-              AND sce.program_from_time = :program_from_time
-              AND sce.program_to_time   = :program_to_time
-              AND sce.scenario_type     = :scenario_type
+                AND sce.scenario_type     = :scenario_type
+                AND sce.created_by        <=> :created_by
         """
         params = {
             "program_id": program_id,
-            "program_name": program_name,
-            "program_channel": program_channel,
-            "program_date": program_date,
-            "program_from_time": program_from_time,
-            "program_to_time": program_to_time,
             "scenario_type": scenario_type,
+            "created_by": created_by,
         }
 
         self._logger.info(f"get_scenario_simulations | with params {params}")
@@ -96,11 +90,11 @@ class DatabricksServiceSimulationSostituzione(DatabricksServiceSimulation):
             INSERT INTO webapp_simulations_sostituzione
                 (id, id_scenario, new_program_name, new_program_share_storico,
                  share_result, status, creation_date, modified_date,
-                 last_error, is_retry, user_email)
+                 last_error, is_retry)
             VALUES
                 (:id, :id_scenario, :new_program_name, :new_program_share_storico,
                  :share_result, :status, :creation_date, :modified_date,
-                 :last_error, :is_retry, :user_email)
+                 :last_error, :is_retry)
         """
 
         self._logger.info(f"insert_simulation | with id {simulation.get('id')}, scenario_id {simulation.get('id_scenario')}")
@@ -136,7 +130,7 @@ class DatabricksServiceSimulationSostituzione(DatabricksServiceSimulation):
         with self.cursor() as cursor:
             cursor.execute(query, parameters=params)
 
-    def get_simulation_for_retry(self, simulation_id: str) -> dict | None:
+    def get_simulation_for_retry(self, simulation_id: str, created_by: str | None) -> dict | None:
         query = """
             SELECT
                 sim.id               AS sim_id,
@@ -144,8 +138,8 @@ class DatabricksServiceSimulationSostituzione(DatabricksServiceSimulation):
                 sim.new_program_share_storico,
                 sim.status,
                 sim.is_retry,
-                sim.user_email,
                 sce.id               AS sce_id,
+                sce.created_by,
                 sce.scenario_type,
                 sce.program_id,
                 sce.program_name,
@@ -156,10 +150,11 @@ class DatabricksServiceSimulationSostituzione(DatabricksServiceSimulation):
                 sce.program_share_predict
             FROM webapp_simulations_sostituzione sim
             JOIN webapp_scenarios sce
-              ON sim.id_scenario = sce.id
+                ON sim.id_scenario = sce.id
             WHERE sim.id = :simulation_id
+                AND sce.created_by <=> :created_by
         """
-        params = {"simulation_id": simulation_id}
+        params = {"simulation_id": simulation_id, "created_by": created_by}
 
         self._logger.info(f"get_simulation_for_retry | with params {params}")
 

@@ -112,6 +112,7 @@ def get_schedule_programs():
 def check_scenario_limit():
     program_id = request.args.get("program_id") or None
     scenario_type = request.args.get("scenario_type") or None
+    actor_identity, identity_source = resolve_request_user_identity(request)
 
     if not program_id:
         return error(message="Il parametro 'program_id' è obbligatorio", errors=["missing_program_id"]), 400
@@ -122,11 +123,21 @@ def check_scenario_limit():
             errors=["invalid_scenario_type"],
         ), 400
 
-    logger.info("checkScenarioLimit | program_id=%s scenario_type=%s", program_id, scenario_type)
+    logger.info(
+        "checkScenarioLimit | program_id=%s scenario_type=%s user_email=%s user_email_source=%s",
+        program_id,
+        scenario_type,
+        actor_identity,
+        identity_source,
+    )
 
     try:
         logic = get_simulation_logic()
-        can_proceed, simulation_count = logic.can_proceed_to_step_3(program_id, scenario_type)
+        can_proceed, simulation_count = logic.can_proceed_to_step_3(
+            program_id=program_id,
+            scenario_type=scenario_type,
+            actor_identity=actor_identity,
+        )
     except RuntimeError as e:
         logger.error("checkScenarioLimit RuntimeError: %s", e)
         return error(message=str(e), errors=["databricks_error"]), 502
@@ -244,6 +255,8 @@ def retry_sostituzione(simulation_id):
     try:
         logic = get_simulation_logic()
         message, status_code = logic.retry_sostituzione(simulation_id, actor_identity)
+    except PermissionError as e:
+        return error(message=str(e), errors=["forbidden"]), 403
     except ValueError as e:
         return error(message=str(e), errors=["invalid_state"]), 400
     except RuntimeError as e:
@@ -263,6 +276,8 @@ def retry_spostamento(simulation_id):
     try:
         logic = get_simulation_logic()
         message, status_code = logic.retry_spostamento(simulation_id, actor_identity)
+    except PermissionError as e:
+        return error(message=str(e), errors=["forbidden"]), 403
     except ValueError as e:
         return error(message=str(e), errors=["invalid_state"]), 400
     except RuntimeError as e:

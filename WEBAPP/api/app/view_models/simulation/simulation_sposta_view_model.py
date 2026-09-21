@@ -19,7 +19,6 @@ class SimulationSpostamentoViewModel:
     modified_date: str | None
     last_error: str | None
     is_retry: bool
-    user_email: str | None
 
     @classmethod
     def map_simulation_spostamento_view_model_from_simulation_spostamento(
@@ -38,5 +37,4 @@ class SimulationSpostamentoViewModel:
             modified_date=sim.modified_date,
             last_error=sim.last_error,
             is_retry=sim.is_retry,
-            user_email=sim.user_email,
         )

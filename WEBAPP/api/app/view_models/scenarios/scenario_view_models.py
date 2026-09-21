@@ -20,12 +20,15 @@ class ScenarioViewModel:
     program_from_time: str | None
     program_to_time: str | None
     program_share_predict: float | None
+    created_by: str | None
+    can_modify: bool
     creation_date: str | None
     modified_date: str | None
     simulations: list[SimulationSostituzioneViewModel | SimulationSpostamentoViewModel] = field(default_factory=list)
 
     @classmethod
-    def MapScenarioViewModelFromScenario(cls, s: Scenario) -> "ScenarioViewModel":
+    def MapScenarioViewModelFromScenario(cls, s: Scenario, actor_identity: str | None = None) -> "ScenarioViewModel":
+        same_owner = (s.created_by is None and actor_identity is None) or (s.created_by == actor_identity)
         return cls(
             id=s.id,
             scenario_type=s.scenario_type,
@@ -37,6 +40,8 @@ class ScenarioViewModel:
             program_from_time=s.program_from_time,
             program_to_time=s.program_to_time,
             program_share_predict=s.program_share_predict,
+            created_by=s.created_by,
+            can_modify=same_owner,
             creation_date=s.creation_date,
             modified_date=s.modified_date,
             simulations=[

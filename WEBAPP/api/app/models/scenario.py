@@ -15,6 +15,7 @@ class Scenario:
     program_from_time: str | None
     program_to_time: str | None
     program_share_predict: float | None
+    created_by: str | None
     creation_date: str | None
     modified_date: str | None
     simulations: list = field(default_factory=list)
@@ -35,6 +36,7 @@ class Scenario:
             program_from_time=str(row.program_from_time) if row.program_from_time else None,
             program_to_time=str(row.program_to_time) if row.program_to_time else None,
             program_share_predict=row.program_share_predict,
+            created_by=row.created_by,
             creation_date=creation.isoformat() if hasattr(creation, 'isoformat') else str(creation) if creation else None,
             modified_date=modified.isoformat() if hasattr(modified, 'isoformat') else str(modified) if modified else None,
 
@@ -56,6 +58,7 @@ class Scenario:
             program_from_time=str(row["program_from_time"]) if row.get("program_from_time") else None,
             program_to_time=str(row["program_to_time"]) if row.get("program_to_time") else None,
             program_share_predict=row.get("program_share_predict"),
+            created_by=row.get("created_by"),
             creation_date=creation.isoformat() if hasattr(creation, "isoformat") else str(creation) if creation else None,
             modified_date=modified.isoformat() if hasattr(modified, "isoformat") else str(modified) if modified else None,
         )

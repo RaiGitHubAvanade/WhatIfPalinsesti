@@ -15,7 +15,7 @@ class DatabricksServiceSimulation(DatabricksService):
     ) -> list[TargetProgram]:
         query = """
             SELECT ID, Canale, Data, Programma, orario_inizio, orario_fine,
-                   share_predetto, target_genere, target_eta, DES_GENERE_ESTESA_INT, durata_minuti
+                share_predetto, target_genere, target_eta, DES_GENERE_ESTESA_INT, durata_minuti
             FROM out_palinsesto_predict_all_slots
             WHERE Data = :day
             ORDER BY orario_inizio
@@ -37,7 +37,7 @@ class DatabricksServiceSimulation(DatabricksService):
     ) -> list[DestinationProgram]:
         query = """
             SELECT ID, Canale, Data, Programma, orario_inizio, orario_fine,
-                     share_predetto, target_genere, target_eta, DES_GENERE_ESTESA_INT, durata_minuti
+                share_predetto, target_genere, target_eta, DES_GENERE_ESTESA_INT, durata_minuti
             FROM out_palinsesto_predict_all_slots
             WHERE Data = :day
             ORDER BY orario_inizio
@@ -58,7 +58,7 @@ class DatabricksServiceSimulation(DatabricksService):
             SELECT titolo, canale, tipologia, genere, eta, share_storico_pct, durata_minuti
             FROM output_lista_programmi_sostituzione
             WHERE share_storico_pct >= :share_predicted
-              AND durata_minuti BETWEEN :min_duration AND :max_duration
+                AND durata_minuti BETWEEN :min_duration AND :max_duration
             ORDER BY share_storico_pct DESC
         """
         params = {
@@ -80,11 +80,11 @@ class DatabricksServiceSimulation(DatabricksService):
             INSERT INTO webapp_scenarios
                 (id, scenario_type, scenario_name, program_id, program_name, program_channel,
                  program_share_predict, program_date, program_from_time, program_to_time,
-                 creation_date, modified_date)
+                 created_by, creation_date, modified_date)
             VALUES
                 (:id, :scenario_type, :scenario_name, :program_id, :program_name, :program_channel,
                  :program_share_predict, :program_date, :program_from_time, :program_to_time,
-                 :creation_date, :modified_date)
+                 :created_by, :creation_date, :modified_date)
         """
         self._logger.info(f"insert_scenario | with id {scenario.get('id')}")
 

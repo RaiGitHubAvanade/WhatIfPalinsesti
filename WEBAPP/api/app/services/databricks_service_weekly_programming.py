@@ -107,19 +107,19 @@ class DatabricksServiceWeeklyProgramming(DatabricksService):
             SELECT ID, Canale, Data, Programma, orario_inizio, orario_fine, share_storico, evento_forte
             FROM vw_output_palinsesto_futuro 
             WHERE Data = :day 
-            AND Canale IN ({placeholders}) 
-            AND (
-                CASE WHEN INT(split(orario_inizio, ':')[0]) < 6
-                    THEN INT(split(orario_inizio, ':')[0]) * 60 + INT(split(orario_inizio, ':')[1]) + 1440
-                    ELSE INT(split(orario_inizio, ':')[0]) * 60 + INT(split(orario_inizio, ':')[1])
-                END
-            ) < :overlap_to
-            AND (
-                CASE WHEN INT(split(orario_fine, ':')[0]) < 6
-                    THEN INT(split(orario_fine, ':')[0]) * 60 + INT(split(orario_fine, ':')[1]) + 1440
-                    ELSE INT(split(orario_fine, ':')[0]) * 60 + INT(split(orario_fine, ':')[1])
-                END
-            ) > :overlap_from
+                AND Canale IN ({placeholders}) 
+                AND (
+                    CASE WHEN INT(split(orario_inizio, ':')[0]) < 6
+                        THEN INT(split(orario_inizio, ':')[0]) * 60 + INT(split(orario_inizio, ':')[1]) + 1440
+                        ELSE INT(split(orario_inizio, ':')[0]) * 60 + INT(split(orario_inizio, ':')[1])
+                    END
+                ) < :overlap_to
+                AND (
+                    CASE WHEN INT(split(orario_fine, ':')[0]) < 6
+                        THEN INT(split(orario_fine, ':')[0]) * 60 + INT(split(orario_fine, ':')[1]) + 1440
+                        ELSE INT(split(orario_fine, ':')[0]) * 60 + INT(split(orario_fine, ':')[1])
+                    END
+                ) > :overlap_from
         """
         params = {
             "day": day,

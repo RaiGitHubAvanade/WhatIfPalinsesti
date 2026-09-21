@@ -83,11 +83,20 @@ class BusinessLogicSimulation:
         return self.start_simulation(req, "spostamento", actor_identity)
 
 
-    def can_proceed_to_step_3(self, program_id: str, scenario_type: str) -> tuple[bool, int]:
+    def can_proceed_to_step_3(
+        self,
+        program_id: str,
+        scenario_type: str,
+        actor_identity: str | None = None,
+    ) -> tuple[bool, int]:
         handler = self._handler_factory.get_handler(scenario_type)
 
         try:
-            simulation_count = handler.get_scenario_simulation_count(program_id, scenario_type)
+            simulation_count = handler.get_scenario_simulation_count(
+                program_id=program_id,
+                scenario_type=scenario_type,
+                created_by=actor_identity,
+            )
         except Exception as e:
             raise RuntimeError(f"Errore nella validazione del limite simulazioni: {e}") from e
 
@@ -104,7 +113,7 @@ class BusinessLogicSimulation:
         now = datetime.now(timezone.utc)
         handler = self._handler_factory.get_handler(simulation_type)
 
-        rows = handler.get_scenario_simulations(req)
+        rows = handler.get_scenario_simulations(req, actor_identity)
 
         if rows:
             scenario_id = rows[0]["sce_id"]
@@ -124,7 +133,6 @@ class BusinessLogicSimulation:
                         "modified_date": now,
                         "last_error": None,
                         "is_retry": False,
-                        "user_email": actor_identity,
                     }
 
                     handler.update_simulation(simulation_id, **update_fields)
@@ -139,7 +147,7 @@ class BusinessLogicSimulation:
             sim_count = len([r for r in rows if r.get("sim_id") is not None])
             if sim_count < Config.MAX_SIMULATIONS_PER_SCENARIO:
                 simulation_id = str(uuid.uuid4())
-                handler.insert_simulation(simulation_id, scenario_id, req, actor_identity, now)
+                handler.insert_simulation(simulation_id, scenario_id, req, now)
                 self._base_service.update_scenario(scenario_id, modified_date=now)
                 self._launch_thread(simulation_id, req.to_payload(), simulation_type)
                 return "", 202
@@ -157,12 +165,13 @@ class BusinessLogicSimulation:
             "program_date": req.program_date,
             "program_from_time": req.program_from_time,
             "program_to_time": req.program_to_time,
+            "created_by": actor_identity,
             "creation_date": now,
             "modified_date": now,
         })
 
         simulation_id = str(uuid.uuid4())
-        handler.insert_simulation(simulation_id, scenario_id, req, actor_identity, now)
+        handler.insert_simulation(simulation_id, scenario_id, req, now)
         self._launch_thread(simulation_id, req.to_payload(), simulation_type)
         return "", 202
 
@@ -179,12 +188,12 @@ class BusinessLogicSimulation:
         handler = self._handler_factory.get_handler(simulation_type)
 
         try:
-            row = handler.get_simulation_for_retry(simulation_id)
+            row = handler.get_simulation_for_retry(simulation_id, actor_identity)
         except Exception as e:
             raise RuntimeError(f"Errore nel recupero della simulazione: {e}") from e
 
         if row is None:
-            raise ValueError(Messages.SIMULATION_NOT_FOUND)
+            raise PermissionError(Messages.SCENARIO_MODIFICATION_FORBIDDEN)
         if row.get("status") != "Failed" or not row.get("is_retry"):
             raise ValueError(Messages.SIMULATION_RETRY_ON_NOT_FAILED)
 
