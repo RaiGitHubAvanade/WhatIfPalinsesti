@@ -143,6 +143,7 @@ export default function Scenarios() {
   const [search, setSearch] = useState('')
   const [typeFilter, setTypeFilter] = useState('')
   const [dateFilter, setDateFilter] = useState('')
+  const [onlyMineFilter, setOnlyMineFilter] = useState(false)
   const [perPageValue, setPerPageValue] = useState(String(DEFAULT_SCENARIOS_PAGE_SIZE))
   const [page, setPage] = useState(1)
   const [selectedItem, setSelectedItem] = useState(null)
@@ -151,6 +152,10 @@ export default function Scenarios() {
   const [deletingMine, setDeletingMine] = useState(false)
   const [simOperationCount, setSimOperationCount] = useState(0)
   const scenarios = useMemo(() => (scenariosData || []).map(mapToDisplay), [scenariosData])
+  const userName = useMemo(() => {
+    const mine = scenarios.find(({ sc }) => sc.canModify === true && sc.createdBy)
+    return mine?.sc?.createdBy || ''
+  }, [scenarios])
   const loading = !scenariosLoaded && scenariosLoading
   const pollingActive = scenariosPollingActive
 
@@ -250,6 +255,7 @@ export default function Scenarios() {
 
   // ── Client-side filtering ─────────────────────────────────────────────
   const filtered = scenarios.filter(({ sc }) => {
+    if (onlyMineFilter && sc.canModify !== true) return false
     if (typeFilter && sc.type !== typeFilter) return false
     if (dateFilter) {
       const hasDate = sc.items.some(it => (it.date || it.spDestDay) === dateFilter)
@@ -276,10 +282,10 @@ export default function Scenarios() {
   const totalPages = Math.max(1, Math.ceil(total / scenariosPerPage))
   const currentPage = Math.min(page, totalPages)
   const pageItems = filtered.slice((currentPage - 1) * scenariosPerPage, currentPage * scenariosPerPage)
-  const hasActiveFilter = !!(search || typeFilter || dateFilter)
+  const hasActiveFilter = !!(search || typeFilter || dateFilter || onlyMineFilter)
 
   function resetFilters() {
-    setSearch(''); setTypeFilter(''); setDateFilter(''); setPage(1)
+    setSearch(''); setTypeFilter(''); setDateFilter(''); setOnlyMineFilter(false); setPage(1)
   }
 
   function changePage(p) {
@@ -336,20 +342,28 @@ export default function Scenarios() {
             value={dateFilter}
             onChange={v => { setDateFilter(v); setPage(1) }}
           />
+          
+          <div className="scen-filter-sep" />
+
+          <div className="scen-mine-filter" title="Mostra solo gli scenari creati da te">
+            <span className="scen-mine-filter__label">I miei Scenari</span>
+            <label className="scen-mine-filter__check" aria-label="Solo i miei Scenari">
+              <input
+                type="checkbox"
+                checked={onlyMineFilter}
+                onChange={e => { setOnlyMineFilter(e.target.checked); setPage(1) }}
+              />
+            </label>
+          </div>
 
           {hasActiveFilter && (
             <button className="scen-filter-reset" onClick={resetFilters}>✕ Azzera</button>
           )}
 
-          <span className="scen-filter-count">
-            {pollingActive && (
-              <>
-                <span>Auto-aggiornamento attivo</span>
-                <span style={{ margin: '0 6px' }}>·</span>
-              </>
-            )}
-            {loading ? '…' : `${total} ${total === 1 ? 'scenario' : 'scenari'}`}
-          </span>
+          <div className="scen-info" aria-live="polite">
+            <div className="scen-info-status">{pollingActive ? 'Auto-aggiornamento attivo' : '\u00A0'}</div>
+            <div className="scen-info-count-total">{loading ? '…' : `${total} ${total === 1 ? 'scenario' : 'scenari'}`}</div>
+          </div>
 
           <div className="scen-right-actions">
             <button
@@ -367,7 +381,7 @@ export default function Scenarios() {
                   const { exportScenariosToExcel } = await import('../utils/exportScenariosExcel')
                   const result = await exportScenariosToExcel(
                     filtered,
-                    { typeFilter, dateFilter, search },
+                    { typeFilter, dateFilter, search, onlyMineFilter, userName },
                   )
                   if (!result.ok) {
                     if (result.reason === 'no_scenarios') {

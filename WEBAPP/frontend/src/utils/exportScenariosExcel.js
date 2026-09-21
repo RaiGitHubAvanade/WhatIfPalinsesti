@@ -1,18 +1,28 @@
 import ExcelJS from 'exceljs'
 import { sanitizeFilenameSegment, styleWorksheetHeader, downloadBuffer } from './exportExcel'
 
+function stripAfterAt(value) {
+  const text = String(value || '').trim()
+  const atIndex = text.indexOf('@')
+  return atIndex >= 0 ? text.slice(0, atIndex) : text
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Filename builder
 // ─────────────────────────────────────────────────────────────────────────────
 
 /**
  * Build the xlsx filename encoding the active filters.
- * @param {{ typeFilter: string, dateFilter: string, search: string }} filters
+ * @param {{ typeFilter: string, dateFilter: string, search: string, onlyMineFilter?: boolean, userName?: string }} filters
  * @returns {string}  e.g. "scenari_sostituzione_2025-01-15_cerca-tg1_2026-07-06.xlsx"
  */
-export function buildExportFilename({ typeFilter, dateFilter, search }) {
+export function buildExportFilename({ typeFilter, dateFilter, search, onlyMineFilter, userName }) {
   const today = new Date().toISOString().slice(0, 10)
   const parts = ['scenari']
+  if (onlyMineFilter) {
+    const localUserName = stripAfterAt(userName || 'me') || 'me'
+    parts.push(sanitizeFilenameSegment(localUserName))
+  }
   if (typeFilter) parts.push(sanitizeFilenameSegment(typeFilter))
   if (dateFilter) parts.push(dateFilter) // already ISO date — safe
   if (search) parts.push('cerca-' + sanitizeFilenameSegment(search))
@@ -131,7 +141,7 @@ const COL_WIDTHS = {
  * Generate and download an xlsx file from the filtered scenarios.
  *
  * @param {Array<{ id: string, sc: object }>} filtered  filtered scenario list
- * @param {{ typeFilter: string, dateFilter: string, search: string }} filters
+ * @param {{ typeFilter: string, dateFilter: string, search: string, onlyMineFilter?: boolean, userName?: string }} filters
  * @returns {{ ok: boolean, reason?: 'no_scenarios' | 'no_completed' }}
  */
 export async function exportScenariosToExcel(filtered, filters) {
