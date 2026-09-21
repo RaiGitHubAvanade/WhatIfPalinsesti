@@ -27,6 +27,9 @@ export default function ScenCard({ scenId, sc, onDelete, onEditScenarioName, onA
   const isFull = sc.items.length >= MAX_SIMULATIONS_PER_SCENARIO
   const shouldScrollSimulations = sc.items.length > SCENARIO_CARD_SCROLL_AFTER_SIMULATIONS
   const canModify = sc.canModify === true
+  const hasSimulationRunning = sc.items.some(item => item._status === 'Running')
+  const hasSimulationActionInProgress = deletingSimIds.size > 0 || retryingSimIds.size > 0
+  const isDeleteScenarioTemporarilyDisabled = hasSimulationRunning || hasSimulationActionInProgress
   const typeCls = sc.type === 'spostamento' ? 'spostamento' : 'sostituzione'
   const typeLabel = sc.type === 'spostamento' ? 'Spostamento' : sc.type === 'sostituzione' ? 'Sostituzione' : ''
   const displayTitle = sc.title || sc.anchor?.program_name || `Scenario ${scenId}`
@@ -274,7 +277,7 @@ export default function ScenCard({ scenId, sc, onDelete, onEditScenarioName, onA
         <div className="scen-hcard-actions">
           <button
             className="scen-clear-btn"
-            disabled={deletingScen}
+            disabled={deletingScen || isDeleteScenarioTemporarilyDisabled}
             onClick={async () => {
               setDeletingScen(true)
               try { await onDelete() }

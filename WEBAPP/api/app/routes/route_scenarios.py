@@ -90,6 +90,24 @@ def delete_scenario(scenario_id):
     return success(message="Scenario eliminato con successo")
 
 
+@bp.route("/scenarios/delete_mine", methods=["DELETE"])
+def delete_all_owned_scenarios():
+    actor_identity, identity_source = resolve_request_user_identity(request)
+    logger.info("deleteAllOwnedScenarios | user_email=%s user_email_source=%s", actor_identity, identity_source)
+    try:
+        logic = BusinessLogicScenarios(get_scenarios_service())
+        logic.delete_all_owned_scenarios(actor_identity=actor_identity)
+    except RuntimeError as e:
+        logger.error("deleteAllOwnedScenarios RuntimeError: %s", e)
+        return error(message=str(e), errors=["databricks_error"]), 502
+    except Exception as e:
+        logger.exception("deleteAllOwnedScenarios unexpected: %s", e)
+        return error(message=f"Errore imprevisto: {e}", errors=["internal_error"]), 500
+
+    broker.broadcast("scenarios_changed", {})
+    return success(message="Tutti i tuoi scenari sono stati eliminati con successo")
+
+
 @bp.route("/scenarios/<scenario_id>/edit_scenario_name", methods=["POST"])
 def edit_scenario_name(scenario_id):
     body = request.get_json(silent=True) or {}

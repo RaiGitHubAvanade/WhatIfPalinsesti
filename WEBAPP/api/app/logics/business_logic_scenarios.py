@@ -92,6 +92,14 @@ class BusinessLogicScenarios:
             raise RuntimeError(f"Errore nell'eliminazione dello scenario: {e}") from e
 
 
+    def delete_all_owned_scenarios(self, actor_identity: str | None = None) -> None:
+        try:
+            self._logger.info("delete_all_owned_scenarios")
+            self._service.delete_all_owned_scenarios(actor_identity)
+        except Exception as e:
+            raise RuntimeError(f"Errore nell'eliminazione di tutti gli scenari dell'utente: {e}") from e
+
+
     def edit_scenario_name(self, scenario_id: str, scenario_name: str, actor_identity: str | None = None) -> None:
 
         try:

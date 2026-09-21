@@ -5,6 +5,7 @@ import {
   deleteSimulationSostituzione,
   deleteSimulationSpostamento,
   deleteScenario,
+  deleteAllOwnedScenarios,
   editScenarioName,
 } from '../services/apiScenarios'
 import { retrySostituzione, retrySpostamento } from '../services/apiSimulation'
@@ -147,6 +148,8 @@ export default function Scenarios() {
   const [selectedItem, setSelectedItem] = useState(null)
 
   const [refreshing, setRefreshing] = useState(false)
+  const [deletingMine, setDeletingMine] = useState(false)
+  const [simOperationCount, setSimOperationCount] = useState(0)
   const scenarios = useMemo(() => (scenariosData || []).map(mapToDisplay), [scenariosData])
   const loading = !scenariosLoaded && scenariosLoading
   const pollingActive = scenariosPollingActive
@@ -184,6 +187,7 @@ export default function Scenarios() {
   }
 
   async function handleDeleteSim(simId, scenarioType) {
+    setSimOperationCount(prev => prev + 1)
     try {
       if (scenarioType === 'sostituzione') {
         await deleteSimulationSostituzione(simId)
@@ -193,10 +197,13 @@ export default function Scenarios() {
       await refreshScenarios({ force: true, silent: true })
     } catch (e) {
       toast(e.message || 'Errore eliminazione', 'error')
+    } finally {
+      setSimOperationCount(prev => Math.max(0, prev - 1))
     }
   }
 
   async function handleRetrySim(simId, scenarioType) {
+    setSimOperationCount(prev => prev + 1)
     try {
       if (scenarioType === 'sostituzione') {
         await retrySostituzione(simId)
@@ -208,6 +215,8 @@ export default function Scenarios() {
       await refreshScenarios({ force: true, silent: true })
     } catch (e) {
       toast(e.message || 'Errore rilancio', 'error')
+    } finally {
+      setSimOperationCount(prev => Math.max(0, prev - 1))
     }
   }
 
@@ -218,6 +227,24 @@ export default function Scenarios() {
     } catch (e) {
       toast(e.message || 'Errore aggiornamento nome scenario', 'error')
       throw e
+    }
+  }
+
+  async function handleDeleteAllMine() {
+    const confirmed = window.confirm('Vuoi eliminare tutti i tuoi scenari e le relative simulazioni?')
+    if (!confirmed) return
+
+    setDeletingMine(true)
+    try {
+      await deleteAllOwnedScenarios()
+      toast('Tutti i tuoi scenari sono stati eliminati.', 'success')
+      await refreshScenarios({ force: true, silent: true })
+      setPage(1)
+      setSelectedItem(null)
+    } catch (e) {
+      toast(e.message || 'Errore eliminazione scenari', 'error')
+    } finally {
+      setDeletingMine(false)
     }
   }
 
@@ -415,6 +442,19 @@ export default function Scenarios() {
             </div>
 
             <div className="scen-pagination-row">
+              {total > 0 && (
+                <div className="scen-pagination-left">
+                  <button
+                    className="scen-delete-mine-btn"
+                    onClick={() => handleDeleteAllMine()}
+                    disabled={deletingMine || simOperationCount > 0 || loading || total === 0}
+                    title="Elimina tutti i tuoi scenari e le relative simulazioni"
+                  >
+                    {deletingMine ? <span className="scen-spinner" /> : '🗑️'} Elimina tutti i miei Scenari
+                  </button>
+                </div>
+              )}
+
               {totalPages > 1 && (
                 <div className="scen-pagination">
                   <button

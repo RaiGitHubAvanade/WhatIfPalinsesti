@@ -26,6 +26,9 @@
 .scen-refresh-btn:disabled { opacity: .5; cursor: default; }
 .scen-export-btn { background: none; border: 1.5px solid #4caf50; color: #4caf50; border-radius: 9px; padding: 6px 11px; font-size: 12px; font-weight: 600; cursor: pointer; transition: .15s; font-family: inherit; flex-shrink: 0; }
 .scen-export-btn:hover { background: #4caf50; color: #fff; }
+.scen-delete-mine-btn { background: none; border: 1.5px solid var(--danger); color: var(--danger); border-radius: 9px; padding: 6px 11px; font-size: 12px; font-weight: 600; cursor: pointer; transition: .15s; font-family: inherit; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; gap: 5px; }
+.scen-delete-mine-btn:hover:not(:disabled) { background: var(--danger); color: #fff; }
+.scen-delete-mine-btn:disabled { opacity: .5; cursor: default; }
 .scen-right-actions { display: flex; flex-direction: column; gap: 5px; flex-shrink: 0; }
 @keyframes scen-spin { to { transform: rotate(360deg); } }
 .scen-spinner { display: inline-block; width: 13px; height: 13px; border: 2px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: scen-spin .7s linear infinite; }
@@ -77,6 +80,13 @@
   justify-content: center;
   gap: 4px;
   padding: 8px 0 4px;
+}
+
+.scen-pagination-left {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .scen-pagination-right {
@@ -144,5 +154,12 @@
     transform: none;
     margin-top: 8px;
     margin-left: auto;
+  }
+
+  .scen-pagination-left {
+    position: static;
+    transform: none;
+    margin-top: 8px;
+    margin-right: auto;
   }
 }

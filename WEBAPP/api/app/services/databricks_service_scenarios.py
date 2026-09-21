@@ -172,6 +172,37 @@ class DatabricksServiceScenarios(DatabricksService):
             cursor.execute(query, parameters=params)
 
 
+    def delete_all_owned_scenarios(self, created_by: str | None) -> None:
+        delete_sostituzione_query = """
+            DELETE FROM webapp_simulations_sostituzione
+            WHERE id_scenario IN (
+                SELECT id
+                FROM webapp_scenarios
+                WHERE created_by <=> :created_by
+            )
+        """
+        delete_spostamento_query = """
+            DELETE FROM webapp_simulations_spostamento
+            WHERE id_scenario IN (
+                SELECT id
+                FROM webapp_scenarios
+                WHERE created_by <=> :created_by
+            )
+        """
+        delete_scenarios_query = """
+            DELETE FROM webapp_scenarios
+            WHERE created_by <=> :created_by
+        """
+        params = {"created_by": created_by}
+
+        self._logger.info("delete_all_owned_scenarios | created_by=%s", created_by)
+
+        with self.cursor() as cursor:
+            cursor.execute(delete_sostituzione_query, parameters=params)
+            cursor.execute(delete_spostamento_query, parameters=params)
+            cursor.execute(delete_scenarios_query, parameters=params)
+
+
     def is_scenario_owned(self, scenario_id: str, created_by: str | None) -> bool:
         query = """
             SELECT 1

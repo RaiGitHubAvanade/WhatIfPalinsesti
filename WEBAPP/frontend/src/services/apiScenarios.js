@@ -43,6 +43,12 @@ export async function deleteScenario(scenarioId) {
 }
 
 /** @returns {Promise<void>} */
+export async function deleteAllOwnedScenarios() {
+  const result = await apiFetch('/api/scenarios/delete_mine', { method: 'DELETE' })
+  if (!result.success) throw new Error(result.message || 'Errore eliminazione scenari')
+}
+
+/** @returns {Promise<void>} */
 export async function editScenarioName(scenarioId, scenarioName) {
   const result = await apiFetch(`/api/scenarios/${scenarioId}/edit_scenario_name`, {
     method: 'POST',
