@@ -1,0 +1,74 @@
+.cf-popup-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 20, 40, 0.45);
+  z-index: 1400;
+}
+
+.cf-popup {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 420px;
+  max-width: calc(100vw - 32px);
+  background: #fff;
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 18px 48px rgba(10, 20, 40, 0.28);
+  z-index: 1500;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cf-popup-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.cf-popup-message {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.cf-popup-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.cf-popup-btn {
+  border-radius: 8px;
+  padding: 7px 12px;
+  border: 1.5px solid var(--border);
+  background: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: .15s;
+  font-family: inherit;
+}
+
+.cf-popup-btn--cancel {
+  color: var(--muted);
+}
+
+.cf-popup-btn--cancel:hover {
+  border-color: var(--muted);
+  background: #f5f7fb;
+}
+
+.cf-popup-btn--confirm {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.cf-popup-btn--confirm:hover {
+  background: var(--danger);
+  color: #fff;
+}

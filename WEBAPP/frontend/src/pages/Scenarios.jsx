@@ -16,6 +16,7 @@ import DaySelector from '../components/shared/DaySelector'
 import ElementsPerPage from '../components/shared/ElementsPerPage'
 import SimulationTypeSelector from '../components/simulation/SimulationTypeSelector'
 import TextInputFilter from '../components/shared/TextInputFilter'
+import ConfirmPopup from '../components/shared/ConfirmPopup'
 import {
   MAX_SIMULATIONS_PER_SCENARIO,
   SCENARIOS_PAGE_SIZE_OPTIONS,
@@ -151,6 +152,7 @@ export default function Scenarios() {
   const [refreshing, setRefreshing] = useState(false)
   const [deletingMine, setDeletingMine] = useState(false)
   const [simOperationCount, setSimOperationCount] = useState(0)
+  const [confirmDeleteAllMineOpen, setConfirmDeleteAllMineOpen] = useState(false)
   const scenarios = useMemo(() => (scenariosData || []).map(mapToDisplay), [scenariosData])
   const userName = useMemo(() => {
     const mine = scenarios.find(({ sc }) => sc.canModify === true && sc.createdBy)
@@ -236,9 +238,7 @@ export default function Scenarios() {
   }
 
   async function handleDeleteAllMine() {
-    const confirmed = window.confirm('Vuoi eliminare tutti i tuoi scenari e le relative simulazioni?')
-    if (!confirmed) return
-
+    setConfirmDeleteAllMineOpen(false)
     setDeletingMine(true)
     try {
       await deleteAllOwnedScenarios()
@@ -460,7 +460,7 @@ export default function Scenarios() {
                 <div className="scen-pagination-left">
                   <button
                     className="scen-delete-mine-btn"
-                    onClick={() => handleDeleteAllMine()}
+                    onClick={() => setConfirmDeleteAllMineOpen(true)}
                     disabled={deletingMine || simOperationCount > 0 || loading || total === 0}
                     title="Elimina tutti i tuoi scenari e le relative simulazioni"
                   >
@@ -515,6 +515,16 @@ export default function Scenarios() {
             </div>
           </div>
         )}
+
+        <ConfirmPopup
+          open={confirmDeleteAllMineOpen}
+          title="Conferma eliminazione"
+          message="Sei sicuro di voler cancellare tutti i tuoi Scenari?"
+          confirmLabel="Elimina tutto"
+          cancelLabel="Annulla"
+          onCancel={() => setConfirmDeleteAllMineOpen(false)}
+          onConfirm={handleDeleteAllMine}
+        />
 
       </div>
       </>

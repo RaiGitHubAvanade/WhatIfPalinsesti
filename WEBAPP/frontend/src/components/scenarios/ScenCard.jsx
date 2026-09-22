@@ -4,6 +4,7 @@ import {
   MAX_SIMULATIONS_PER_SCENARIO,
   SCENARIO_CARD_SIMULATIONS_PER_PAGE,
 } from '../../utils/constants'
+import ConfirmPopup from '../shared/ConfirmPopup'
 import './ScenCard.css'
 
 /**
@@ -25,6 +26,8 @@ export default function ScenCard({ scenId, sc, onDelete, onEditScenarioName, onA
   const [savingTitle, setSavingTitle] = useState(false)
   const [carouselPage, setCarouselPage] = useState(0)
   const [carouselDirection, setCarouselDirection] = useState('next')
+  const [pendingDeleteSimId, setPendingDeleteSimId] = useState(null)
+  const [pendingDeleteScenario, setPendingDeleteScenario] = useState(false)
 
   const isFull = sc.items.length >= MAX_SIMULATIONS_PER_SCENARIO
   const simulationsPerPage = SCENARIO_CARD_SIMULATIONS_PER_PAGE
@@ -84,6 +87,29 @@ export default function ScenCard({ scenId, sc, onDelete, onEditScenarioName, onA
     if (!hasCarousel || pageIndex === safeCarouselPage) return
     setCarouselDirection(pageIndex > safeCarouselPage ? 'next' : 'prev')
     setCarouselPage(pageIndex)
+  }
+
+  const confirmDeleteSim = async () => {
+    const simId = pendingDeleteSimId
+    if (!simId || !onDeleteSim) return
+    setPendingDeleteSimId(null)
+    setDeletingSimIds(prev => new Set(prev).add(simId))
+    try { await onDeleteSim(simId) }
+    finally {
+      setDeletingSimIds(prev => {
+        const next = new Set(prev)
+        next.delete(simId)
+        return next
+      })
+    }
+  }
+
+  const confirmDeleteScenario = async () => {
+    if (!onDelete) return
+    setPendingDeleteScenario(false)
+    setDeletingScen(true)
+    try { await onDelete() }
+    finally { setDeletingScen(false) }
   }
 
   return (
@@ -274,17 +300,9 @@ export default function ScenCard({ scenId, sc, onDelete, onEditScenarioName, onA
                     <button
                       className="scen-icon-btn"
                       disabled={deletingSimIds.has(item._sim_id)}
-                      onClick={async (e) => {
+                      onClick={(e) => {
                         e.stopPropagation()
-                        setDeletingSimIds(prev => new Set(prev).add(item._sim_id))
-                        try { await onDeleteSim(item._sim_id) }
-                        finally {
-                          setDeletingSimIds(prev => {
-                            const next = new Set(prev)
-                            next.delete(item._sim_id)
-                            return next
-                          })
-                        }
+                        setPendingDeleteSimId(item._sim_id)
                       }}
                       title="Rimuovi simulazione"
                     >
@@ -332,11 +350,7 @@ export default function ScenCard({ scenId, sc, onDelete, onEditScenarioName, onA
           <button
             className="scen-clear-btn"
             disabled={deletingScen || isDeleteScenarioTemporarilyDisabled}
-            onClick={async () => {
-              setDeletingScen(true)
-              try { await onDelete() }
-              finally { setDeletingScen(false) }
-            }}
+            onClick={() => setPendingDeleteScenario(true)}
           >
             {deletingScen ? <span className="scen-spinner" /> : 'Elimina Scenario'}
           </button>
@@ -352,6 +366,26 @@ export default function ScenCard({ scenId, sc, onDelete, onEditScenarioName, onA
           )}
         </div>
       )}
+
+      <ConfirmPopup
+        open={pendingDeleteSimId !== null}
+        title="Conferma eliminazione"
+        message="Sei sicuro di voler cancellare questa Simulazione?"
+        confirmLabel="Elimina"
+        cancelLabel="Annulla"
+        onCancel={() => setPendingDeleteSimId(null)}
+        onConfirm={confirmDeleteSim}
+      />
+
+      <ConfirmPopup
+        open={pendingDeleteScenario}
+        title="Conferma eliminazione"
+        message="Sei sicuro di voler cancellare questo Scenario?"
+        confirmLabel="Elimina"
+        cancelLabel="Annulla"
+        onCancel={() => setPendingDeleteScenario(false)}
+        onConfirm={confirmDeleteScenario}
+      />
 
     </div>
   )
