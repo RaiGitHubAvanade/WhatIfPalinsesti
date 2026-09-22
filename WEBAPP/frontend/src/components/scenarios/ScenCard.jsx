@@ -183,7 +183,7 @@ export default function ScenCard({ scenId, sc, onDelete, onEditScenarioName, onA
 
         <div
           key={`carousel-page-${safeCarouselPage}-${carouselDirection}`}
-          className={`scen-hcard-items${hasCarousel ? ' scen-hcard-items--carousel' : ''}${hasCarousel ? ` scen-hcard-items--anim-${carouselDirection}` : ''}`}
+          className={`scen-hcard-items${hasCarousel ? ' scen-hcard-items--carousel' : ''} scen-hcard-items--anim-${carouselDirection}`}
         >
         {visibleItems.map((item) => {
           const isSpost = item.mode === 'spostamento'
