@@ -10,8 +10,8 @@ export const CH_CLS = { 'Rai 1': 'prow-r1', 'Rai 2': 'prow-r2', 'Rai 3': 'prow-r
 /** Max number of Simulations for a single Scenario */
 export const MAX_SIMULATIONS_PER_SCENARIO = 15
 
-/** Start vertical scroll in ScenCard when simulations are more than this value */
-export const SCENARIO_CARD_SCROLL_AFTER_SIMULATIONS = 3
+/** Simulations shown per page in ScenCard carousel; carousel appears when items exceed this value */
+export const SCENARIO_CARD_SIMULATIONS_PER_PAGE = 3
 
 /** Max number of shap values displayed in the chart, in Simulation Detail pages */
 export const MAX_SHAP_VALUES_DISPLAYED = 3

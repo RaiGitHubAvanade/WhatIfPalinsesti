@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { fmtDateShort } from '../../utils/dateUtils'
 import {
   MAX_SIMULATIONS_PER_SCENARIO,
-  SCENARIO_CARD_SCROLL_AFTER_SIMULATIONS,
+  SCENARIO_CARD_SIMULATIONS_PER_PAGE,
 } from '../../utils/constants'
 import './ScenCard.css'
 
@@ -23,9 +23,14 @@ export default function ScenCard({ scenId, sc, onDelete, onEditScenarioName, onA
   const [editingTitle, setEditingTitle] = useState(false)
   const [draftTitle, setDraftTitle] = useState('')
   const [savingTitle, setSavingTitle] = useState(false)
+  const [carouselPage, setCarouselPage] = useState(0)
+  const [carouselDirection, setCarouselDirection] = useState('next')
 
   const isFull = sc.items.length >= MAX_SIMULATIONS_PER_SCENARIO
-  const shouldScrollSimulations = sc.items.length > SCENARIO_CARD_SCROLL_AFTER_SIMULATIONS
+  const simulationsPerPage = SCENARIO_CARD_SIMULATIONS_PER_PAGE
+  const hasCarousel = sc.items.length > simulationsPerPage
+  const totalCarouselPages = Math.max(1, Math.ceil(sc.items.length / simulationsPerPage))
+  const safeCarouselPage = Math.min(carouselPage, totalCarouselPages - 1)
   const canModify = sc.canModify === true
   const hasSimulationRunning = sc.items.some(item => item._status === 'Running')
   const hasSimulationActionInProgress = deletingSimIds.size > 0 || retryingSimIds.size > 0
@@ -58,6 +63,28 @@ export default function ScenCard({ scenId, sc, onDelete, onEditScenarioName, onA
         hour: '2-digit', minute: '2-digit',
       })
     : '—'
+
+  const visibleItems = hasCarousel
+    ? sc.items.slice(safeCarouselPage * simulationsPerPage, (safeCarouselPage + 1) * simulationsPerPage)
+    : sc.items
+
+  const goToNextCarouselPage = () => {
+    if (!hasCarousel) return
+    setCarouselDirection('next')
+    setCarouselPage(prev => (prev + 1) % totalCarouselPages)
+  }
+
+  const goToPrevCarouselPage = () => {
+    if (!hasCarousel) return
+    setCarouselDirection('prev')
+    setCarouselPage(prev => (prev - 1 + totalCarouselPages) % totalCarouselPages)
+  }
+
+  const goToCarouselPage = (pageIndex) => {
+    if (!hasCarousel || pageIndex === safeCarouselPage) return
+    setCarouselDirection(pageIndex > safeCarouselPage ? 'next' : 'prev')
+    setCarouselPage(pageIndex)
+  }
 
   return (
     <div className={`scen-hcard ${typeCls}`}>
@@ -142,10 +169,23 @@ export default function ScenCard({ scenId, sc, onDelete, onEditScenarioName, onA
       <div className="scen-hcard-count">{sc.items.length} / {MAX_SIMULATIONS_PER_SCENARIO} simulazioni</div>
 
       {/* ── Item rows ── */}
-      <div
-        className={`scen-hcard-items${shouldScrollSimulations ? ' scen-hcard-items--scrollable' : ''}`}
-      >
-        {sc.items.map((item, idx) => {
+      <div className="scen-hcard-items-carousel">
+        {hasCarousel && (
+          <button
+            className="scen-hcard-carousel-nav"
+            onClick={goToPrevCarouselPage}
+            aria-label="Pagina simulazioni precedente"
+            title="Precedente"
+          >
+            ‹
+          </button>
+        )}
+
+        <div
+          key={`carousel-page-${safeCarouselPage}-${carouselDirection}`}
+          className={`scen-hcard-items${hasCarousel ? ' scen-hcard-items--carousel' : ''}${hasCarousel ? ` scen-hcard-items--anim-${carouselDirection}` : ''}`}
+        >
+        {visibleItems.map((item) => {
           const isSpost = item.mode === 'spostamento'
           const emoji = isSpost ? '🕐' : '🔄'
           const delta = item.result?.delta ?? null
@@ -170,7 +210,7 @@ export default function ScenCard({ scenId, sc, onDelete, onEditScenarioName, onA
 
           return (
             <div
-              key={idx}
+              key={item._sim_id || `${item.mode}-${candName}`}
               className={`scen-hcard-item${item._status === 'Completed' && onViewDetail ? ' scen-hcard-item--clickable' : ''}`}
               onClick={item._status === 'Completed' && onViewDetail ? () => onViewDetail(item) : undefined}
               role={item._status === 'Completed' && onViewDetail ? 'button' : undefined}
@@ -237,7 +277,7 @@ export default function ScenCard({ scenId, sc, onDelete, onEditScenarioName, onA
                       onClick={async (e) => {
                         e.stopPropagation()
                         setDeletingSimIds(prev => new Set(prev).add(item._sim_id))
-                        try { await onDeleteSim(item._sim_id, idx) }
+                        try { await onDeleteSim(item._sim_id) }
                         finally {
                           setDeletingSimIds(prev => {
                             const next = new Set(prev)
@@ -258,20 +298,34 @@ export default function ScenCard({ scenId, sc, onDelete, onEditScenarioName, onA
             </div>
           )
         })}
+        </div>
+
+        {hasCarousel && (
+          <button
+            className="scen-hcard-carousel-nav"
+            onClick={goToNextCarouselPage}
+          >
+            ›
+          </button>
+        )}
       </div>
 
-      {canModify && !isFull && (
-        <button
-          className="scen-add-sim-btn"
-          onClick={onAddSim}
-          disabled={isFull}
-        >
-          + Aggiungi simulazione
-        </button>
+      {hasCarousel && (
+        <div className="scen-hcard-dots" aria-label="Paginazione simulazioni">
+          {Array.from({ length: totalCarouselPages }).map((_, p) => (
+            <button
+              key={`dot-${p}`}
+              className={`scen-hcard-dot${p === safeCarouselPage ? ' active' : ''}`}
+              onClick={() => goToCarouselPage(p)}
+            />
+          ))}
+        </div>
       )}
 
-      <div className="scen-hcard-created">Creato da: {sc.createdBy || '—'}</div>
-      <div className="scen-hcard-created">Ultimo aggiornamento: {modifiedTs}</div>
+      <div className="scen-hcard-footer-meta">
+        <div className="scen-hcard-created">Creato da: {sc.createdBy || '—'}</div>
+        <div className="scen-hcard-created">Ultimo aggiornamento: {modifiedTs}</div>
+      </div>
 
       {canModify && (
         <div className="scen-hcard-actions">
@@ -286,6 +340,16 @@ export default function ScenCard({ scenId, sc, onDelete, onEditScenarioName, onA
           >
             {deletingScen ? <span className="scen-spinner" /> : 'Elimina Scenario'}
           </button>
+
+          {!isFull && (
+            <button
+              className="scen-clear-btn scen-clear-btn--add-sim"
+              onClick={onAddSim}
+              disabled={isFull}
+            >
+              + Aggiungi simulazione
+            </button>
+          )}
         </div>
       )}
 
