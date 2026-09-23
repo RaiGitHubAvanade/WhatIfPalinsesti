@@ -125,7 +125,6 @@
 
 /* Item rows */
 .scen-hcard-items { display: flex; flex-direction: column; gap: 6px; flex: 1; }
-.scen-hcard-items--carousel { min-height: 200px; }
 .scen-hcard-items--anim-next { animation: scen-carousel-in-next .22s ease both; }
 .scen-hcard-items--anim-prev { animation: scen-carousel-in-prev .22s ease both; }
 @keyframes scen-carousel-in-next {
