@@ -18,7 +18,15 @@ function normalizeShapValues(shapValues) {
       return { name: toDisplayName(name), value }
     })
     .filter(Boolean)
-    .sort((a, b) => Math.abs(b.value) - Math.abs(a.value))
+    .sort((a, b) => {
+      const absDiff = Math.abs(b.value) - Math.abs(a.value)
+      if (absDiff !== 0) return absDiff
+
+      const valueDiff = b.value - a.value
+      if (valueDiff !== 0) return valueDiff
+
+      return a.name.localeCompare(b.name)
+    })
     .slice(0, MAX_SHAP_VALUES_DISPLAYED)
 
   return rows
