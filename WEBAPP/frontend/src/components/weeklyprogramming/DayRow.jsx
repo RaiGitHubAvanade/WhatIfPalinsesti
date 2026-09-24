@@ -29,7 +29,6 @@ export default function DayRow({ row, showDay, dayIso, wCh, editableFromDate, is
     ? (row.share_real - baseForDelta).toFixed(1)
     : null
   const deltaNum = delta != null ? parseFloat(delta) : null
-  const rowClass = deltaNum != null ? (deltaNum > 10 ? 'sP' : deltaNum < -10 ? 'sN' : '') : ''
 
   const handleSaveManuale = () => {
     const trimmed = editManualeVal.trim()
@@ -49,7 +48,7 @@ export default function DayRow({ row, showDay, dayIso, wCh, editableFromDate, is
   }
 
   return (
-    <tr className={rowClass}>
+    <tr>
       <td
         className={`pw-dr-day${showDay ? '' : ' pw-dr-day--hidden'}`}
         aria-hidden={showDay ? undefined : 'true'}
