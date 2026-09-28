@@ -1,20 +1,9 @@
+/* CustomSelect — trigger box style is shared via .filter-control (FilterField.css). */
+
 .csel-wrap { position: relative; }
 
-.csel-trigger {
-  border: 1.5px solid var(--border);
-  border-radius: 10px;
-  padding: 7px 12px;
-  font-size: 13px;
-  font-family: inherit;
-  color: var(--muted);
-  background: #fff;
-  outline: none;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: border-color .15s;
-}
-.csel-trigger--set { color: var(--muted); font-weight: 600; }
-.csel-trigger:hover, .csel-trigger:focus { border-color: var(--rai); }
+.csel-trigger { white-space: nowrap; }
+.csel-trigger--set { font-weight: 600; }
 
 .csel-dropdown {
   position: absolute;

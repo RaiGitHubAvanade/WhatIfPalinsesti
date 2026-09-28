@@ -1,5 +1,6 @@
 import { CHANNELS } from '../../utils/constants'
 import './ChannelSelector.css'
+import './FilterField.css'
 
 /**
  * Toggle-pill channel selector.
@@ -7,13 +8,13 @@ import './ChannelSelector.css'
  */
 export default function ChannelSelector({ selected, onChange }) {
   return (
-    <div className="ch-sel">
-      <span className="ch-sel__lbl">Canale</span>
-      <div className="ch-sel__grp">
+    <div className="filter-field">
+      <span className="filter-field__label">Canale</span>
+      <div className="filter-pill-group">
         {CHANNELS.map(c => (
           <button
             key={c}
-            className={`ch-sel__pill${selected === c ? ' on' : ''}`}
+            className={`filter-pill${selected === c ? ' on' : ''}`}
             onClick={() => onChange(c)}
           >
             {c}

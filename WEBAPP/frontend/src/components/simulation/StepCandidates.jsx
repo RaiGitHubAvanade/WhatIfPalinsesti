@@ -5,12 +5,15 @@ import {
   CH_CLS,
   DEFAULT_PROGRAM_PAGE_SIZE as PAGE_SIZE,
   PROGRAM_PAGE_SIZE_OPTIONS,
+  CANDIDATES_DURATION_OFFSET_MINUTES,
 } from '../../utils/constants'
 import CustomSelect from '../shared/CustomSelect'
 import ChannelSelector from '../shared/ChannelSelector'
 import PaginationNav from '../shared/PaginationNav'
 import ProgramRowBody from './ProgramRowBody'
 import TextInputFilter from '../shared/TextInputFilter'
+import FilterCheckbox from '../shared/FilterCheckbox'
+import '../shared/FilterField.css'
 import { durationMinutes } from '../../utils/dateUtils'
 import './StepCandidates.css'
 
@@ -26,13 +29,13 @@ export default function StepCandidates() {
   const [targetAge, setTargetAge] = useState('')
   const [genre, setGenre] = useState('')
   const [shareMin, setShareMin] = useState('')
+  const [durationSimilar, setDurationSimilar] = useState(false)
 
   const [rawData, setRawData] = useState(/** @type {CandidateProgramViewModel[]} */ ([]))
   const [loading, setLoading] = useState(true)
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(PAGE_SIZE)
 
-  const sharePredicted = prog?.share_predicted ?? null
   const duration = (prog?.from_time && prog?.to_time)
     ? durationMinutes(prog.from_time, prog.to_time)
     : null
@@ -47,15 +50,15 @@ export default function StepCandidates() {
     [rawData]
   )
 
-  // Re-fetch candidates when the target program changes
+  // Fetch the full candidate list once; every filter (including "Durata Simile") is applied client-side
   useEffect(() => {
     let cancelled = false
-    getCandidatePrograms({ share_predicted: sharePredicted, duration })
+    getCandidatePrograms()
       .then(data => { if (!cancelled) setRawData(data || []) })
       .catch(e => { if (!cancelled) toast(e.message || 'Errore caricamento candidati', 'error') })
       .finally(() => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
-  }, [sharePredicted, duration]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Client-side filtering
   const candidates_filtered = useMemo(() => {
@@ -69,8 +72,13 @@ export default function StepCandidates() {
     if (targetAge) result = result.filter(p => p.target_age === targetAge)
     if (genre) result = result.filter(p => p.genre === genre)
     if (shareMin) result = result.filter(p => typeof p.share_storico === 'number' && p.share_storico > parseFloat(shareMin))
+    if (durationSimilar && duration !== null) {
+      const min = Math.max(0, duration - CANDIDATES_DURATION_OFFSET_MINUTES)
+      const max = duration + CANDIDATES_DURATION_OFFSET_MINUTES
+      result = result.filter(p => typeof p.duration_minutes === 'number' && p.duration_minutes >= min && p.duration_minutes <= max)
+    }
     return result
-  }, [rawData, ch, search, targetSex, targetAge, genre, shareMin])
+  }, [rawData, ch, search, targetSex, targetAge, genre, shareMin, durationSimilar, duration])
 
   const displayed = candidates_filtered
 
@@ -81,13 +89,13 @@ export default function StepCandidates() {
   return (
     <div className="card psel-card">
       {/* Filter bar */}
-      <div className="psel-filter-bar">
+      <div className="filter-bar filter-bar--card-top">
         <TextInputFilter
           label="Cerca"
           value={search}
           placeholder="Titolo..."
           onChange={v => { setSearch(v); setPage(1) }}
-          className="psel-fg-search"
+          className="filter-field--search"
         />
 
         {/* Channel */}
@@ -97,8 +105,8 @@ export default function StepCandidates() {
         />
 
         {/* Target sesso */}
-        <div className="psel-fg">
-          <span className="psel-fg-lbl">Sesso</span>
+        <div className="filter-field">
+          <span className="filter-field__label">Sesso</span>
           <CustomSelect
             value={targetSex}
             onChange={v => { setTargetSex(v); set({ cand: null }); setPage(1) }}
@@ -111,8 +119,8 @@ export default function StepCandidates() {
         </div>
 
         {/* Target età */}
-        <div className="psel-fg">
-          <span className="psel-fg-lbl">Età</span>
+        <div className="filter-field">
+          <span className="filter-field__label">Età</span>
           <CustomSelect
             value={targetAge}
             onChange={v => { setTargetAge(v); set({ cand: null }); setPage(1) }}
@@ -124,8 +132,8 @@ export default function StepCandidates() {
         </div>
 
         {/* Share minima */}
-        <div className="psel-fg">
-          <span className="psel-fg-lbl">Share minimo</span>
+        <div className="filter-field">
+          <span className="filter-field__label">Share minimo</span>
           <CustomSelect
             value={shareMin}
             onChange={v => { setShareMin(v); set({ cand: null }); setPage(1) }}
@@ -137,8 +145,8 @@ export default function StepCandidates() {
         </div>
 
         {/* Genere */}
-        <div className="psel-fg">
-          <span className="psel-fg-lbl">Genere</span>
+        <div className="filter-field">
+          <span className="filter-field__label">Genere</span>
           <CustomSelect
             value={genre}
             onChange={v => { setGenre(v); set({ cand: null }); setPage(1) }}
@@ -148,6 +156,17 @@ export default function StepCandidates() {
             ]}
           />
         </div>
+
+        <FilterCheckbox
+          label="Durata Simile"
+          checked={durationSimilar}
+          onChange={checked => {
+            setDurationSimilar(checked)
+            set({ cand: null })
+            setPage(1)
+          }}
+          ariaLabel="Filtra per durata simile"
+        />
       </div>
 
       {/* Candidate list */}

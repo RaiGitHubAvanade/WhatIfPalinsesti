@@ -5,6 +5,7 @@ import {
   SCENARIO_CARD_SIMULATIONS_PER_PAGE,
 } from '../../utils/constants'
 import ConfirmPopup from '../shared/ConfirmPopup'
+import '../../pages/Scenarios.css'
 import './ScenCard.css'
 
 /**
@@ -348,7 +349,7 @@ export default function ScenCard({ scenId, sc, onDelete, onEditScenarioName, onA
       {canModify && (
         <div className="scen-hcard-actions">
           <button
-            className="scen-clear-btn"
+            className="scen-btn"
             disabled={deletingScen || isDeleteScenarioTemporarilyDisabled}
             onClick={() => setPendingDeleteScenario(true)}
           >
@@ -357,7 +358,7 @@ export default function ScenCard({ scenId, sc, onDelete, onEditScenarioName, onA
 
           {!isFull && (
             <button
-              className="scen-clear-btn scen-clear-btn--add-sim"
+              className="scen-btn"
               onClick={onAddSim}
               disabled={isFull}
             >

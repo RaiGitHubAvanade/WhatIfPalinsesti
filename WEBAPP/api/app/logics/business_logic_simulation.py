@@ -45,12 +45,9 @@ class BusinessLogicSimulation:
         ]
 
 
-    def get_candidate_programs(self, share_predicted: float, duration: int) -> list[CandidateProgramViewModel]:
-        offset = Config.CANDIDATES_DURATION_OFFSET_MINUTES
-        min_duration = duration - offset if duration - offset > 0 else 0
-        max_duration = duration + offset
+    def get_candidate_programs(self) -> list[CandidateProgramViewModel]:
         try:
-            rows = self._base_service.get_candidate_programs(share_predicted=share_predicted, min_duration=min_duration, max_duration=max_duration)
+            rows = self._base_service.get_candidate_programs()
         except Exception as e:
             raise RuntimeError(f"Errore nel recupero dei programmi candidati: {e}") from e
 

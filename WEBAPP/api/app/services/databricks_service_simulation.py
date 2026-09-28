@@ -53,23 +53,16 @@ class DatabricksServiceSimulation(DatabricksService):
         return [DestinationProgram.map_from_row(row) for row in rows]
     
 
-    def get_candidate_programs(self, share_predicted: float, min_duration: int, max_duration: int) -> list[CandidateProgram]:
+    def get_candidate_programs(self) -> list[CandidateProgram]:
         query = """
             SELECT titolo, canale, tipologia, genere, eta, share_storico_pct, durata_minuti
             FROM output_lista_programmi_sostituzione
-            WHERE share_storico_pct >= :share_predicted
-                AND durata_minuti BETWEEN :min_duration AND :max_duration
             ORDER BY share_storico_pct DESC
         """
-        params = {
-            "share_predicted": share_predicted,
-            "min_duration": min_duration,
-            "max_duration": max_duration,
-        }
-        self._logger.info(f"get_candidate_programs | with params {params}")
+        self._logger.info("get_candidate_programs")
 
         with self.cursor() as cursor:
-            cursor.execute(query, parameters=params)
+            cursor.execute(query)
             rows = cursor.fetchall()
 
         return [CandidateProgram.map_from_row(row) for row in rows]

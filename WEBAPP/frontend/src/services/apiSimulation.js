@@ -17,12 +17,8 @@ export async function getTargetPrograms({ day = '' } = {}) {
 }
 
 /** @returns {Promise<CandidateProgramViewModel[]>} */
-export async function getCandidatePrograms({ share_predicted = null, duration = null } = {}) {
-  const params = new URLSearchParams()
-  if (share_predicted !== null) params.set('share_predicted', share_predicted)
-  if (duration !== null) params.set('duration', duration)
-  const qs = params.toString()
-  const result = await apiFetch(`/api/simulation/getCandidatePrograms${qs ? '?' + qs : ''}`)
+export async function getCandidatePrograms() {
+  const result = await apiFetch('/api/simulation/getCandidatePrograms')
   if (!result.success) throw new Error(result.message || 'Errore caricamento candidati')
   return result.data
 }

@@ -1,18 +1,6 @@
-/* TimeSelector — time range (from/to) selector used in simulation filter bars */
-
-.time-sel {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.time-sel__lbl {
-  font-size: 10px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: .5px;
-  color: var(--muted);
-}
+/* TimeSelector — time range (from/to) selector used in simulation filter bars.
+   Field/label/trigger box styles are shared via FilterField.css
+   (.filter-field, .filter-field__label, .filter-control). */
 
 .time-sel__row {
   display: flex;
@@ -46,22 +34,8 @@
   position: relative;
 }
 
-.tp-trigger {
-  border: 1.5px solid var(--border);
-  border-radius: 10px;
-  padding: 7px 12px;
-  font-size: 13px;
-  font-family: inherit;
-  color: var(--muted);
-  background: #fff;
-  outline: none;
-  cursor: pointer;
-  min-width: 64px;
-  text-align: center;
-  transition: border-color .15s;
-}
-.tp-trigger--set { color: var(--muted); font-weight: 600; }
-.tp-trigger:hover, .tp-trigger:focus { border-color: var(--rai); }
+.tp-trigger { min-width: 64px; }
+.tp-trigger--set { font-weight: 600; }
 
 .tp-dropdown {
   position: absolute;

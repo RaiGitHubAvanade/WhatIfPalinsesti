@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { TIME_SLOTS as SLOTS } from '../../utils/constants'
 import './TimeSelector.css'
+import '../shared/FilterField.css'
 
 export function TimePicker({ value, onChange }) {
   const [open, setOpen] = useState(false)
@@ -28,7 +29,7 @@ export function TimePicker({ value, onChange }) {
     <div className="tp-wrap" ref={wrapRef}>
       <button
         type="button"
-        className={`tp-trigger${value ? ' tp-trigger--set' : ''}`}
+        className={`tp-trigger filter-control filter-control--center${value ? ' tp-trigger--set' : ''}`}
         onClick={() => setOpen(o => !o)}
       >
         {value || '--'}
@@ -62,8 +63,8 @@ export default function TimeSelector({
   onClear,
 }) {
   return (
-    <div className="time-sel">
-      <span className="time-sel__lbl">Orario</span>
+    <div className="filter-field">
+      <span className="filter-field__label">Orario</span>
       <div className="time-sel__row">
         <span className="time-sel__unit">Da</span>
         <TimePicker value={fromTime} onChange={onFromChange} />

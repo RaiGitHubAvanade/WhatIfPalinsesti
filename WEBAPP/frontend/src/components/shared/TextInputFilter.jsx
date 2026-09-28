@@ -1,4 +1,5 @@
 import './TextInputFilter.css'
+import './FilterField.css'
 
 /**
  * Labelled text-input filter with clear button.
@@ -9,13 +10,13 @@ import './TextInputFilter.css'
  * @param {string}   props.value        - Controlled value
  * @param {function} props.onChange     - Called with the new string value
  * @param {string}  [props.placeholder] - Input placeholder
- * @param {string}  [props.className]   - Extra class on the root (e.g. 'psel-fg-search')
+ * @param {string}  [props.className]   - Extra class on the root (e.g. 'filter-field--search')
  */
 export default function TextInputFilter({ label, value, onChange, placeholder = '', className = '' }) {
   return (
-    <div className={`txt-filter${className ? ' ' + className : ''}`}>
-      {label && <span className="txt-filter__lbl">{label}</span>}
-      <div className="txt-filter__wrap">
+    <div className={`filter-field${className ? ' ' + className : ''}`}>
+      {label && <span className="filter-field__label">{label}</span>}
+      <div className="filter-control txt-filter__wrap">
         <input
           type="text"
           className="txt-filter__inp"

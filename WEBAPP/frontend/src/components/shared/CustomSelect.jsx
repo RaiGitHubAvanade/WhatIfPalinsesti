@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import './CustomSelect.css'
+import './FilterField.css'
 
 /**
  * Styled custom select dropdown matching the TimePicker visual style.
@@ -35,7 +36,7 @@ export default function CustomSelect({ value, onChange, options }) {
     <div className="csel-wrap" ref={wrapRef}>
       <button
         type="button"
-        className={`csel-trigger${value ? ' csel-trigger--set' : ''}`}
+        className={`csel-trigger filter-control${value ? ' csel-trigger--set' : ''}`}
         onClick={() => setOpen(o => !o)}
       >
         {current?.label ?? '—'}

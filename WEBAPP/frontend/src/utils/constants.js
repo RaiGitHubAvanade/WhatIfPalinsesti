@@ -16,6 +16,9 @@ export const SCENARIO_CARD_SIMULATIONS_PER_PAGE = 3
 /** Max number of shap values displayed in the chart, in Simulation Detail pages */
 export const MAX_SHAP_VALUES_DISPLAYED = 5
 
+/** "Durata Simile" filter (Step 3 Sostituzione): +/- minutes tolerance vs the target program duration */
+export const CANDIDATES_DURATION_OFFSET_MINUTES = 15
+
 /** Numero di programmi per pagina nelle liste di selezione */
 export const PROGRAM_PAGE_SIZE_OPTIONS = [8, 12, 16, 20, 24]
 export const DEFAULT_PROGRAM_PAGE_SIZE = 8

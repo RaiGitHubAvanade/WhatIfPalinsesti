@@ -1,0 +1,161 @@
+/* ============================================================================
+   Shared Filter System
+   Canonical building blocks for every filter used on the Scenarios and
+   Simulation pages: bars, fields, labels, boxed controls, pill toggles and
+   checkboxes. Component CSS files should only contain styles unique to that
+   component (e.g. dropdown overlays) — everything shared lives here.
+   ============================================================================ */
+
+:root {
+  --filter-control-h: 34px;
+  --filter-gap: 6px;
+  --filter-radius: 10px;
+}
+
+/* ── Bar: row container hosting a group of filter fields ── */
+.filter-bar {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding: 12px 20px;
+  background: #F8FAFF;
+  border-bottom: 1.5px solid var(--border);
+}
+
+/* Modifier: bar sits at the top of a rounded, zero-padding card */
+.filter-bar--card-top {
+  border-radius: 12px 12px 0 0;
+  flex-shrink: 0;
+}
+
+/* ── Separator between filter groups ── */
+.filter-sep {
+  width: 1px;
+  height: var(--filter-control-h);
+  align-self: flex-end;
+  margin: 0 2px;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+/* ── Field: label stacked on top of its control ── */
+.filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--filter-gap);
+}
+
+/* Modifier: narrow search field that grows/shrinks inside the bar */
+.filter-field--search {
+  flex: 1;
+  min-width: 100px;
+  max-width: 200px;
+}
+
+.filter-field__label {
+  font-size: 10px;
+  line-height: 1;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .6px;
+  color: var(--muted);
+  user-select: none;
+}
+
+/* ── Boxed control: text input wrap, date input, dropdown triggers ──
+   Scoped under .filter-field so it outranks the global input[type=...]
+   reset in App.css (otherwise the native input keeps its own border). ── */
+.filter-field .filter-control {
+  display: flex;
+  align-items: center;
+  height: var(--filter-control-h);
+  box-sizing: border-box;
+  border: 1.5px solid var(--border);
+  border-radius: var(--filter-radius);
+  padding: 0 12px;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--muted);
+  background: #fff;
+  outline: none;
+  cursor: pointer;
+  transition: border-color .15s, box-shadow .15s;
+}
+.filter-field .filter-control:hover { border-color: var(--rai); }
+.filter-field .filter-control:focus,
+.filter-field .filter-control:focus-within {
+  border-color: var(--rai);
+  box-shadow: 0 0 0 3px rgba(11, 61, 145, .08);
+}
+
+/* Modifier: center the content of a control (e.g. time picker trigger) */
+.filter-control--center { justify-content: center; text-align: center; }
+
+/* ── Pill toggle group (channel / simulation type selectors) ── */
+.filter-pill-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  min-height: var(--filter-control-h);
+}
+
+.filter-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--filter-control-h);
+  box-sizing: border-box;
+  padding: 0 16px;
+  border-radius: 20px;
+  border: 1.5px solid var(--border);
+  background: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  transition: border-color .15s, background .15s, color .15s;
+  font-family: inherit;
+}
+.filter-pill:hover { border-color: var(--rai); color: var(--rai); }
+.filter-pill.on    { background: var(--rai); border-color: var(--rai); color: #fff; }
+
+/* ── Checkbox control ──
+   Native appearance dropped so the box border matches the other
+   filter controls instead of the browser's default black outline. ── */
+.filter-checkbox {
+  display: flex;
+  align-items: center;
+  height: var(--filter-control-h);
+}
+.filter-checkbox input {
+  appearance: none;
+  -webkit-appearance: none;
+  position: relative;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  border: 1.5px solid var(--border);
+  border-radius: 5px;
+  background: #fff;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+}
+.filter-checkbox input:hover { border-color: var(--rai); }
+.filter-checkbox input:checked {
+  background: var(--rai);
+  border-color: var(--rai);
+}
+.filter-checkbox input:checked::after {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 2px;
+  width: 5px;
+  height: 10px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+.filter-checkbox input:disabled { opacity: .6; cursor: default; }

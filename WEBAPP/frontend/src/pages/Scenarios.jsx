@@ -16,6 +16,8 @@ import DaySelector from '../components/shared/DaySelector'
 import ElementsPerPage from '../components/shared/ElementsPerPage'
 import SimulationTypeSelector from '../components/simulation/SimulationTypeSelector'
 import TextInputFilter from '../components/shared/TextInputFilter'
+import FilterCheckbox from '../components/shared/FilterCheckbox'
+import '../components/shared/FilterField.css'
 import ConfirmPopup from '../components/shared/ConfirmPopup'
 import {
   MAX_SIMULATIONS_PER_SCENARIO,
@@ -319,84 +321,76 @@ export default function Scenarios() {
       <div className="card scen-page-card">
 
         {/* ── Filter bar ── */}
-        <div className="scen-filter-bar">
+        <div className="filter-bar">
           <TextInputFilter
             label="Cerca"
             value={search}
             placeholder="Cerca scenario..."
             onChange={v => { setSearch(v); setPage(1) }}
-            className="scen-txt-filter"
+            className="filter-field--search"
           />
-
-          <div className="scen-filter-sep" />
 
           <SimulationTypeSelector
             selected={typeFilter}
             onChange={v => { setTypeFilter(v); setPage(1) }}
           />
 
-          <div className="scen-filter-sep" />
-
           <DaySelector
             label="Data messa in onda"
             value={dateFilter}
             onChange={v => { setDateFilter(v); setPage(1) }}
           />
-          
-          <div className="scen-filter-sep" />
 
-          <div className="scen-mine-filter" title="Mostra solo gli scenari creati da te">
-            <span className="scen-mine-filter__label">I miei Scenari</span>
-            <label className="scen-mine-filter__check" aria-label="Solo i miei Scenari">
-              <input
-                type="checkbox"
-                checked={onlyMineFilter}
-                onChange={e => { setOnlyMineFilter(e.target.checked); setPage(1) }}
-              />
-            </label>
-          </div>
+          <FilterCheckbox
+            label="I miei Scenari"
+            checked={onlyMineFilter}
+            onChange={checked => { setOnlyMineFilter(checked); setPage(1) }}
+            ariaLabel="Solo i miei Scenari"
+            title="Mostra solo gli scenari creati da te"
+          />
 
           {hasActiveFilter && (
-            <button className="scen-filter-reset" onClick={resetFilters}>✕ Azzera</button>
+            <button className="scen-btn scen-btn--danger" onClick={resetFilters}>✕ Azzera</button>
           )}
 
-          <div className="scen-info" aria-live="polite">
-            <div className="scen-info-status">{pollingActive ? 'Auto-aggiornamento attivo' : '\u00A0'}</div>
-            <div className="scen-info-count-total">{loading ? '…' : `${total} ${total === 1 ? 'scenario' : 'scenari'}`}</div>
-          </div>
-
           <div className="scen-right-actions">
-            <button
-              className="scen-refresh-btn"
-              onClick={() => handleRefresh()}
-              disabled={refreshing}
-            >
-              {refreshing ? <span className="scen-spinner" /> : '↻'} Aggiorna
-            </button>
+            <div className="scen-action-row" aria-live="polite">
+              <span className="scen-info-status">{pollingActive ? 'Auto-aggiornamento attivo' : '\u00A0'}</span>
+              <button
+                className="scen-btn"
+                onClick={() => handleRefresh()}
+                disabled={refreshing}
+              >
+                {refreshing ? <span className="scen-spinner" /> : '↻'} Aggiorna
+              </button>
+            </div>
 
-            <button
-              className="scen-export-btn"
-              onClick={async () => {
-                try {
-                  const { exportScenariosToExcel } = await import('../utils/exportScenariosExcel')
-                  const result = await exportScenariosToExcel(
-                    filtered,
-                    { typeFilter, dateFilter, search, onlyMineFilter, userName },
-                  )
-                  if (!result.ok) {
-                    if (result.reason === 'no_scenarios') {
-                      toast('Nessuno scenario da esportare con i filtri selezionati.', 'warning')
-                    } else {
-                      toast('Nessuna simulazione completata da esportare. Le simulazioni in corso potrebbero non essere ancora disponibili.', 'warning')
+            <div className="scen-action-row" aria-live="polite">
+              <span className="scen-info-count-total">{loading ? '…' : `${total} ${total === 1 ? 'scenario' : 'scenari'}`}</span>
+              <button
+                className="scen-btn scen-btn--green"
+                onClick={async () => {
+                  try {
+                    const { exportScenariosToExcel } = await import('../utils/exportScenariosExcel')
+                    const result = await exportScenariosToExcel(
+                      filtered,
+                      { typeFilter, dateFilter, search, onlyMineFilter, userName },
+                    )
+                    if (!result.ok) {
+                      if (result.reason === 'no_scenarios') {
+                        toast('Nessuno scenario da esportare con i filtri selezionati.', 'warning')
+                      } else {
+                        toast('Nessuna simulazione completata da esportare. Le simulazioni in corso potrebbero non essere ancora disponibili.', 'warning')
+                      }
                     }
+                  } catch (e) {
+                    toast(e.message || 'Errore esportazione', 'error')
                   }
-                } catch (e) {
-                  toast(e.message || 'Errore esportazione', 'error')
-                }
-              }}
-            >
-              Esporta Excel
-            </button>
+                }}
+              >
+                Esporta Excel
+              </button>
+            </div>
           </div>
         </div>
 
@@ -459,7 +453,7 @@ export default function Scenarios() {
               {total > 0 && (
                 <div className="scen-pagination-left">
                   <button
-                    className="scen-delete-mine-btn"
+                    className="scen-btn scen-btn--danger"
                     onClick={() => setConfirmDeleteAllMineOpen(true)}
                     disabled={deletingMine || simOperationCount > 0 || loading || total === 0}
                     title="Elimina tutti i tuoi scenari e le relative simulazioni"

@@ -1,4 +1,5 @@
 import './DaySelector.css'
+import './FilterField.css'
 
 /**
  * Single-day date picker, shared across Simulation and WeeklyProgramming.
@@ -12,11 +13,11 @@ import './DaySelector.css'
  */
 export default function DaySelector({ label = 'Data', value, onChange, maxDate, minDate }) {
   return (
-    <div className="day-sel">
-      <span className="day-sel__lbl">{label}</span>
+    <div className="filter-field">
+      <span className="filter-field__label">{label}</span>
       <input
         type="date"
-        className="day-sel__input"
+        className="filter-control"
         value={value || ''}
         min={minDate}
         max={maxDate}

@@ -1,8 +1,9 @@
 import { SIMULATION_TYPES as TYPES } from '../../utils/constants'
 import './SimulationTypeSelector.css'
+import '../shared/FilterField.css'
 
 /**
- * Toggle-pill simulation type selector (mirrors ChannelSelector pattern).
+ * Toggle-pill simulation type selector (uses the shared .filter-pill system).
  * Selecting the already-active value clears the filter (returns to 'Tutti').
  *
  * @param {Object}   props
@@ -12,13 +13,13 @@ import './SimulationTypeSelector.css'
  */
 export default function SimulationTypeSelector({ label = 'Tipo di Simulazione', selected, onChange }) {
   return (
-    <div className="sim-ts">
-      {label && <span className="sim-ts__lbl">{label}</span>}
-      <div className="sim-ts__grp">
+    <div className="filter-field">
+      {label && <span className="filter-field__label">{label}</span>}
+      <div className="filter-pill-group">
         {TYPES.map(t => (
           <button
             key={t.value}
-            className={`sim-ts__pill${selected === t.value ? ' on' : ''}`}
+            className={`filter-pill${selected === t.value ? ' on' : ''}`}
             onClick={() => onChange(t.value)}
           >
             {t.label}

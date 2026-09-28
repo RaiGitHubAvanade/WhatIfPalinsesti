@@ -5,6 +5,7 @@ import ChannelSelector from '../shared/ChannelSelector'
 import DaySelector from '../shared/DaySelector'
 import PaginationNav from '../shared/PaginationNav'
 import { TimePicker } from './TimeSelector'
+import '../shared/FilterField.css'
 import ProgramRowBody from './ProgramRowBody'
 import {
   CH_CLS,
@@ -114,7 +115,7 @@ export default function StepDestination() {
     <div className="card psel-card">
 
       {/* Filter bar */}
-      <div className="psel-filter-bar">
+      <div className="filter-bar filter-bar--card-top">
         {/* Date */}
         <DaySelector
           value={spDestDay || ''}
@@ -130,8 +131,8 @@ export default function StepDestination() {
         />
 
         {/* Time */}
-        <div className="psel-fg">
-          <span className="psel-fg-lbl">Orario</span>
+        <div className="filter-field">
+          <span className="filter-field__label">Orario</span>
           <TimePicker
             value={spDestTime || ''}
             onChange={val => set({ spDestTime: val || null })}

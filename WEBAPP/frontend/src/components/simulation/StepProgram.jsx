@@ -14,6 +14,7 @@ import {
   TARGET_PROGRAMS_CACHE_TTL_MS,
 } from '../../utils/constants'
 import { fmtDate, toMinutes } from '../../utils/dateUtils'
+import '../shared/FilterField.css'
 import './StepProgram.css'
 
 function parseSlot(slot) {
@@ -116,13 +117,13 @@ export default function StepProgram() {
 
   return (
     <div className="card psel-card">
-      <div className="psel-filter-bar">
+      <div className="filter-bar filter-bar--card-top">
         <TextInputFilter
           label="Cerca"
           value={_search || ''}
           placeholder="Titolo…"
           onChange={v => set({ _search: v })}
-          className="psel-fg-search"
+          className="filter-field--search"
         />
         <ChannelSelector
           selected={ch}
