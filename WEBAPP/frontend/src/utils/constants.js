@@ -14,7 +14,7 @@ export const MAX_SIMULATIONS_PER_SCENARIO = 15
 export const SCENARIO_CARD_SIMULATIONS_PER_PAGE = 3
 
 /** Max number of shap values displayed in the chart, in Simulation Detail pages */
-export const MAX_SHAP_VALUES_DISPLAYED = 3
+export const MAX_SHAP_VALUES_DISPLAYED = 5
 
 /** Numero di programmi per pagina nelle liste di selezione */
 export const PROGRAM_PAGE_SIZE_OPTIONS = [8, 12, 16, 20, 24]

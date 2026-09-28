@@ -23,6 +23,12 @@
   gap: 10px;
 }
 
+.res-shap-actions {
+  margin-top: 12px;
+  display: flex;
+  justify-content: center;
+}
+
 .res-shap-row {
   display: grid;
   grid-template-columns: minmax(180px, 0.7fr) minmax(220px, 1.3fr);

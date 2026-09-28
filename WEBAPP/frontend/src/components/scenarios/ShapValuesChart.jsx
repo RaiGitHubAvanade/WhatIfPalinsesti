@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import './ShapValuesChart.css'
 import { MAX_SHAP_VALUES_DISPLAYED } from '../../utils/constants'
 
@@ -27,7 +28,6 @@ function normalizeShapValues(shapValues) {
 
       return a.name.localeCompare(b.name)
     })
-    .slice(0, MAX_SHAP_VALUES_DISPLAYED)
 
   return rows
 }
@@ -38,7 +38,14 @@ function formatValue(value) {
 }
 
 export default function ShapValuesChart({ shapValues }) {
+  const [expandedState, setExpandedState] = useState({
+    source: shapValues,
+    expanded: false,
+  })
   const rows = normalizeShapValues(shapValues)
+  const canExpand = rows.length > MAX_SHAP_VALUES_DISPLAYED
+  const expanded = expandedState.source === shapValues ? expandedState.expanded : false
+  const visibleRows = expanded ? rows : rows.slice(0, MAX_SHAP_VALUES_DISPLAYED)
   const maxAbs = Math.max(1, ...rows.map(row => Math.abs(row.value)))
 
   return (
@@ -51,8 +58,9 @@ export default function ShapValuesChart({ shapValues }) {
       {rows.length === 0 ? (
         <p className="res-shap-empty">Nessun fattore disponibile.</p>
       ) : (
-        <div className="res-shap-list" role="img" aria-label="Grafico dei fattori rilevanti">
-          {rows.map(row => {
+        <>
+          <div className="res-shap-list" role="img" aria-label="Grafico dei fattori rilevanti">
+          {visibleRows.map(row => {
             const absPercent = (Math.abs(row.value) / maxAbs) * 50
             const isPositive = row.value >= 0
 
@@ -76,7 +84,27 @@ export default function ShapValuesChart({ shapValues }) {
               </div>
             )
           })}
-        </div>
+          </div>
+          {canExpand && (
+            <div className="res-shap-actions">
+              <button
+                type="button"
+                className="btn-sec btn-comp-toggle"
+                aria-expanded={expanded}
+                onClick={() => {
+                  setExpandedState({
+                    source: shapValues,
+                    expanded: !expanded,
+                  })
+                }}
+              >
+                {expanded
+                  ? 'Mostra meno'
+                  : 'Mostra tutti'}
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   )
