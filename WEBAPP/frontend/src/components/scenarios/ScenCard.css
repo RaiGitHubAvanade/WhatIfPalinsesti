@@ -3,6 +3,8 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+  /* Grid items default to min-width: auto — this lets the card actually shrink to the track size. */
+  min-width: 0;
   border: 1.5px solid var(--border);
   border-radius: 14px;
   padding: 14px;
@@ -209,6 +211,7 @@
   font-weight: 500;
   color: var(--text);
   flex: 1;
+  min-width: 0;
   word-break: break-word;
   line-height: 1.3;
   transition: .2s;

@@ -31,9 +31,6 @@
 .scen-btn:hover:not(:disabled) { border-color: var(--rai); color: var(--rai); }
 .scen-btn:disabled { opacity: .5; cursor: default; }
 
-/* Azzera has no label above it — sit at the bottom of the filter row like the other controls */
-.filter-bar .scen-btn { align-self: flex-end; }
-
 .scen-btn--danger { border-color: var(--danger); color: var(--danger); }
 .scen-btn--danger:hover:not(:disabled) { background: var(--danger); border-color: var(--danger); color: #fff; }
 
@@ -43,10 +40,12 @@
 @keyframes scen-spin { to { transform: rotate(360deg); } }
 .scen-spinner { display: inline-block; width: 13px; height: 13px; border: 2px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: scen-spin .7s linear infinite; }
 
-/* Right-side status + action rows: label always height-centered, left of its button */
+/* Right-side status + action rows; margin-left:auto keeps it flush-right,
+   align-items:flex-end keeps each row sized to its own content. */
 .scen-right-actions {
   display: flex;
   flex-direction: column;
+  align-items: flex-end;
   gap: 8px;
   margin-left: auto;
   flex-shrink: 0;
@@ -65,14 +64,11 @@
   white-space: nowrap;
 }
 
-@media (max-width: 980px) {
-  .scen-right-actions {
-    width: 100%;
-    margin-left: 0;
-    order: 20;
-  }
-  .scen-action-row { justify-content: space-between; }
-}
+/* Compact the filter bar's own width usage so it wraps onto extra rows later */
+.scen-filter-bar { gap: 10px; }
+.scen-filter-bar .filter-field--search { min-width: 80px; max-width: 150px; }
+.scen-filter-bar .filter-pill { padding: 0 12px; }
+.scen-filter-bar .filter-control { padding: 0 10px; }
 
 /* ── Empty state ────────────────────────────────────────────────────────── */
 .scen-empty-state {
@@ -88,14 +84,14 @@
 .scen-empty-msg { font-size: 14px; font-weight: 500; color: var(--text); }
 
 /* ── Cards grid ─────────────────────────────────────────────────────────── */
+/* auto-fit reflows columns based on the real available width, reaching a
+   single column on narrow screens without fixed viewport breakpoints. */
 .scen-cards-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 16px;
   margin-bottom: 20px;
 }
-@media (max-width: 900px) { .scen-cards-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 560px) { .scen-cards-grid { grid-template-columns: 1fr; } }
 
 /* ── Pagination ─────────────────────────────────────────────────────────── */
 .scen-pagination-row {

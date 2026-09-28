@@ -321,7 +321,7 @@ export default function Scenarios() {
       <div className="card scen-page-card">
 
         {/* ── Filter bar ── */}
-        <div className="filter-bar">
+        <div className="filter-bar scen-filter-bar">
           <TextInputFilter
             label="Cerca"
             value={search}
@@ -350,7 +350,10 @@ export default function Scenarios() {
           />
 
           {hasActiveFilter && (
-            <button className="scen-btn scen-btn--danger" onClick={resetFilters}>✕ Azzera</button>
+            <div className="filter-field">
+              <span className="filter-field__label" aria-hidden="true">&nbsp;</span>
+              <button className="scen-btn scen-btn--danger" onClick={resetFilters}>✕ Azzera</button>
+            </div>
           )}
 
           <div className="scen-right-actions">
