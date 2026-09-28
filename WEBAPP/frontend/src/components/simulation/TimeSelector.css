@@ -46,25 +46,107 @@
   border: 1.5px solid var(--border);
   border-radius: 10px;
   box-shadow: 0 6px 20px rgba(0,0,0,.10);
-  max-height: 200px;
-  overflow-y: auto;
-  min-width: 80px;
-  padding: 4px 0;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
 }
 
-.tp-option {
-  padding: 6px 14px;
-  font-size: 12.5px;
+/* ── Wheel spinner (hour | minute) ── */
+.tw-row-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tw-sep {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.tw-field { width: 48px; }
+
+.tw-viewport {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  user-select: none;
+}
+
+.tw-row {
+  background: none;
+  border: none;
+  font-family: inherit;
+  cursor: pointer;
+  box-sizing: border-box;
+  height: 20px;
+  line-height: 20px;
+  padding: 0;
+  text-align: center;
+  color: var(--muted);
+  border-radius: 6px;
+  transition: background .15s, opacity .15s;
+}
+.tw-row--prev,
+.tw-row--next {
+  font-size: 13px;
+  opacity: .45;
+}
+.tw-row--prev:not(:disabled):hover,
+.tw-row--next:not(:disabled):hover { background: #f0f4ff; opacity: .85; }
+.tw-row--prev:disabled,
+.tw-row--next:disabled { cursor: default; pointer-events: none; opacity: .2; }
+
+.tw-row--current {
+  height: 30px;
+  line-height: 30px;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--rai);
+  background: #eef3ff;
+  margin: 2px 0;
+}
+.tw-row--current:hover { background: #e2ebff; }
+
+/* Locked minute wheel (hour 02 only allows :00) */
+.tw-field--disabled .tw-row { cursor: default; }
+.tw-field--disabled .tw-row--current { color: var(--muted); background: var(--bg); }
+.tw-field--disabled .tw-row--current:hover { background: var(--bg); }
+
+.tw-input {
+  width: 100%;
+  box-sizing: border-box;
+  height: 30px;
+  line-height: 30px;
+  font-size: 20px;
+  font-weight: 700;
+  font-family: inherit;
+  color: var(--rai);
+  background: #eef3ff;
+  border: 1.5px solid var(--rai);
+  border-radius: 6px;
+  padding: 0;
+  margin: 2px 0;
+  text-align: center;
+  outline: none;
+}
+
+.tp-action-btn {
+  background: none;
+  border: 1.5px solid var(--border);
+  border-radius: 7px;
+  padding: 4px 10px;
+  font-size: 11.5px;
+  font-weight: 600;
   font-family: inherit;
   cursor: pointer;
   color: var(--muted);
-  transition: background .1s;
-  text-align: center;
+  transition: .15s;
 }
-.tp-option:hover { background: #f0f4ff; }
-.tp-option--empty { color: var(--muted); }
-.tp-option--sel { background: var(--rai, #0b3d91); color: #fff; font-weight: 600; border-radius: 6px; margin: 0 4px; }
-.tp-option--sel:hover { background: var(--rai, #0b3d91); }
+.tp-action-btn--clear:hover { border-color: var(--danger); color: var(--danger); }
+
 .time-sel__clear:hover {
   color: var(--danger);
   border-color: var(--danger);

@@ -30,15 +30,14 @@ export const DEFAULT_SCENARIOS_PAGE_SIZE = 3
 /** Canali RAI disponibili */
 export const CHANNELS = ['Rai 1', 'Rai 2', 'Rai 3']
 
-/** Slot orari del giorno broadcast: 06:00, 06:30 … 23:30, 00:00, 00:30, 01:00, 01:30, 02:00 */
-export const TIME_SLOTS = [
-  ...Array.from({ length: 36 }, (_, i) => {
-    const h = Math.floor(i / 2) + 6
-    const m = i % 2 === 0 ? '00' : '30'
-    return `${String(h).padStart(2, '0')}:${m}`
-  }),
-  '00:00', '00:30', '01:00', '01:30', '02:00',
+/** Ore del giorno broadcast, in ordine: 06 → 23 → 00 → 01 → 02 */
+export const BROADCAST_HOURS = [
+  ...Array.from({ length: 18 }, (_, i) => String(i + 6).padStart(2, '0')),
+  '00', '01', '02',
 ]
+
+/** Minuti selezionabili (00–59) per il time picker con granularità di 1 minuto */
+export const MINUTE_OPTIONS = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, '0'))
 
 /** Tipi di simulazione disponibili */
 export const SIMULATION_TYPES = [

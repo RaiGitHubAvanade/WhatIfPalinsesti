@@ -143,7 +143,7 @@ export default function StepDestination() {
       {/* Schedule preview */}
       {!spDestCh || !spDestDay || !spDestTime ? (
         <div className="dest-placeholder">
-          Seleziona <strong>canale</strong>, <strong>data</strong> e <strong>orario</strong> di destinazione.
+          Seleziona <strong>data</strong>, <strong>canale</strong> e <strong>orario</strong> di destinazione.
         </div>
       ) : loading ? (
         <div className="psel-loading">Caricamento…</div>
