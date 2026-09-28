@@ -173,21 +173,17 @@
 
 @media (max-width: 980px) {
   .scen-pagination-row {
+    flex-direction: column;
+    align-items: center;
     min-height: 0;
+    gap: 10px;
     padding-top: 4px;
   }
 
+  .scen-pagination-left,
   .scen-pagination-right {
     position: static;
     transform: none;
-    margin-top: 8px;
-    margin-left: auto;
-  }
-
-  .scen-pagination-left {
-    position: static;
-    transform: none;
-    margin-top: 8px;
-    margin-right: auto;
+    margin: 0;
   }
 }
