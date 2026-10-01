@@ -35,32 +35,41 @@ class BusinessLogicWeeklyProgramming:
         from_day = day - timedelta(days=day.weekday())
         to_day = from_day + timedelta(days=6)
 
-        italian_time_now = datetime.now(ZoneInfo("Europe/Rome"))
-        today = italian_time_now.date()
-        
-        all_rows = []
+        today = datetime.now(ZoneInfo("Europe/Rome")).date()
+
         try:
-            if DateTimeUtils.is_past_week(day):
-                all_rows = self._databricks_service.get_palinsesto_delta(channel, from_day, to_day)
-            elif DateTimeUtils.is_current_week(day):
-                yesterday = today - timedelta(days=1)
+            is_past_week = DateTimeUtils.is_past_week(day)
+            is_current_week = DateTimeUtils.is_current_week(day)
+            yesterday = today - timedelta(days=1)
 
-                # Monday case in current-week view: only predict is needed.
-                if yesterday < from_day:
-                    all_rows = self._databricks_service.get_palinsesto_predict(channel, from_day, to_day)
-                else:
-                    # First call: load all past days up to yesterday from delta.
-                    delta_rows = self._databricks_service.get_palinsesto_delta(channel, from_day, yesterday)
-                    all_rows.extend(delta_rows)
+            # Predict-only cases: future week, current week on Monday view (no past days to read from delta)
+            predict_only = (not is_past_week and not is_current_week) or (is_current_week and yesterday < from_day)
 
-                    # If yesterday is available in delta, predict starts from today.
-                    has_yesterday_in_delta = any(r.Data == yesterday for r in delta_rows)
-                    predict_from_day = today if has_yesterday_in_delta else yesterday
-                    all_rows.extend(self._databricks_service.get_palinsesto_predict(channel, predict_from_day, to_day))
-
-                    all_rows.sort(key=lambda r: (r.Data, r.orario_inizio or ""))
-            else:
+            if predict_only:
                 all_rows = self._databricks_service.get_palinsesto_predict(channel, from_day, to_day)
+            else:
+                delta_to_day = to_day if is_past_week else yesterday
+                all_rows = self._databricks_service.get_palinsesto_delta(channel, from_day, delta_to_day)
+
+                delta_days = {r.Data for r in all_rows}
+                missing_delta_days = [
+                    d for i in range((delta_to_day - from_day).days + 1)
+                    if (d := from_day + timedelta(days=i)) not in delta_days
+                ]
+                predict_from_candidates = ([min(missing_delta_days)] if missing_delta_days else []) + ([today] if is_current_week else [])
+
+                if predict_from_candidates:
+                    predict_from_day = min(predict_from_candidates)
+                    predict_rows = self._databricks_service.get_palinsesto_predict(channel, predict_from_day, to_day)
+                    missing_delta_days_set = set(missing_delta_days)
+
+                    all_rows.extend(
+                        row
+                        for row in predict_rows
+                        if row.Data in missing_delta_days_set or (is_current_week and row.Data >= today)
+                    )
+
+                all_rows.sort(key=lambda r: (r.Data, r.orario_inizio or ""))
         except Exception as e:
             raise RuntimeError(
                 f"Errore durante il recupero dei dati Databricks per il canale '{channel}' nella settimana del {from_day.strftime('%d/%m/%Y')}: {e}"
