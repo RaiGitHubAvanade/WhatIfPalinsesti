@@ -80,11 +80,15 @@ export default function StepProgram() {
     if (ch) result = result.filter(p => p.channel === ch)
     if (fromTime || toTime) {
       const ft = fromTime ? toMinutes(fromTime) : null
-      const tt = toTime ? toMinutes(toTime) : null
+      let tt = toTime ? toMinutes(toTime) : null
+      if (ft !== null && tt !== null && tt <= ft) tt += 1440
       result = result.filter(p => {
         if (!p.from_time || !p.to_time) return false
         const ps = toMinutes(p.from_time)
-        const pe = toMinutes(p.to_time)
+        let pe = toMinutes(p.to_time)
+        if (ps === null || pe === null) return false
+        // Treat rows that wrap around midnight (or close at 06:00) as next-day ending intervals.
+        if (pe <= ps) pe += 1440
         if (ft !== null && ps < ft) return false    // keep programs starting at or after "Da"
         if (tt !== null && pe > tt) return false   // keep only programs ending before "A"
         return true
