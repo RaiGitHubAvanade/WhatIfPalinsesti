@@ -4,6 +4,28 @@
  */
 
 import { apiFetch } from './apiService'
+import { chunkArray } from '../utils/scenarioUtils'
+import { simulationKey } from '../utils/predictionUtils'
+
+export async function getFeatures(simulations, requestOptions = {}) {
+  const unique = [...new Map(simulations.map(item => [simulationKey(item.simulation_type, item.id), item])).values()]
+  const items = []
+  for (const chunk of chunkArray(unique, 500)) {
+    const result = await apiFetch('/api/scenarios/features', {
+      ...requestOptions,
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ simulations: chunk }),
+    })
+    if (!result.success) throw new Error(result.message || 'Errore caricamento dettagli simulazioni')
+    const found = new Set(result.data.items.map(item => simulationKey(item.simulation_type, item.id)))
+    if (chunk.some(item => !found.has(simulationKey(item.simulation_type, item.id)))) {
+      throw new Error('Una simulazione non e piu disponibile. Aggiorna gli scenari e riprova.')
+    }
+    items.push(...result.data.items)
+  }
+  return items
+}
 
 /** @returns {Promise<ScenarioListViewModel>} */
 export async function getScenarios(requestOptions = {}) {
@@ -12,7 +34,7 @@ export async function getScenarios(requestOptions = {}) {
   return result.data
 }
 
-/** @returns {Promise<{items: Array<{id: string, status: 'Running'|'Completed'|'Failed', share_result: number|null, shap_values: Object.<string, number>|null, last_error: string|null, modified_date: string|null}>}>} */
+/** @returns {Promise<{items: Array<{id: string, status: 'Running'|'Completed'|'Failed', share_result: number|null, last_error: string|null, modified_date: string|null}>}>} */
 export async function getSimulationsStatus(simulationIds, requestOptions = {}) {
   const result = await apiFetch('/api/scenarios/simulations/status', {
     method: 'POST',

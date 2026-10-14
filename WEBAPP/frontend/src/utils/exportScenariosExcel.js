@@ -1,5 +1,6 @@
 import ExcelJS from 'exceljs'
 import { sanitizeFilenameSegment, styleWorksheetHeader, downloadBuffer } from './exportExcel'
+import { getFeatureExplanationsFromResponse, simulationKey } from './predictionUtils'
 
 function stripAfterAt(value) {
   const text = String(value || '').trim()
@@ -65,8 +66,8 @@ export function flattenScenariosForExport(filtered) {
 
     completedItems.forEach((item, idx) => {
       const r = item.result ?? {}
-      const shapValuesJson = r.shap_values && typeof r.shap_values === 'object'
-        ? JSON.stringify(r.shap_values)
+      const shapValuesJson = r.feature_explanations
+        ? JSON.stringify(getFeatureExplanationsFromResponse(r.feature_explanations))
         : ''
 
       // ── sostituzione-specific ──────────────────────────────────────────────
@@ -100,6 +101,31 @@ export function flattenScenariosForExport(filtered) {
     })
   }
 
+  return rows
+}
+
+export function flattenFeatureExplanationsForExport(filtered) {
+  const rows = []
+  for (const { id, sc } of filtered) {
+    for (const item of sc.items.filter(simulation => simulation._status === 'Completed')) {
+      const featureExplanations = getFeatureExplanationsFromResponse(item.result?.feature_explanations)
+      const predictedShare = item.mode === 'sostituzione'
+        ? item.result?.predicted_share
+        : item.result?.dest_slot_share
+      for (const feature of featureExplanations) {
+        rows.push({
+          'ID Scenario': id,
+          'ID Simulazione': item._sim_id,
+          'Tipo': item.mode,
+          'Predizione': 1,
+          'Share Previsto (%)': predictedShare ?? null,
+          'Feature': feature.feature_name,
+          'Valore Feature': feature.feature_value ?? null,
+          'Valore Shap': feature.shap_value ?? null,
+        })
+      }
+    }
+  }
   return rows
 }
 
@@ -150,11 +176,30 @@ export async function exportScenariosToExcel(filtered, filters) {
     return { ok: false, reason: 'no_scenarios' }
   }
 
-  const rows = flattenScenariosForExport(filtered)
-
-  if (rows.length === 0) {
+  const simulations = filtered.flatMap(({ sc }) => sc.items
+    .filter(item => item._status === 'Completed')
+    .map(item => ({ id: item._sim_id, simulation_type: item.mode })))
+  if (simulations.length === 0) {
     return { ok: false, reason: 'no_completed' }
   }
+
+  const { getFeatures } = await import('../services/apiScenarios')
+  const responses = await getFeatures(simulations)
+  if (responses.some(item => !item.feature_explanations)) {
+    throw new Error('Dettagli non disponibili per alcune simulazioni. Verifica la migrazione dei dati.')
+  }
+  const byId = new Map(responses.map(item => [simulationKey(item.simulation_type, item.id), item.feature_explanations]))
+  const enriched = filtered.map(({ id, sc }) => ({
+    id,
+    sc: {
+      ...sc,
+      items: sc.items.map(item => ({
+        ...item,
+        result: { ...item.result, feature_explanations: byId.get(simulationKey(item.mode, item._sim_id)) },
+      })),
+    },
+  }))
+  const rows = flattenScenariosForExport(enriched)
 
   // ── 2. Build workbook ────────────────────────────────────────────────────
   const wb = new ExcelJS.Workbook()
@@ -180,6 +225,15 @@ export async function exportScenariosToExcel(filtered, filters) {
 
   // Freeze the header row
   ws.views = [{ state: 'frozen', ySplit: 1 }]
+
+  const featureRows = flattenFeatureExplanationsForExport(enriched)
+  const featuresSheet = wb.addWorksheet('Fattori rilevanti')
+  const featureHeaders = ['ID Scenario', 'ID Simulazione', 'Tipo', 'Predizione', 'Share Previsto (%)', 'Feature', 'Valore Feature', 'Valore Shap']
+  featuresSheet.columns = featureHeaders.map(header => ({ header, key: header, width: header === 'Feature' ? 45 : 24 }))
+  styleWorksheetHeader(featuresSheet)
+  featureRows.forEach(row => featuresSheet.addRow(row))
+  featuresSheet.views = [{ state: 'frozen', ySplit: 1 }]
+  featuresSheet.autoFilter = 'A1:H1'
 
   // ── 3. Write to buffer and trigger download ───────────────────────────────
   downloadBuffer(await wb.xlsx.writeBuffer(), buildExportFilename(filters))

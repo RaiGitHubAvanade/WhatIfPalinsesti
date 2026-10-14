@@ -17,6 +17,14 @@
   color: var(--muted);
 }
 
+.res-shap-loading {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 11.5px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
 .res-shap-list {
   display: flex;
   flex-direction: column;
@@ -40,9 +48,8 @@
   font-size: 12px;
   font-weight: 600;
   color: var(--text);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .res-shap-track {

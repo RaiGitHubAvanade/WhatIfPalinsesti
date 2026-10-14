@@ -167,3 +167,12 @@ class BusinessLogicScenarios:
             return self._service.get_simulations_status(cleaned_ids)
         except Exception as e:
             raise RuntimeError(f"Errore nel recupero dello stato simulazioni: {e}") from e
+
+
+    def get_features_and_shap(self, simulations: list[dict]) -> list[dict]:
+        self._logger.info("get_features_and_shap | requested=%d", len(simulations))
+
+        try:
+            return self._service.get_features_and_shap(simulations)
+        except Exception as e:
+            raise RuntimeError(f"Errore nel recupero delle predizioni simulazioni: {e}") from e

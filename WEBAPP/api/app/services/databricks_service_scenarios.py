@@ -4,7 +4,7 @@ from app.models.scenario import Scenario
 from app.models.simulation_sostituzione import SimulationSostituzione
 from app.models.simulation_spostamento import SimulationSpostamento
 from app.utils.date_time_utils import DateTimeUtils
-from app.utils.value_parsing_utils import parse_string_float_map
+from app.models.prediction import FeatureExplanation
 
 
 class DatabricksServiceScenarios(DatabricksService):
@@ -34,7 +34,6 @@ class DatabricksServiceScenarios(DatabricksService):
                 sim.new_program_name,
                 sim.new_program_share_storico,
                 sim.share_result,
-                to_json(sim.shap_values)      AS shap_values,
                 sim.status,
                 sim.creation_date            AS simulation_creation_date,
                 sim.modified_date            AS simulation_modified_date,
@@ -160,7 +159,15 @@ class DatabricksServiceScenarios(DatabricksService):
 
 
     def delete_scenario(self, scenario_id: str) -> None:
-        query = """
+        delete_sostituzione_query = """
+            DELETE FROM webapp_simulations_sostituzione
+            WHERE id_scenario = :id_scenario
+        """
+        delete_spostamento_query = """
+            DELETE FROM webapp_simulations_spostamento
+            WHERE id_scenario = :id_scenario
+        """
+        delete_scenario_query = """
             DELETE FROM webapp_scenarios
             WHERE id = :id_scenario
         """
@@ -169,7 +176,9 @@ class DatabricksServiceScenarios(DatabricksService):
         self._logger.info(f"delete_scenario | with params {params}")
 
         with self.cursor() as cursor:
-            cursor.execute(query, parameters=params)
+            cursor.execute(delete_sostituzione_query, parameters=params)
+            cursor.execute(delete_spostamento_query, parameters=params)
+            cursor.execute(delete_scenario_query, parameters=params)
 
 
     def delete_all_owned_scenarios(self, created_by: str | None) -> None:
@@ -245,7 +254,6 @@ class DatabricksServiceScenarios(DatabricksService):
                 sim.new_date,
                 sim.new_from_time,
                 sim.share_result,
-                to_json(sim.shap_values)      AS shap_values,
                 sim.status,
                 sim.creation_date            AS simulation_creation_date,
                 sim.modified_date            AS simulation_modified_date,
@@ -311,7 +319,6 @@ class DatabricksServiceScenarios(DatabricksService):
                 sim.id,
                 sim.status,
                 sim.share_result,
-                to_json(sim.shap_values) AS shap_values,
                 sim.last_error,
                 sim.modified_date
             FROM webapp_simulations_sostituzione sim
@@ -323,7 +330,6 @@ class DatabricksServiceScenarios(DatabricksService):
                 sim.id,
                 sim.status,
                 sim.share_result,
-                to_json(sim.shap_values) AS shap_values,
                 sim.last_error,
                 sim.modified_date
             FROM webapp_simulations_spostamento sim
@@ -344,12 +350,40 @@ class DatabricksServiceScenarios(DatabricksService):
                 "id": sim_id,
                 "status": row.get("status"),
                 "share_result": row.get("share_result"),
-                "shap_values": parse_string_float_map(row.get("shap_values")),
                 "last_error": row.get("last_error"),
                 "modified_date": row.get("modified_date").isoformat() if hasattr(row.get("modified_date"), "isoformat") else str(row.get("modified_date")) if row.get("modified_date") is not None else None,
             }
 
         return list(unique.values())
+
+
+    def get_features_and_shap(self, simulations: list[dict]) -> list[dict]:
+        results = []
+        tables = {
+            "sostituzione": "webapp_simulations_sostituzione",
+            "spostamento": "webapp_simulations_spostamento",
+        }
+        for simulation_type, table in tables.items():
+            ids = list(dict.fromkeys(item["id"] for item in simulations if item["simulation_type"] == simulation_type))
+            if not ids:
+                continue
+            params = {f"id{index}": simulation_id for index, simulation_id in enumerate(ids)}
+            placeholders = ", ".join(f":{key}" for key in params)
+            query = f"""
+                SELECT sim.id, to_json(sim.feature_explanations)
+                FROM {table} sim
+                WHERE sim.id IN ({placeholders})
+            """
+            with self.cursor() as cursor:
+                cursor.execute(query, parameters=params)
+                rows = cursor.fetchall()
+            for row in rows:
+                results.append({
+                    "id": str(row[0]),
+                    "simulation_type": simulation_type,
+                    "feature_explanations": FeatureExplanation.payload_from_storage_map(row[1]) if row[1] is not None else None,
+                })
+        return results
 
 
     ### --- Competitors --- ###

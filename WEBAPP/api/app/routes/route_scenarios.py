@@ -33,6 +33,39 @@ def get_scenarios():
     return success(data=asdict(result), message="Scenari ottenuti con successo")
 
 
+@bp.route("/scenarios/features", methods=["POST"])
+def get_features_and_shap():
+    actor_identity, identity_source = resolve_request_user_identity(request)
+    logger.info("getSimulationPredictions | user_email=%s user_email_source=%s", actor_identity, identity_source)
+
+    body = request.get_json(silent=True)
+    simulations = body.get("simulations") if isinstance(body, dict) else None
+
+    if not isinstance(simulations, list) or not simulations or len(simulations) > 500:
+        return error(message="Specificare da 1 a 500 simulazioni", errors=["invalid_simulations"]), 400
+
+    for item in simulations:
+        if (
+            not isinstance(item, dict)
+            or item.get("simulation_type") not in ("sostituzione", "spostamento")
+            or not isinstance(item.get("id"), str)
+            or not item["id"].strip()
+        ):
+            return error(message="Identificativo o tipo simulazione non valido", errors=["invalid_simulations"]), 400
+
+    try:
+        logic = BusinessLogicScenarios(get_scenarios_service())
+        items = logic.get_features_and_shap(simulations)
+    except RuntimeError as e:
+        logger.error("getSimulationPredictions RuntimeError: %s", e)
+        return error(message="Errore recupero dettagli delle simulazioni", errors=["databricks_error"]), 502
+    except Exception as e:
+        logger.exception("getSimulationPredictions unexpected: %s", e)
+        return error(message=f"Errore imprevisto: {e}", errors=["internal_error"]), 500
+
+    return success(data={"items": items})
+
+
 @bp.route("/scenarios/simulation/sostituzione/<simulation_id>/delete", methods=["DELETE"])
 def delete_simulation_sostituzione(simulation_id):
     actor_identity, identity_source = resolve_request_user_identity(request)
@@ -146,7 +179,7 @@ def get_competitor_programs():
     day_str = request.args.get("day")
     from_time = request.args.get("from_time")
     logger.info(
-        "getCompetitorPrograms called | channel=%s day=%s from_time=%s",
+        "getCompetitorPrograms | channel=%s day=%s from_time=%s",
         channel, day_str, from_time,
     )
 

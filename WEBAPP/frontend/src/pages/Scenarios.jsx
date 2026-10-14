@@ -75,7 +75,6 @@ function mapToDisplay(apiScen) {
           cand_title: sim.new_program_name,
           cand_share: sim.new_program_share_storico,
           predicted_share: predicted,
-          shap_values: sim.shap_values || null,
           delta,
         },
         prog,
@@ -100,7 +99,6 @@ function mapToDisplay(apiScen) {
           dest_date: sim.new_date,
           dest_time: sim.new_from_time,
           dest_slot_share: predicted,
-          shap_values: sim.shap_values || null,
           delta,
         },
         prog,
@@ -153,6 +151,7 @@ export default function Scenarios() {
 
   const [refreshing, setRefreshing] = useState(false)
   const [deletingMine, setDeletingMine] = useState(false)
+  const [exporting, setExporting] = useState(false)
   const [simOperationCount, setSimOperationCount] = useState(0)
   const [confirmDeleteAllMineOpen, setConfirmDeleteAllMineOpen] = useState(false)
   const scenarios = useMemo(() => (scenariosData || []).map(mapToDisplay), [scenariosData])
@@ -372,7 +371,9 @@ export default function Scenarios() {
               <span className="scen-info-count-total">{loading ? '…' : `${total} ${total === 1 ? 'scenario' : 'scenari'}`}</span>
               <button
                 className="scen-btn scen-btn--green"
+                disabled={exporting || loading}
                 onClick={async () => {
+                  setExporting(true)
                   try {
                     const { exportScenariosToExcel } = await import('../utils/exportScenariosExcel')
                     const result = await exportScenariosToExcel(
@@ -388,10 +389,12 @@ export default function Scenarios() {
                     }
                   } catch (e) {
                     toast(e.message || 'Errore esportazione', 'error')
+                  } finally {
+                    setExporting(false)
                   }
                 }}
               >
-                Esporta Excel
+                {exporting ? 'Esportazione...' : 'Esporta Excel'}
               </button>
             </div>
           </div>

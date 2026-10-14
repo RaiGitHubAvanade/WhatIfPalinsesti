@@ -7,6 +7,7 @@ from app.models.serving_endpoint_spostamento_request import ServingEndpointSpost
 from app.services.ai_service import AiService
 from app.services.databricks_service_simulation_sostituzione import DatabricksServiceSimulationSostituzione
 from app.services.databricks_service_simulation_spostamento import DatabricksServiceSimulationSpostamento
+from app.models.prediction import Prediction
 
 
 class SostituzioneSimulationHandler:
@@ -78,17 +79,17 @@ class SostituzioneSimulationHandler:
             program_share_predict=row.get("program_share_predict"),
         )
 
-    def predict(self, payload: dict) -> dict:
+    def predict(self, payload: dict) -> Prediction:
         return self._ai_service.call_sostituzione(payload)
 
-    def on_success(self, simulation_id: str, result: dict, now: datetime) -> None:
-        predictions = result["predictions"]
+    def on_success(self, simulation_id: str, result: Prediction, now: datetime) -> None:
         self.update_simulation(
             simulation_id,
-            share_result=predictions["predicted_share_pct"],
-            shap_values=predictions.get("shap_values"),
+            share_result=result.predicted_share_pct,
+            feature_explanations=result.to_feature_map(),
             status="Completed",
             modified_date=now,
+            last_error=None,
         )
 
     def on_failure(self, simulation_id: str, error_message: str, now: datetime) -> None:
@@ -181,17 +182,17 @@ class SpostamentoSimulationHandler:
             program_share_predict=row.get("program_share_predict"),
         )
 
-    def predict(self, payload: dict) -> dict:
+    def predict(self, payload: dict) -> Prediction:
         return self._ai_service.call_spostamento(payload)
 
-    def on_success(self, simulation_id: str, result: dict, now: datetime) -> None:
-        predictions = result["predictions"]
+    def on_success(self, simulation_id: str, result: Prediction, now: datetime) -> None:
         self.update_simulation(
             simulation_id,
-            share_result=predictions["predicted_share_pct"],
-            shap_values=predictions.get("shap_values"),
+            share_result=result.predicted_share_pct,
+            feature_explanations=result.to_feature_map(),
             status="Completed",
             modified_date=now,
+            last_error=None,
         )
 
     def on_failure(self, simulation_id: str, error_message: str, now: datetime) -> None:

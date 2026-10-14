@@ -9,14 +9,17 @@ function toDisplayName(name) {
     .trim()
 }
 
-function normalizeShapValues(shapValues) {
-  if (!shapValues || typeof shapValues !== 'object') return []
+function normalizeShapValues(featureExplanations) {
+  if (!Array.isArray(featureExplanations)) return []
 
-  const rows = Object.entries(shapValues)
-    .map(([name, raw]) => {
-      const value = Number(raw)
+  const rows = featureExplanations
+    .map((feature, index) => {
+      if (!feature || feature.shap_value == null) return null
+      const value = Number(feature.shap_value)
       if (!Number.isFinite(value)) return null
-      return { name: toDisplayName(name), value }
+      const name = toDisplayName(feature.feature_name)
+      const label = `${name}: ${feature.feature_value == null ? 'N/D' : String(feature.feature_value)}`
+      return { name, label, value, index }
     })
     .filter(Boolean)
     .sort((a, b) => {
@@ -37,20 +40,20 @@ function formatValue(value) {
   return `${sign}${value.toFixed(2)}`
 }
 
-export default function ShapValuesChart({ shapValues }) {
+export default function ShapValuesChart({ featureExplanations, title }) {
   const [expandedState, setExpandedState] = useState({
-    source: shapValues,
+    source: featureExplanations,
     expanded: false,
   })
-  const rows = normalizeShapValues(shapValues)
+  const rows = normalizeShapValues(featureExplanations)
   const canExpand = rows.length > MAX_SHAP_VALUES_DISPLAYED
-  const expanded = expandedState.source === shapValues ? expandedState.expanded : false
+  const expanded = expandedState.source === featureExplanations ? expandedState.expanded : false
   const visibleRows = expanded ? rows : rows.slice(0, MAX_SHAP_VALUES_DISPLAYED)
   const maxAbs = Math.max(1, ...rows.map(row => Math.abs(row.value)))
 
   return (
     <div className="res-shap-box">
-      <div className="res-main-hdr">Fattori rilevanti</div>
+      <div className="res-main-hdr">{title}</div>
       <p className="res-shap-desc">
         Il grafico evidenzia i fattori che hanno maggiormente influenzato la previsione del modello per il caso analizzato. I contributi positivi (barra rossa) spingono la previsione di share verso valori più elevati, mentre i contributi negativi (barra blu) riducono la previsione di share.
       </p>
@@ -65,8 +68,8 @@ export default function ShapValuesChart({ shapValues }) {
             const isPositive = row.value >= 0
 
             return (
-              <div key={row.name} className="res-shap-row">
-                <div className="res-shap-label" title={row.name}>{row.name}</div>
+              <div key={row.index} className="res-shap-row">
+                <div className="res-shap-label" title={row.label}>{row.label}</div>
                 <div className="res-shap-track">
                   <div
                     className={`res-shap-bar ${isPositive ? 'pos' : 'neg'}`}
@@ -93,7 +96,7 @@ export default function ShapValuesChart({ shapValues }) {
                 aria-expanded={expanded}
                 onClick={() => {
                   setExpandedState({
-                    source: shapValues,
+                    source: featureExplanations,
                     expanded: !expanded,
                   })
                 }}

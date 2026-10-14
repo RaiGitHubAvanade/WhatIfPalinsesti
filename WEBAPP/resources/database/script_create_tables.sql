@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS ta_coll.whatif.webapp_simulations_sostituzione (
     modified_date             TIMESTAMP NOT NULL,
     last_error                STRING,
     is_retry                  BOOLEAN   NOT NULL,
-    shap_values               MAP<STRING, DOUBLE>,
+    feature_explanations      MAP<STRING, STRUCT<feature_value: STRING, shap_value: DOUBLE>>,
 
     CONSTRAINT pk_webapp_simulations_sostituzione           PRIMARY KEY (id),
     CONSTRAINT fk_webapp_simulations_sostituzione_scenario  FOREIGN KEY (id_scenario) REFERENCES ta_coll.whatif.webapp_scenarios (id),
@@ -67,7 +67,7 @@ CREATE TABLE IF NOT EXISTS ta_coll.whatif.webapp_simulations_spostamento (
     modified_date             TIMESTAMP NOT NULL,
     last_error                STRING,
     is_retry                  BOOLEAN   NOT NULL,
-    shap_values               MAP<STRING, DOUBLE>,
+    feature_explanations      MAP<STRING, STRUCT<feature_value: STRING, shap_value: DOUBLE>>,
 
     CONSTRAINT pk_webapp_simulations_spostamento            PRIMARY KEY (id),
     CONSTRAINT fk_webapp_simulations_spostamento_scenario   FOREIGN KEY (id_scenario) REFERENCES ta_coll.whatif.webapp_scenarios (id),

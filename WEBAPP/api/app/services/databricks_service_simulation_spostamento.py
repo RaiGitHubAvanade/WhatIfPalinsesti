@@ -120,9 +120,9 @@ class DatabricksServiceSimulationSpostamento(DatabricksServiceSimulation):
         for key, value in fields.items():
             if value is None:
                 set_parts.append(f"{key} = NULL")
-            elif isinstance(value, dict):
-                set_parts.append(f"{key} = from_json(:{key}, 'MAP<STRING,DOUBLE>')")
-                params[key] = json.dumps(value)
+            elif key == "feature_explanations":
+                set_parts.append(f"{key} = from_json(:{key}, 'MAP<STRING,STRUCT<feature_value:STRING,shap_value:DOUBLE>>')")
+                params[key] = json.dumps(value, allow_nan=False)
             else:
                 set_parts.append(f"{key} = :{key}")
                 params[key] = value

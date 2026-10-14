@@ -58,14 +58,12 @@ Use OAuth profiles for deployment commands.
 
 1. Login with Databricks OAuth for each workspace you deploy to:
 ```powershell
-databricks auth login --host https://<dev-workspace-host>
+databricks auth login --host https://<dev-workspace-host> --profile dev-profile
 ```
-Then write "dev-profile"
 
 ```powershell
-databricks auth login --host https://<prod-workspace-host>
+databricks auth login --host https://<prod-workspace-host> --profile prod-profile
 ```
-Then write "prod-profile"
 
 2. Verify available profiles:
 ```powershell

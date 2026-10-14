@@ -227,8 +227,7 @@ class BusinessLogicSimulation:
             result = handler.predict(payload)
             now = datetime.now(timezone.utc)
             handler.on_success(simulation_id, result, now)
-            predictions = result["predictions"]
-            logger.info("_run_simulation_async | simulation_id=%s simulation_type=%s COMPLETED result=%s", simulation_id, simulation_type, predictions["predicted_share_pct"])
+            logger.info("_run_simulation_async | simulation_id=%s simulation_type=%s COMPLETED result=%s", simulation_id, simulation_type, result.predicted_share_pct)
         except Exception as exc:
             logger.exception("_run_simulation_async | simulation_id=%s simulation_type=%s FAILED: %s", simulation_id, simulation_type, exc)
             handler.on_failure(simulation_id, str(exc), datetime.now(timezone.utc))
