@@ -19,7 +19,7 @@ function AppShell() {
       <div className="main">
         <Topbar pathname={location.pathname} />
         <div className="content">
-          <Suspense fallback={<div className="card">Caricamento pagina...</div>}>
+          <Suspense>
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/simulazione" element={<Simulation />} />
