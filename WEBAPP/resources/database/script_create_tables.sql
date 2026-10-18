@@ -29,7 +29,8 @@ CREATE TABLE IF NOT EXISTS ta_coll.whatif.webapp_scenarios (
     creation_date         TIMESTAMP  NOT NULL,
     modified_date         TIMESTAMP  NOT NULL,
 
-    CONSTRAINT pk_webapp_scenarios PRIMARY KEY (id)
+    CONSTRAINT pk_webapp_scenarios PRIMARY KEY (id),
+    CONSTRAINT uq_webapp_scenarios_business_key UNIQUE (program_id, scenario_type, created_by)
 )
 USING DELTA;
 
@@ -48,6 +49,7 @@ CREATE TABLE IF NOT EXISTS ta_coll.whatif.webapp_simulations_sostituzione (
     feature_explanations      MAP<STRING, STRUCT<feature_value: STRING, shap_value: DOUBLE>>,
 
     CONSTRAINT pk_webapp_simulations_sostituzione           PRIMARY KEY (id),
+    CONSTRAINT uq_webapp_simulations_sostituzione_business_key UNIQUE (id_scenario, new_program_name),
     CONSTRAINT fk_webapp_simulations_sostituzione_scenario  FOREIGN KEY (id_scenario) REFERENCES ta_coll.whatif.webapp_scenarios (id),
     CONSTRAINT fk_webapp_simulations_sostituzione_status    FOREIGN KEY (status)      REFERENCES ta_coll.whatif.webapp_status (code)
 )
@@ -70,6 +72,7 @@ CREATE TABLE IF NOT EXISTS ta_coll.whatif.webapp_simulations_spostamento (
     feature_explanations      MAP<STRING, STRUCT<feature_value: STRING, shap_value: DOUBLE>>,
 
     CONSTRAINT pk_webapp_simulations_spostamento            PRIMARY KEY (id),
+    CONSTRAINT uq_webapp_simulations_spostamento_business_key UNIQUE (id_scenario, new_channel, new_date, new_from_time),
     CONSTRAINT fk_webapp_simulations_spostamento_scenario   FOREIGN KEY (id_scenario) REFERENCES ta_coll.whatif.webapp_scenarios (id),
     CONSTRAINT fk_webapp_simulations_spostamento_status     FOREIGN KEY (status)      REFERENCES ta_coll.whatif.webapp_status (code)
 )
