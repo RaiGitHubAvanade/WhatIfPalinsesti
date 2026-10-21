@@ -58,7 +58,9 @@ class DatabricksServiceSimulationSpostamento(DatabricksServiceSimulation):
                 sim.new_channel,
                 sim.new_date,
                 sim.new_from_time,
-                sim.schedule,
+                sim.previous_program,
+                sim.impacted_programs,
+                sim.next_program,
                 sim.share_result,
                 sim.status,
                 sim.creation_date    AS sim_creation_date,
@@ -90,17 +92,17 @@ class DatabricksServiceSimulationSpostamento(DatabricksServiceSimulation):
     def insert_simulation(self, simulation: dict) -> None:
         params = {
             **simulation,
-            "schedule": json.dumps([str(item) for item in (simulation.get("schedule") or [])]),
+            "impacted_programs": json.dumps([str(item) for item in (simulation.get("impacted_programs") or [])]),
         }
 
         query = """
             INSERT INTO webapp_simulations_spostamento
-                (id, id_scenario, new_channel, new_date, new_from_time, schedule,
+                (id, id_scenario, new_channel, new_date, new_from_time, previous_program, impacted_programs, next_program,
                  share_result, status, creation_date, modified_date,
                  last_error, is_retry)
             VALUES
-                (:id, :id_scenario, :new_channel, :new_date, :new_from_time,
-                 from_json(:schedule, 'ARRAY<STRING>'),
+                (:id, :id_scenario, :new_channel, :new_date, :new_from_time, :previous_program,
+                 from_json(:impacted_programs, 'ARRAY<STRING>'), :next_program,
                  :share_result, :status, :creation_date, :modified_date,
                  :last_error, :is_retry)
         """
@@ -145,7 +147,9 @@ class DatabricksServiceSimulationSpostamento(DatabricksServiceSimulation):
                 sim.new_channel,
                 sim.new_date,
                 sim.new_from_time,
-                sim.schedule,
+                sim.previous_program,
+                sim.impacted_programs,
+                sim.next_program,
                 sim.status,
                 sim.is_retry,
                 sce.id               AS sce_id,
@@ -174,4 +178,3 @@ class DatabricksServiceSimulationSpostamento(DatabricksServiceSimulation):
             row = cursor.fetchone()
 
         return dict(zip(columns, row)) if row else None
-

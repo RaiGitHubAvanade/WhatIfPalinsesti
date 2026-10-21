@@ -151,7 +151,9 @@ class SpostamentoSimulationHandler:
             "new_channel": req.new_channel,
             "new_date": req.new_date,
             "new_from_time": req.new_from_time,
-            "schedule": req.schedule,
+            "previous_program": req.previous_program,
+            "impacted_programs": req.impacted_programs,
+            "next_program": req.next_program,
             "share_result": None,
             "status": "Running",
             "creation_date": now,
@@ -178,7 +180,9 @@ class SpostamentoSimulationHandler:
             new_channel=row.get("new_channel"),
             new_date=str(row.get("new_date")) if row.get("new_date") else None,
             new_from_time=row.get("new_from_time"),
-            schedule=row.get("schedule"),
+            previous_program=row.get("previous_program"),
+            impacted_programs=row.get("impacted_programs"),
+            next_program=row.get("next_program"),
             program_share_predict=row.get("program_share_predict"),
         )
 

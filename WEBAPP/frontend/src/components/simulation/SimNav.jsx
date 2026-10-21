@@ -13,7 +13,9 @@ export default function SimNav() {
     spDestCh,
     spDestDay,
     spDestTime,
-    spScheduleIds,
+    spPreviousProgramId,
+    spImpactedProgramIds,
+    spNextProgramId,
     spScheduleLoading,
     spScheduleLoadedDay,
   } = state
@@ -24,6 +26,7 @@ export default function SimNav() {
       ? !!(spDestCh && spDestDay && spDestTime)
         && !spScheduleLoading
         && spScheduleLoadedDay === spDestDay
+        && spImpactedProgramIds.length > 0
       : !!cand
   )
 
@@ -58,7 +61,9 @@ export default function SimNav() {
           new_channel: spDestCh,
           new_date: spDestDay,
           new_from_time: spDestTime,
-          schedule: spScheduleIds,
+          previous_program: spPreviousProgramId,
+          impacted_programs: spImpactedProgramIds,
+          next_program: spNextProgramId,
         })
       } else {
         throw new Error('Modalità di simulazione non valida')
@@ -75,9 +80,29 @@ export default function SimNav() {
 
   const handleBack = () => {
     if (step === 1) {
-      set({ step: 0, mode: null, cand: null, spDestCh: null, spDestDay: '', spDestTime: null })
+      set({
+        step: 0,
+        mode: null,
+        cand: null,
+        spDestCh: null,
+        spDestDay: '',
+        spDestTime: null,
+        spPreviousProgramId: null,
+        spImpactedProgramIds: [],
+        spNextProgramId: null,
+      })
     } else if (step === 2) {
-      set({ step: 1, mode: null, cand: null, spDestCh: null, spDestDay: '', spDestTime: null })
+      set({
+        step: 1,
+        mode: null,
+        cand: null,
+        spDestCh: null,
+        spDestDay: '',
+        spDestTime: null,
+        spPreviousProgramId: null,
+        spImpactedProgramIds: [],
+        spNextProgramId: null,
+      })
     }
   }
 

@@ -12,7 +12,7 @@ import {
   DEFAULT_PROGRAM_PAGE_SIZE as PAGE_SIZE,
   PROGRAM_PAGE_SIZE_OPTIONS,
 } from '../../utils/constants'
-import { fmtDate, toMinutes } from '../../utils/dateUtils'
+import { durationMinutes, fmtDate, toMinutes } from '../../utils/dateUtils'
 import { formatShare } from '../../utils/shareUtils'
 import './StepDestination.css'
 
@@ -20,7 +20,15 @@ import './StepDestination.css'
 
 export default function StepDestination() {
   const { state, set, toast } = useApp()
-  const { spDestCh, spDestDay, spDestTime, spScheduleIds } = state
+  const {
+    spDestCh,
+    spDestDay,
+    spDestTime,
+    spPreviousProgramId,
+    spImpactedProgramIds,
+    spNextProgramId,
+    prog,
+  } = state
   const today = new Date().toISOString().slice(0, 10)
   const maxDay = new Date(new Date(today).getTime() + 6 * 86400000).toISOString().slice(0, 10)
 
@@ -35,7 +43,13 @@ export default function StepDestination() {
     if (!spDestDay) {
       setPage(1)
       setSchedule([])
-      set({ spScheduleIds: [], spScheduleLoading: false, spScheduleLoadedDay: '' })
+      set({
+        spPreviousProgramId: null,
+        spImpactedProgramIds: [],
+        spNextProgramId: null,
+        spScheduleLoading: false,
+        spScheduleLoadedDay: '',
+      })
       inFlightCountRef.current = 0
       setLoading(false)
       return
@@ -79,34 +93,111 @@ export default function StepDestination() {
     return () => clearTimeout(t)
   }, [fetchSchedule])
 
-  const filteredSchedule = useMemo(() => (
-    schedule
-      .filter((p) => !spDestCh || p.channel === spDestCh)
-      .filter((p) => {
-        if (!spDestTime) return true
-        const selected = toMinutes(spDestTime)
-        const from = toMinutes(p.from_time)
-        if (selected === null || from === null) return false
-        return from >= (selected - 120) && from <= (selected + 120)
-      })
-  ), [schedule, spDestCh, spDestTime])
+  const contextSelection = useMemo(() => {
+    const channelSchedule = schedule.filter((p) => !spDestCh || p.channel === spDestCh)
 
-  const filteredScheduleIds = useMemo(() => (
-    filteredSchedule
-      .map((p) => p.id)
+    if (!spDestTime) {
+      return {
+        programs: channelSchedule,
+        previousProgramId: null,
+        impactedProgramIds: [],
+        nextProgramId: null,
+      }
+    }
+
+    const targetStart = toMinutes(spDestTime)
+    const targetDuration = (typeof prog?.duration_minutes === 'number' && prog.duration_minutes > 0)
+      ? prog.duration_minutes
+      : durationMinutes(prog?.from_time, prog?.to_time)
+
+    if (targetStart === null || targetDuration === null || targetDuration <= 0) {
+      return {
+        programs: [],
+        previousProgramId: null,
+        impactedProgramIds: [],
+        nextProgramId: null,
+      }
+    }
+    const targetEnd = targetStart + targetDuration
+
+    const entries = channelSchedule
+      .map((program) => {
+        const start = toMinutes(program.from_time)
+        if (start === null) return null
+
+        let end = toMinutes(program.to_time)
+        if (end !== null && end <= start) end += 1440
+        if (end === null && typeof program.duration_minutes === 'number' && program.duration_minutes > 0) {
+          end = start + program.duration_minutes
+        }
+        if (end === null || end <= start) return null
+
+        return { program, start, end }
+      })
+      .filter((entry) => entry !== null)
+      .sort((a, b) => a.start - b.start)
+
+    const overlapIndexes = entries
+      .map((entry, idx) => (entry.start < targetEnd && entry.end > targetStart ? idx : -1))
+      .filter((idx) => idx >= 0)
+
+    if (overlapIndexes.length === 0) {
+      return {
+        programs: [],
+        previousProgramId: null,
+        impactedProgramIds: [],
+        nextProgramId: null,
+      }
+    }
+
+    const firstOverlapIdx = overlapIndexes[0]
+    const lastOverlapIdx = overlapIndexes[overlapIndexes.length - 1]
+    const includedIndexes = new Set(overlapIndexes)
+
+    if (firstOverlapIdx > 0) includedIndexes.add(firstOverlapIdx - 1)
+    if (lastOverlapIdx < entries.length - 1) includedIndexes.add(lastOverlapIdx + 1)
+
+    const programs = entries
+      .filter((_, idx) => includedIndexes.has(idx))
+      .map((entry) => entry.program)
+    const previousProgram = firstOverlapIdx > 0 ? entries[firstOverlapIdx - 1].program : null
+    const nextProgram = lastOverlapIdx < entries.length - 1 ? entries[lastOverlapIdx + 1].program : null
+    const impactedProgramIds = overlapIndexes
+      .map((idx) => entries[idx].program?.id)
       .filter((id) => id !== null && id !== undefined && id !== '')
       .map((id) => String(id))
-  ), [filteredSchedule])
+
+    return {
+      programs,
+      previousProgramId: previousProgram?.id ? String(previousProgram.id) : null,
+      impactedProgramIds,
+      nextProgramId: nextProgram?.id ? String(nextProgram.id) : null,
+    }
+  }, [schedule, spDestCh, spDestTime, prog])
+
+  const filteredSchedule = contextSelection.programs
 
   useEffect(() => {
-    const isSame =
-      spScheduleIds.length === filteredScheduleIds.length
-      && spScheduleIds.every((id, idx) => id === filteredScheduleIds[idx])
+    const samePrevious = spPreviousProgramId === contextSelection.previousProgramId
+    const sameNext = spNextProgramId === contextSelection.nextProgramId
+    const sameImpacted =
+      spImpactedProgramIds.length === contextSelection.impactedProgramIds.length
+      && spImpactedProgramIds.every((id, idx) => id === contextSelection.impactedProgramIds[idx])
 
-    if (!isSame) {
-      set({ spScheduleIds: filteredScheduleIds })
+    if (!samePrevious || !sameImpacted || !sameNext) {
+      set({
+        spPreviousProgramId: contextSelection.previousProgramId,
+        spImpactedProgramIds: contextSelection.impactedProgramIds,
+        spNextProgramId: contextSelection.nextProgramId,
+      })
     }
-  }, [filteredScheduleIds, set, spScheduleIds])
+  }, [
+    contextSelection,
+    set,
+    spPreviousProgramId,
+    spImpactedProgramIds,
+    spNextProgramId,
+  ])
 
   const totalPages = Math.max(1, Math.ceil(filteredSchedule.length / pageSize))
   const safePage = Math.min(page, totalPages)
