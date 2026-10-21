@@ -1,5 +1,10 @@
 from app.services.databricks_service import DatabricksService
 from app.models.competitor_program import CompetitorProgram
+from app.models.simulation_context_occurrence import SimulationContextOccurrence
+from app.models.simulation_context_program_anchor import SimulationContextProgramAnchor
+from app.models.simulation_context_slot import SimulationContextSlot
+from app.models.simulation_context_source_sostituzione import SimulationContextSourceSostituzione
+from app.models.simulation_context_source_spostamento import SimulationContextSourceSpostamento
 from app.models.scenario import Scenario
 from app.models.simulation_sostituzione import SimulationSostituzione
 from app.models.simulation_spostamento import SimulationSpostamento
@@ -384,6 +389,309 @@ class DatabricksServiceScenarios(DatabricksService):
                     "feature_explanations": FeatureExplanation.payload_from_storage_map(row[1]) if row[1] is not None else None,
                 })
         return results
+
+
+    ### --- Simulation context (detail page / Scarica Dettaglio) --- ###
+
+    def _fetch_rows(self, query: str, params: dict | None = None) -> list:
+        with self.cursor() as cursor:
+            cursor.execute(query, parameters=params or {})
+            return cursor.fetchall()
+
+    @staticmethod
+    def _to_minutes_expr(field_name: str) -> str:
+        return (
+            f"CASE WHEN INT(split({field_name}, ':')[0]) < 6 "
+            f"THEN INT(split({field_name}, ':')[0]) * 60 + INT(split({field_name}, ':')[1]) + 1440 "
+            f"ELSE INT(split({field_name}, ':')[0]) * 60 + INT(split({field_name}, ':')[1]) END"
+        )
+
+    def get_simulation_context_source_sostituzione(self, simulation_id: str) -> SimulationContextSourceSostituzione | None:
+        query = """
+            SELECT sce.program_id, sim.new_program_name, sim.new_program_share_storico
+            FROM webapp_simulations_sostituzione sim
+            JOIN webapp_scenarios sce
+                ON sim.id_scenario = sce.id
+            WHERE sim.id = :simulation_id
+        """
+        self._logger.info("get_simulation_context_source_sostituzione | id=%s", simulation_id)
+        rows = self._fetch_rows(query, {"simulation_id": simulation_id})
+        return SimulationContextSourceSostituzione.map_from_row(rows[0]) if rows else None
+
+    def get_simulation_context_source_spostamento(self, simulation_id: str) -> SimulationContextSourceSpostamento | None:
+        query = """
+            SELECT sce.program_id, sim.previous_program, sim.next_program, sim.impacted_programs
+            FROM webapp_simulations_spostamento sim
+            JOIN webapp_scenarios sce
+                ON sim.id_scenario = sce.id
+            WHERE sim.id = :simulation_id
+        """
+        self._logger.info("get_simulation_context_source_spostamento | id=%s", simulation_id)
+        rows = self._fetch_rows(query, {"simulation_id": simulation_id})
+        return SimulationContextSourceSpostamento.map_from_row(rows[0]) if rows else None
+
+    def get_context_slot_by_program_id(self, role: str, program_id: str) -> SimulationContextSlot | None:
+        query = """
+            SELECT :role AS ruolo, ID, Canale, Data, Programma, programma_norm, TipoGiorno,
+                   orario_inizio, orario_fine, durata_minuti, StoricoShare,
+                   Programma_prev, StoricoShare_prev, Programma_next, StoricoShare_next,
+                   Programma_competitor, Canale_competitor, StoricoShare_competitor
+            FROM out_palinsesto_predict_all_slots
+            WHERE ID = :program_id
+            LIMIT 1
+        """
+        params = {"role": role, "program_id": program_id}
+        self._logger.info("get_context_slot_by_program_id | with params %s", params)
+        rows = self._fetch_rows(query, params)
+        return SimulationContextSlot.map_from_row(rows[0]) if rows else None
+
+    def get_context_slots_by_program_ids(self, role: str, program_ids: list[str]) -> list[SimulationContextSlot]:
+        if not program_ids:
+            return []
+
+        params = {"role": role}
+        placeholders = []
+        for index, program_id in enumerate(program_ids):
+            key = f"id{index}"
+            params[key] = program_id
+            placeholders.append(f":{key}")
+
+        query = f"""
+            SELECT :role AS ruolo, ID, Canale, Data, Programma, programma_norm, TipoGiorno,
+                   orario_inizio, orario_fine, durata_minuti, StoricoShare,
+                   Programma_prev, StoricoShare_prev, Programma_next, StoricoShare_next,
+                   Programma_competitor, Canale_competitor, StoricoShare_competitor
+            FROM out_palinsesto_predict_all_slots
+            WHERE ID IN ({", ".join(placeholders)})
+            ORDER BY Data ASC, orario_inizio ASC
+        """
+        self._logger.info("get_context_slots_by_program_ids | role=%s count=%d", role, len(program_ids))
+        rows = self._fetch_rows(query, params)
+        return [SimulationContextSlot.map_from_row(row) for row in rows]
+
+    def get_prev_next_program_anchors(
+        self,
+        data_rif,
+        canale: str,
+        program_prev: str | None,
+        program_next: str | None,
+        orario_inizio: str,
+        orario_fine: str,
+    ) -> list[SimulationContextProgramAnchor]:
+        if not program_prev and not program_next:
+            return []
+
+        query = """
+            WITH candidati AS (
+                SELECT Programma, programma_norm, Canale, Data, TipoGiorno, orario_inizio, orario_fine, StoricoShare,
+                       CASE WHEN Programma = :program_prev THEN 'prev' ELSE 'next' END AS ruolo,
+                       ROW_NUMBER() OVER (
+                           PARTITION BY CASE WHEN Programma = :program_prev THEN 'prev' ELSE 'next' END
+                           ORDER BY CASE WHEN Programma = :program_prev
+                                         THEN ABS(({start_expr_ref}) - ({end_expr}))
+                                         ELSE ABS(({start_expr}) - ({end_expr_ref}))
+                           END
+                       ) AS rn
+                FROM out_palinsesto_predict_all_slots
+                WHERE Data = :data_rif
+                  AND Canale = :canale
+                  AND (
+                    (:program_prev IS NOT NULL AND Programma = :program_prev AND ({start_expr}) < ({start_expr_ref}))
+                    OR (:program_next IS NOT NULL AND Programma = :program_next AND ({start_expr}) > ({start_expr_ref}))
+                  )
+            )
+            SELECT ruolo, Programma, programma_norm, Canale, Data, TipoGiorno, orario_inizio, orario_fine, StoricoShare
+            FROM candidati
+            WHERE rn = 1
+        """.format(
+            start_expr=self._to_minutes_expr("orario_inizio"),
+            end_expr=self._to_minutes_expr("orario_fine"),
+            start_expr_ref=self._to_minutes_expr(":orario_inizio"),
+            end_expr_ref=self._to_minutes_expr(":orario_fine"),
+        )
+        params = {
+            "program_prev": program_prev,
+            "program_next": program_next,
+            "data_rif": data_rif,
+            "canale": canale,
+            "orario_inizio": orario_inizio,
+            "orario_fine": orario_fine,
+        }
+        self._logger.info("get_prev_next_program_anchors | with params %s", params)
+        rows = self._fetch_rows(query, params)
+        return [SimulationContextProgramAnchor.map_from_row(row) for row in rows]
+
+    def get_competitor_anchor(
+        self,
+        programma_competitor: str | None,
+        canale_competitor: str | None,
+        data_rif,
+        orario_inizio_rif: str,
+    ) -> SimulationContextProgramAnchor | None:
+        if not programma_competitor or not canale_competitor:
+            return None
+
+        rai_channels = {"Rai 1", "Rai 2", "Rai 3"}
+        if canale_competitor in rai_channels:
+            query = """
+                WITH candidati AS (
+                    SELECT 'competitor' AS ruolo, Programma, programma_norm, Canale, Data, TipoGiorno, orario_inizio, orario_fine,
+                           ROW_NUMBER() OVER (
+                               ORDER BY ABS(({start_expr}) - ({start_ref_expr}))
+                           ) AS rn
+                    FROM out_palinsesto_predict_all_slots
+                    WHERE Programma = :programma_competitor
+                      AND Canale = :canale_competitor
+                      AND Data = :data_rif
+                )
+                SELECT ruolo, Programma, programma_norm, Canale, Data, TipoGiorno, orario_inizio, orario_fine,
+                       CAST(NULL AS DOUBLE) AS StoricoShare
+                FROM candidati
+                WHERE rn = 1
+            """.format(
+                start_expr=self._to_minutes_expr("orario_inizio"),
+                start_ref_expr=self._to_minutes_expr(":orario_inizio_rif"),
+            )
+        else:
+            query = """
+                WITH candidati AS (
+                    SELECT 'competitor' AS ruolo, Programma, programma_norm, Canale, Data,
+                           CASE WHEN weekday(Data) IN (0, 1, 2, 3, 4) THEN 'Weekday' ELSE 'Weekend' END AS TipoGiorno,
+                           ora AS orario_inizio,
+                           CAST(NULL AS STRING) AS orario_fine,
+                           ROW_NUMBER() OVER (
+                               ORDER BY ABS(({start_expr}) - ({start_ref_expr}))
+                           ) AS rn
+                    FROM output_palinsesto_competitor
+                    WHERE Programma = :programma_competitor
+                      AND Canale = :canale_competitor
+                      AND Data = :data_rif
+                )
+                SELECT ruolo, Programma, programma_norm, Canale, Data, TipoGiorno, orario_inizio, orario_fine,
+                       CAST(NULL AS DOUBLE) AS StoricoShare
+                FROM candidati
+                WHERE rn = 1
+            """.format(
+                start_expr=self._to_minutes_expr("ora"),
+                start_ref_expr=self._to_minutes_expr(":orario_inizio_rif"),
+            )
+
+        params = {
+            "programma_competitor": programma_competitor,
+            "canale_competitor": canale_competitor,
+            "data_rif": data_rif,
+            "orario_inizio_rif": orario_inizio_rif,
+        }
+        self._logger.info("get_competitor_anchor | with params %s", params)
+        rows = self._fetch_rows(query, params)
+        return SimulationContextProgramAnchor.map_from_row(rows[0]) if rows else None
+
+    def get_occurrences_normal(
+        self,
+        role: str,
+        programma_norm: str,
+        canale: str,
+        data_rif,
+        ora_rif: int,
+        tipo_giorno: str,
+        start_date,
+        time_tolerance: int,
+        cutoff_days: int,
+        cutoff_num_occurrences: int,
+    ) -> list[SimulationContextOccurrence]:
+        query = """
+            WITH derivate AS (
+                SELECT :ruolo AS ruolo, Data, Canale, Programma, programma_norm, ORA_INIZIO_TRX, ORA_FINE_TRX, Share,
+                       Tipo_Trasmissione, Direzione_Di_Genere,
+                       `1st_Screen_LiveVOSDAL_Uomini` AS Share_Uomini_Pct,
+                       `1st_Screen_LiveVOSDAL_Donne`  AS Share_Donne_Pct,
+                       CAST(NULL AS DOUBLE) AS AMR,
+                       CAST(NULL AS DOUBLE) AS Platea,
+                       CAST(NULL AS DOUBLE) AS AMR_Uomini,
+                       CAST(NULL AS DOUBLE) AS AMR_Donne,
+                       CAST(BROUND(ORA_INIZIO_TRX / 3600, 0) AS INT) AS Ora,
+                       CASE WHEN weekday(Data) IN (0, 1, 2, 3, 4) THEN 'Weekday' ELSE 'Weekend' END AS TipoGiorno
+                FROM storico_programmi
+                WHERE Data >= :start_date
+            )
+            SELECT *
+            FROM derivate
+            WHERE programma_norm = :programma_norm
+                AND Canale = :canale
+                AND TipoGiorno = :tipo_giorno
+                AND Data <= date_sub(:data_rif, :cutoff_days)
+                AND Ora BETWEEN :ora_rif - :time_tolerance AND :ora_rif + :time_tolerance
+            ORDER BY Data DESC, ORA_INIZIO_TRX DESC
+            LIMIT CAST(:cutoff_num_occurrences AS INT)
+        """
+        params = {
+            "ruolo": role,
+            "programma_norm": programma_norm,
+            "canale": canale,
+            "data_rif": data_rif,
+            "ora_rif": int(ora_rif),
+            "tipo_giorno": tipo_giorno,
+            "start_date": start_date,
+            "time_tolerance": time_tolerance,
+            "cutoff_days": cutoff_days,
+            "cutoff_num_occurrences": cutoff_num_occurrences,
+        }
+        self._logger.info("get_occurrences_normal | role=%s programma_norm=%s", role, programma_norm)
+        rows = self._fetch_rows(query, params)
+        return [SimulationContextOccurrence.map_from_row(row) for row in rows]
+
+    def get_occurrences_new_program_name(
+        self,
+        programma: str,
+        time_tolerance: int,
+        cutoff_days: int,
+        cutoff_num_occurrences: int,
+    ) -> list[SimulationContextOccurrence]:
+        query = """
+            WITH programma_riferimento AS (
+                SELECT
+                    Data AS data_rif,
+                    CAST(ROUND(ORA_INIZIO_TRX / 3600.0) AS INT) AS ora_rif
+                FROM storico_programmi
+                WHERE Programma = :programma
+                    AND Canale IN ('Rai 1', 'Rai 2', 'Rai 3')
+                    AND ORA_INIZIO_TRX >= 7 * 3600
+                    AND ORA_INIZIO_TRX < 24 * 3600
+                ORDER BY Data DESC, ORA_INIZIO_TRX DESC
+                LIMIT 1
+            ),
+            derivate AS (
+                SELECT 'selected' AS ruolo, Data, Canale, Programma, programma_norm, ORA_INIZIO_TRX, ORA_FINE_TRX, Share,
+                       Tipo_Trasmissione, Direzione_Di_Genere,
+                       `1st_Screen_LiveVOSDAL_Uomini` AS Share_Uomini_Pct,
+                       `1st_Screen_LiveVOSDAL_Donne`  AS Share_Donne_Pct,
+                       CAST(NULL AS DOUBLE) AS AMR,
+                       CAST(NULL AS DOUBLE) AS Platea,
+                       CAST(NULL AS DOUBLE) AS AMR_Uomini,
+                       CAST(NULL AS DOUBLE) AS AMR_Donne,
+                       CAST(BROUND(ORA_INIZIO_TRX / 3600, 0) AS INT) AS Ora,
+                       CASE WHEN weekday(Data) IN (0, 1, 2, 3, 4) THEN 'Weekday' ELSE 'Weekend' END AS TipoGiorno
+                FROM storico_programmi
+            )
+            SELECT d.*
+            FROM derivate d
+            CROSS JOIN programma_riferimento r
+            WHERE d.Programma = :programma
+                AND d.Canale IN ('Rai 1', 'Rai 2', 'Rai 3')
+                AND d.Data <= DATE_SUB(r.data_rif, :cutoff_days)
+                AND d.Ora BETWEEN r.ora_rif - :time_tolerance AND r.ora_rif + :time_tolerance
+            ORDER BY d.Data DESC, d.ORA_INIZIO_TRX DESC
+            LIMIT CAST(:cutoff_num_occurrences AS INT)
+        """
+        params = {
+            "programma": programma,
+            "time_tolerance": time_tolerance,
+            "cutoff_days": cutoff_days,
+            "cutoff_num_occurrences": cutoff_num_occurrences,
+        }
+        self._logger.info("get_occurrences_new_program_name | programma=%s", programma)
+        rows = self._fetch_rows(query, params)
+        return [SimulationContextOccurrence.map_from_row(row) for row in rows]
 
 
     ### --- Competitors --- ###

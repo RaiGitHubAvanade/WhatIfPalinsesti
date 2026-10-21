@@ -6,6 +6,7 @@ from flask import Blueprint, request
 
 from app.container import get_scenarios_service
 from app.logics.business_logic_scenarios import BusinessLogicScenarios
+from app.logics.business_logic_simulation_context import BusinessLogicSimulationContext
 from app.models.api_response import error, success
 from app.utils.request_identity import resolve_request_user_identity
 from app.utils.sse_broker import broker
@@ -64,6 +65,29 @@ def get_features_and_shap():
         return error(message=f"Errore imprevisto: {e}", errors=["internal_error"]), 500
 
     return success(data={"items": items})
+
+
+@bp.route("/scenarios/simulation/<simulation_type>/<simulation_id>/context")
+def get_simulation_context(simulation_type, simulation_id):
+    logger.info("getSimulationContext | type=%s id=%s", simulation_type, simulation_id)
+
+    if simulation_type not in ("sostituzione", "spostamento") or not str(simulation_id).strip():
+        return error(message="Identificativo o tipo simulazione non valido", errors=["invalid_simulation"]), 400
+
+    try:
+        logic = BusinessLogicSimulationContext(get_scenarios_service())
+        result = logic.get_simulation_context(simulation_type, simulation_id)
+    except LookupError as e:
+        logger.warning("getSimulationContext not found | type=%s id=%s error=%s", simulation_type, simulation_id, e)
+        return error(message=str(e), errors=["not_found"]), 404
+    except RuntimeError as e:
+        logger.error("getSimulationContext RuntimeError: %s", e)
+        return error(message="Errore recupero contesto della simulazione", errors=["databricks_error"]), 502
+    except Exception as e:
+        logger.exception("getSimulationContext unexpected: %s", e)
+        return error(message=f"Errore imprevisto: {e}", errors=["internal_error"]), 500
+
+    return success(data=asdict(result), message="Contesto simulazione ottenuto con successo")
 
 
 @bp.route("/scenarios/simulation/sostituzione/<simulation_id>/delete", methods=["DELETE"])
