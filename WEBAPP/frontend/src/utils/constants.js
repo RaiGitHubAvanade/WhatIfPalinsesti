@@ -16,6 +16,9 @@ export const SCENARIO_CARD_SIMULATIONS_PER_PAGE = 3
 /** Max number of shap values displayed in the chart, in Simulation Detail pages */
 export const MAX_SHAP_VALUES_DISPLAYED = 5
 
+/** Decimal digits used to display every share value (and share deltas in pp) */
+export const SHARE_DECIMALS = 2
+
 /** "Durata Simile" filter (Step 3 Sostituzione): +/- minutes tolerance vs the target program duration */
 export const CANDIDATES_DURATION_OFFSET_MINUTES = 15
 

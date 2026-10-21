@@ -1,3 +1,4 @@
+import { formatShareNumber } from '../../utils/shareUtils'
 import './VerdictPill.css'
 
 export default function VerdictPill({ delta }) {
@@ -7,7 +8,7 @@ export default function VerdictPill({ delta }) {
   const icon = isPos ? '✅' : isNeg ? '⚠️' : '➡️'
   const arrow = isPos ? '↑ ' : isNeg ? '↓ ' : ''
   const deltaStr = delta !== null
-    ? `${delta >= 0 ? '+' : ''}${Math.abs(delta).toFixed(1)} pp`
+    ? `${delta >= 0 ? '+' : ''}${formatShareNumber(Math.abs(delta))} pp`
     : '—'
   const text = delta === null
     ? 'Dati insufficienti per la previsione'

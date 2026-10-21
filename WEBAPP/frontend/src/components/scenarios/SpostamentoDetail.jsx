@@ -1,10 +1,15 @@
 import { fmtDate, durationMinutes, endTimeFromStartAndDuration } from '../../utils/dateUtils'
+import { formatShare } from '../../utils/shareUtils'
+import { useSimulationContext } from '../../hooks/useSimulationContext'
 import CompetitorSection from './CompetitorSection'
+import SimulationContextBox from './SimulationContextBox'
+import SimulationDetailDownloadButton from './SimulationDetailDownloadButton'
 import SimulationExplanations from './SimulationExplanations'
 import VerdictPill from './VerdictPill'
 import './SpostamentoDetail.css'
 
 export default function SpostamentoDetail({ item, onClose }) {
+  const simulationContext = useSimulationContext(item?._sim_id, 'spostamento')
   if (!item?.result) return null
 
   const r = item.result
@@ -23,8 +28,16 @@ export default function SpostamentoDetail({ item, onClose }) {
   return (
     <div className="card res-card">
       <div className="res-recap-inline">
-        <div className="res-recap-title">
-          Spostamento di <span className="res-prog-highlight">{r.prog_title}</span>
+        <div className="res-recap-head">
+          <div className="res-recap-title">
+            Spostamento di <span className="res-prog-highlight">{r.prog_title}</span>
+          </div>
+          <SimulationDetailDownloadButton
+            simulationId={item._sim_id}
+            simulationType="spostamento"
+            context={simulationContext.context}
+            filenameParts={{ programName: r.prog_title, targetName: r.dest_ch, date: r.dest_date }}
+          />
         </div>
       </div>
 
@@ -57,18 +70,25 @@ export default function SpostamentoDetail({ item, onClose }) {
         <div className="res-shares-row">
           <div className="res-share-col">
             <span className="res-share-lbl">Share slot originale</span>
-            <span className={`res-share-val${origColorCls}`}>{origSlotShare !== null ? `${origSlotShare.toFixed(1)}%` : '—'}</span>
+            <span className={`res-share-val${origColorCls}`}>{formatShare(origSlotShare)}</span>
             <span className="res-share-prog">{r.orig_ch} · {r.orig_time || '—'}</span>
           </div>
           <div className="res-share-divider">→</div>
           <div className="res-share-col">
             <span className="res-share-lbl">Share slot destinazione</span>
-            <span className={`res-share-val res-share-pred${predColorCls}`}>{destSlotShare !== null ? `${destSlotShare.toFixed(1)}%` : '—'}</span>
+            <span className={`res-share-val res-share-pred${predColorCls}`}>{formatShare(destSlotShare)}</span>
             <span className="res-share-prog">{r.dest_ch || '—'} · {r.dest_time || '—'}</span>
           </div>
         </div>
         <VerdictPill delta={delta} />
       </div>
+
+      <SimulationContextBox
+        loading={simulationContext.loading}
+        error={simulationContext.error}
+        context={simulationContext.context}
+        onRetry={simulationContext.retry}
+      />
 
       <SimulationExplanations key={item._sim_id} simulationId={item._sim_id} simulationType="spostamento" />
 

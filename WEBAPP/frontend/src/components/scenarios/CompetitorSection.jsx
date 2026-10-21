@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { getScenCompetitorPrograms, toggleEventoForte } from '../../services/apiScenarios'
+import { formatShare } from '../../utils/shareUtils'
 import './CompetitorSection.css'
 
 export default function CompetitorSection({ channel, day, from_time, onBack }) {
@@ -80,7 +81,7 @@ export default function CompetitorSection({ channel, day, from_time, onBack }) {
                           <span className="res-comp-time">{p.from_time}–{p.to_time}</span>
                           <span className="res-comp-prog-name" title={p.program_name}>{p.program_name}</span>
                           {p.share_storico !== null && (
-                            <span className="res-comp-share">{p.share_storico.toFixed(1)}%</span>
+                            <span className="res-comp-share">{formatShare(p.share_storico)}</span>
                           )}
                           <button
                             className={`res-comp-evento-btn${p.evento_forte ? ' active' : ''}`}

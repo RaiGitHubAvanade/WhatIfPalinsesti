@@ -74,7 +74,7 @@ class AiService:
         time.sleep(30)
         return {
             "predictions": {
-                "predicted_share_pct": round(random.uniform(0, 20), 1),
+                "predicted_share_pct": round(random.uniform(0, 20), 2),
                 "feature_explanations": [
                     {"feature_name": "HistoricalSharePreviousProgram", "feature_value": "1.2", "shap_value": -4.38},
                     {"feature_name": "HistoricalShareNextProgram", "feature_value": "26.1", "shap_value": 2.1},

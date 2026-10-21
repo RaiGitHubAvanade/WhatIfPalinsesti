@@ -1,5 +1,6 @@
 import { useApp } from '../../context/useApp'
 import { fmtDate } from '../../utils/dateUtils'
+import { formatShare } from '../../utils/shareUtils'
 import './SimRecap.css'
 
 export default function SimRecap() {
@@ -46,7 +47,7 @@ export default function SimRecap() {
           {typeof prog.share_predicted === 'number' && (
             <div className="rp-share-row">
               <span className="rp-share-lbl">Share Previsto</span>
-              <span className="rp-share-val">{prog.share_predicted.toFixed(1)}%</span>
+              <span className="rp-share-val">{formatShare(prog.share_predicted)}</span>
             </div>
           )}
         </div>
@@ -111,7 +112,7 @@ export default function SimRecap() {
               {typeof cand.share_storico === 'number' && (
                 <div className="rp-share-row">
                   <span className="rp-share-lbl">Share storico</span>
-                  <span className="rp-share-val">{cand.share_storico.toFixed(1)}%</span>
+                  <span className="rp-share-val">{formatShare(cand.share_storico)}</span>
                 </div>
               )}
             </div>

@@ -13,6 +13,7 @@ import {
   PROGRAM_PAGE_SIZE_OPTIONS,
 } from '../../utils/constants'
 import { fmtDate, toMinutes } from '../../utils/dateUtils'
+import { formatShare } from '../../utils/shareUtils'
 import './StepDestination.css'
 
 /** @typedef {import('../../models/simulation/destinationProgramViewModel').DestinationProgramViewModel} DestinationProgramViewModel */
@@ -166,7 +167,7 @@ export default function StepDestination() {
                 ℹ️ Visualizzazione informativa del palinsesto per l&apos;intervallo selezionato
               </div>
               {pageItems.map((p) => {
-                const sv = typeof p.share_predicted === 'number' ? p.share_predicted.toFixed(1) + '%' : '–'
+                const sv = formatShare(p.share_predicted, '–')
                 const cc = CH_CLS[p.channel] || ''
 
                 return (

@@ -1,0 +1,99 @@
+.res-ctx-box {
+  padding: 20px;
+  border-bottom: 1.5px solid var(--border);
+  background: #fff;
+}
+
+.res-ctx-box .res-main-hdr {
+  margin-bottom: 8px;
+}
+
+.res-ctx-desc,
+.res-ctx-status {
+  margin: 0 0 14px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.res-ctx-table-wrap {
+  overflow-x: auto;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+}
+
+.res-ctx-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+  color: var(--text);
+}
+
+.res-ctx-table th,
+.res-ctx-table td {
+  padding: 9px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+.res-ctx-table thead th {
+  background: #F8FAFF;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  color: var(--muted);
+}
+
+.res-ctx-table tbody th {
+  font-weight: 600;
+}
+
+.res-ctx-table tbody tr:last-child th,
+.res-ctx-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.res-ctx-table .num {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.res-ctx-group th,
+.res-ctx-group td {
+  background: #FAFBFF;
+}
+
+.res-ctx-child td {
+  font-size: 12px;
+  border-bottom-style: dashed;
+}
+
+.res-ctx-child-name {
+  display: inline-block;
+  padding-left: 14px;
+  position: relative;
+}
+
+.res-ctx-child-name::before {
+  content: '↳';
+  position: absolute;
+  left: 0;
+  color: var(--muted);
+}
+
+.res-ctx-child-time {
+  margin-left: 8px;
+  color: var(--muted);
+  font-size: 11.5px;
+  white-space: nowrap;
+}
+
+.res-recap-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}

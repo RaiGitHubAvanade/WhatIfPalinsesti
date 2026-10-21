@@ -1,6 +1,17 @@
 import ExcelJS from 'exceljs'
 import { sanitizeFilenameSegment, styleWorksheetHeader, downloadBuffer } from './exportExcel'
 import { getFeatureExplanationsFromResponse, simulationKey } from './predictionUtils'
+import { SHARE_EXCEL_NUMFMT } from './shareUtils'
+
+const SHARE_COLUMNS = new Set([
+  'Share Originale Previsto (%)',
+  'Share Storico Sostituto (%)',
+  'Share Previsto Post-Sostituzione (%)',
+  'Delta Sostituzione (pp)',
+  'Share Previsto Post-Spostamento (%)',
+  'Delta Spostamento (pp)',
+  'Share Previsto (%)',
+])
 
 function stripAfterAt(value) {
   const text = String(value || '').trim()
@@ -215,6 +226,7 @@ export async function exportScenariosToExcel(filtered, filters) {
     header: h,
     key:    h,
     width:  COL_WIDTHS[h] ?? 18,
+    style:  SHARE_COLUMNS.has(h) ? { numFmt: SHARE_EXCEL_NUMFMT } : undefined,
   }))
 
   // Style header row
@@ -229,7 +241,12 @@ export async function exportScenariosToExcel(filtered, filters) {
   const featureRows = flattenFeatureExplanationsForExport(enriched)
   const featuresSheet = wb.addWorksheet('Fattori rilevanti')
   const featureHeaders = ['ID Scenario', 'ID Simulazione', 'Tipo', 'Predizione', 'Share Previsto (%)', 'Feature', 'Valore Feature', 'Valore Shap']
-  featuresSheet.columns = featureHeaders.map(header => ({ header, key: header, width: header === 'Feature' ? 45 : 24 }))
+  featuresSheet.columns = featureHeaders.map(header => ({
+    header,
+    key: header,
+    width: header === 'Feature' ? 45 : 24,
+    style: SHARE_COLUMNS.has(header) ? { numFmt: SHARE_EXCEL_NUMFMT } : undefined,
+  }))
   styleWorksheetHeader(featuresSheet)
   featureRows.forEach(row => featuresSheet.addRow(row))
   featuresSheet.views = [{ state: 'frozen', ySplit: 1 }]

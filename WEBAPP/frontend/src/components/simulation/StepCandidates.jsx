@@ -15,6 +15,7 @@ import TextInputFilter from '../shared/TextInputFilter'
 import FilterCheckbox from '../shared/FilterCheckbox'
 import '../shared/FilterField.css'
 import { durationMinutes } from '../../utils/dateUtils'
+import { formatShare } from '../../utils/shareUtils'
 import './StepCandidates.css'
 
 /** @typedef {import('../../models/simulation/candidateProgramViewModel').CandidateProgramViewModel} CandidateProgramViewModel */
@@ -189,7 +190,7 @@ export default function StepCandidates() {
             <div className="psel-list-body" id="cand-list-items">
               {pageItems.map((p) => {
                 const sel = cand?.channel === p.channel && cand?.program_name === p.program_name
-                const sv = typeof p.share_storico === 'number' ? p.share_storico.toFixed(1) + '%' : '-'
+                const sv = formatShare(p.share_storico, '-')
                 const cc = CH_CLS[p.channel] || ''
 
                 return (

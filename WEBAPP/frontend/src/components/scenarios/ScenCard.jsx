@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { fmtDateShort } from '../../utils/dateUtils'
+import { formatShare, formatShareDelta } from '../../utils/shareUtils'
 import {
   MAX_SIMULATIONS_PER_SCENARIO,
   SCENARIO_CARD_SIMULATIONS_PER_PAGE,
@@ -186,7 +187,7 @@ export default function ScenCard({ scenId, sc, onDelete, onEditScenarioName, onA
           <div className="scen-hcard-anchor" title={sc.anchor.program_name}>
             🎯 {sc.anchor.program_name}
             {typeof sc.anchor.share_predicted === 'number' && (
-              <span className="scen-anchor-share">{sc.anchor.share_predicted.toFixed(1)}%</span>
+              <span className="scen-anchor-share">{formatShare(sc.anchor.share_predicted)}</span>
             )}
           </div>
         )}
@@ -250,7 +251,7 @@ export default function ScenCard({ scenId, sc, onDelete, onEditScenarioName, onA
                 <span className="scen-item-emoji">{emoji}</span>
                 <span className="scen-item-name">{candName}</span>
                 {candShare !== null && (
-                  <span className="scen-item-cursare">{candShare.toFixed(1)}%</span>
+                  <span className="scen-item-cursare">{formatShare(candShare)}</span>
                 )}
                 {item._status === 'Running' && (
                   <span className="scen-item-status" title="Simulazione in corso">
@@ -264,9 +265,9 @@ export default function ScenCard({ scenId, sc, onDelete, onEditScenarioName, onA
               <div className="scen-item-result">
                 {item._status === 'Completed' && predicted !== null ? (
                   <span className="scen-item-pred" style={{ color: deltaColor }}>
-                    {predicted.toFixed(1)}%
+                    {formatShare(predicted)}
                     {delta !== null && (
-                      <small>&nbsp;{delta >= 0 ? '+' : ''}{delta.toFixed(1)} pp</small>
+                      <small>&nbsp;{formatShareDelta(delta)} pp</small>
                     )}
                   </span>
                 ) : item._status === 'Running' ? (

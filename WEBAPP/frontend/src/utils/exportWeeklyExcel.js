@@ -1,5 +1,6 @@
 import ExcelJS from 'exceljs'
 import { sanitizeFilenameSegment, styleWorksheetHeader, downloadBuffer } from './exportExcel'
+import { roundShare, SHARE_EXCEL_NUMFMT } from './shareUtils'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Filename builder
@@ -42,7 +43,7 @@ export function flattenWeeklyRowsForExport(rows, wOverrides, channel) {
     const manualeVal = (override && 'manual' in override) ? override.manual : (row.share_manual ?? null)
     const baseForDelta = manualeVal != null ? manualeVal : row.share_expected
     const scostamento = row.share_real != null && baseForDelta != null
-      ? parseFloat((row.share_real - baseForDelta).toFixed(1))
+      ? roundShare(row.share_real - baseForDelta)
       : null
 
     return {
@@ -75,6 +76,8 @@ const COL_WIDTHS = {
   'Scostamento (pp)': 18,
 }
 
+const SHARE_COLUMNS = new Set(['Previsto (%)', 'Manuale (%)', 'Auditel (%)', 'Scostamento (pp)'])
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Main export function
 // ─────────────────────────────────────────────────────────────────────────────
@@ -103,6 +106,7 @@ export async function exportWeeklyToExcel(rows, wOverrides, meta) {
     header: h,
     key:    h,
     width:  COL_WIDTHS[h] ?? 18,
+    style:  SHARE_COLUMNS.has(h) ? { numFmt: SHARE_EXCEL_NUMFMT } : undefined,
   }))
 
   // Style header row

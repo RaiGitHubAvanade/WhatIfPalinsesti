@@ -28,11 +28,12 @@ export function sanitizeFilenameSegment(str) {
 
 /**
  * Apply standard header row styling to an ExcelJS worksheet.
- * Must be called after ws.columns has been set.
+ * Must be called after the header row has been written.
  * @param {import('exceljs').Worksheet} ws
+ * @param {number} [rowNumber=1] row holding the column headers
  */
-export function styleWorksheetHeader(ws) {
-  const headerRow = ws.getRow(1)
+export function styleWorksheetHeader(ws, rowNumber = 1) {
+  const headerRow = ws.getRow(rowNumber)
   headerRow.font      = { bold: true, color: { argb: 'FFFFFFFF' } }
   headerRow.fill      = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E3A5F' } }
   headerRow.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true }

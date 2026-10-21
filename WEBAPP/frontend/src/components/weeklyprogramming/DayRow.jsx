@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useApp } from '../../context/useApp'
+import { formatShare, roundShare } from '../../utils/shareUtils'
 import OtherChannelsModal from './OtherChannelsModal'
 import './DayRow.css'
 
@@ -25,10 +26,9 @@ export default function DayRow({ row, showDay, dayIso, wCh, editableFromDate, is
 
   // Scostamento uses Manuale if set, otherwise Previsto from API
   const baseForDelta = manualeVal != null ? manualeVal : row.share_expected
-  const delta = row.share_real != null && baseForDelta != null
-    ? (row.share_real - baseForDelta).toFixed(1)
+  const deltaNum = row.share_real != null && baseForDelta != null
+    ? roundShare(row.share_real - baseForDelta)
     : null
-  const deltaNum = delta != null ? parseFloat(delta) : null
 
   const handleSaveManuale = () => {
     const trimmed = editManualeVal.trim()
@@ -36,7 +36,7 @@ export default function DayRow({ row, showDay, dayIso, wCh, editableFromDate, is
     if (trimmed !== '') {
       const num = parseFloat(trimmed)
       if (isNaN(num)) { setEditingManuale(false); return }
-      newValue = num
+      newValue = roundShare(num)
     }
 
     // Skip if nothing changed
@@ -60,13 +60,13 @@ export default function DayRow({ row, showDay, dayIso, wCh, editableFromDate, is
       </td>
       <td className="pw-dr-prog">{displayProg}</td>
       <td className="pw-dr-prev">
-        {row.share_expected != null ? row.share_expected + '%' : <span className="pw-muted-italic">—</span>}
+        {row.share_expected != null ? formatShare(row.share_expected) : <span className="pw-muted-italic">—</span>}
       </td>
       <td className="pw-dr-manual">
         {/* View state — always rendered so the cell keeps its size */}
         <span className="pw-prev-view" style={{ visibility: editingManuale ? 'hidden' : 'visible' }}>
           <span className="pw-prev-value">
-            {manualeVal != null ? manualeVal + '%' : <span className="pw-muted-italic">—</span>}
+            {manualeVal != null ? formatShare(manualeVal) : <span className="pw-muted-italic">—</span>}
           </span>
           {isEditable && isEditMode && (
             <button
@@ -82,7 +82,7 @@ export default function DayRow({ row, showDay, dayIso, wCh, editableFromDate, is
             <input
               className="pw-prev-input"
               type="number"
-              step="0.1"
+              step="0.01"
               min="0"
               max="100"
               value={editManualeVal}
@@ -99,12 +99,12 @@ export default function DayRow({ row, showDay, dayIso, wCh, editableFromDate, is
         )}
       </td>
       <td className="pw-dr-real">
-        {row.share_real != null ? row.share_real + '%' : <span className="pw-muted">—</span>}
+        {row.share_real != null ? formatShare(row.share_real) : <span className="pw-muted">—</span>}
       </td>
       <td>
         {deltaNum != null ? (
           <span className={`pw-scost-pill ${deltaNum > 0 ? 'pw-scost-pos' : 'pw-scost-neg'}`}>
-            {deltaNum > 0 ? '+' : ''}{deltaNum}%
+            {deltaNum > 0 ? '+' : ''}{formatShare(deltaNum)}
           </span>
         ) : <span className="pw-muted">—</span>}
       </td>

@@ -27,6 +27,68 @@ export async function getFeatures(simulations, requestOptions = {}) {
   return items
 }
 
+/**
+ * @typedef {Object} SimulationContextElement
+ * @property {string} key
+ * @property {string} label
+ * @property {string|null} program_name
+ * @property {string|null} channel
+ * @property {number|null} share_storico        percentage (e.g. 11.3)
+ * @property {number|null} occurrences_count
+ * @property {string|null} from_time
+ * @property {string|null} to_time
+ * @property {SimulationContextElement[]} children
+ *
+ * @typedef {Object} SimulationOccurrence
+ * @property {string} element_key
+ * @property {string} element_label
+ * @property {string} role                     short label: Selezionato, Precedente, Successivo, Competitor, Sostituito, Coinvolto
+ * @property {string|null} scenario_program
+ * @property {string|null} historical_program
+ * @property {string|null} broadcast_type     storico_programmi.Tipo_Trasmissione
+ * @property {string|null} direction_genre
+ * @property {string|null} channel
+ * @property {string|null} date
+ * @property {string|null} day_type           Weekday / Weekend
+ * @property {string|null} day_name           Lunedì ... Domenica
+ * @property {string|null} from_time
+ * @property {string|null} to_time
+ * @property {number|null} duration_minutes
+ * @property {number|null} share               percentage (e.g. 11.3)
+ * @property {number|null} amr                 thousands (000)
+ * @property {number|null} platea              thousands (000)
+ * @property {number|null} share_men           percentage of the program audience (e.g. 54.6)
+ * @property {number|null} share_women         percentage of the program audience (e.g. 45.4)
+ * @property {number|null} amr_men             thousands (000)
+ * @property {number|null} amr_women           thousands (000)
+ *
+ * @typedef {Object} SimulationContext
+ * @property {string} simulation_id
+ * @property {'sostituzione'|'spostamento'} simulation_type
+ * @property {SimulationContextElement[]} elements
+ * @property {SimulationOccurrence[]} occurrences
+ */
+
+/** @returns {Promise<SimulationContext>} */
+export async function getSimulationContext(simulationType, simulationId, requestOptions = {}) {
+  let result
+  try {
+    result = await apiFetch(
+      `/api/scenarios/simulation/${encodeURIComponent(simulationType)}/${encodeURIComponent(simulationId)}/context`,
+      requestOptions,
+    )
+  } catch (error) {
+    // apiFetch embeds the raw response body in the message: surface the backend message when available.
+    const body = /^API error \d+: (\{.*\})$/s.exec(error?.message || '')?.[1]
+    let message
+    try { message = body ? JSON.parse(body).message : null } catch { message = null }
+    if (message) throw new Error(message, { cause: error })
+    throw error
+  }
+  if (!result.success) throw new Error(result.message || 'Errore caricamento contesto simulazione')
+  return result.data
+}
+
 /** @returns {Promise<ScenarioListViewModel>} */
 export async function getScenarios(requestOptions = {}) {
   const result = await apiFetch('/api/scenarios', requestOptions)

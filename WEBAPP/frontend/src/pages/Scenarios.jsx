@@ -19,6 +19,7 @@ import TextInputFilter from '../components/shared/TextInputFilter'
 import FilterCheckbox from '../components/shared/FilterCheckbox'
 import '../components/shared/FilterField.css'
 import ConfirmPopup from '../components/shared/ConfirmPopup'
+import { roundShare } from '../utils/shareUtils'
 import {
   MAX_SIMULATIONS_PER_SCENARIO,
   SCENARIOS_PAGE_SIZE_OPTIONS,
@@ -59,7 +60,7 @@ function mapToDisplay(apiScen) {
     const predicted = sim.share_result ?? null
     const delta =
       predicted !== null && program_share_predict !== null
-        ? parseFloat((predicted - program_share_predict).toFixed(2))
+        ? roundShare(predicted - program_share_predict)
         : null
 
     if (scenario_type === 'sostituzione') {

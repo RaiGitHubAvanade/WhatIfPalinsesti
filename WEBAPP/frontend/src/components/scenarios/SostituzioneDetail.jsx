@@ -1,10 +1,15 @@
 import { fmtDate } from '../../utils/dateUtils'
+import { formatShare } from '../../utils/shareUtils'
+import { useSimulationContext } from '../../hooks/useSimulationContext'
 import CompetitorSection from './CompetitorSection'
+import SimulationContextBox from './SimulationContextBox'
+import SimulationDetailDownloadButton from './SimulationDetailDownloadButton'
 import SimulationExplanations from './SimulationExplanations'
 import VerdictPill from './VerdictPill'
 import './SostituzioneDetail.css'
 
 export default function SostituzioneDetail({ item, onClose }) {
+  const simulationContext = useSimulationContext(item?._sim_id, 'sostituzione')
   if (!item?.result) return null
 
   const r = item.result
@@ -26,9 +31,17 @@ export default function SostituzioneDetail({ item, onClose }) {
   return (
     <div className="card res-card res-card-sostituzione">
       <div className="res-recap-inline">
-        <div className="res-recap-title">
-          Sostituzione di <span className="res-prog-highlight">{r.orig_title}</span>
-          {' '}con <span className="res-prog-highlight">{r.cand_title}</span>
+        <div className="res-recap-head">
+          <div className="res-recap-title">
+            Sostituzione di <span className="res-prog-highlight">{r.orig_title}</span>
+            {' '}con <span className="res-prog-highlight">{r.cand_title}</span>
+          </div>
+          <SimulationDetailDownloadButton
+            simulationId={item._sim_id}
+            simulationType="sostituzione"
+            context={simulationContext.context}
+            filenameParts={{ programName: r.orig_title, targetName: r.cand_title, date: item.date }}
+          />
         </div>
         {recapItems.length > 0 && (
           <div
@@ -45,18 +58,25 @@ export default function SostituzioneDetail({ item, onClose }) {
         <div className="res-shares-row">
           <div className="res-share-col">
             <span className="res-share-lbl">Share attuale</span>
-            <span className={`res-share-val${origColorCls}`}>{origShare !== null ? `${origShare.toFixed(1)}%` : '—'}</span>
+            <span className={`res-share-val${origColorCls}`}>{formatShare(origShare)}</span>
             <span className="res-share-prog">{r.orig_title}</span>
           </div>
           <div className="res-share-divider">→</div>
           <div className="res-share-col">
             <span className="res-share-lbl">Share previsto</span>
-            <span className={`res-share-val res-share-pred${predColorCls}`}>{predShare !== null ? `${predShare.toFixed(1)}%` : '—'}</span>
+            <span className={`res-share-val res-share-pred${predColorCls}`}>{formatShare(predShare)}</span>
             <span className="res-share-prog">{r.cand_title}</span>
           </div>
         </div>
         <VerdictPill delta={delta} />
       </div>
+
+      <SimulationContextBox
+        loading={simulationContext.loading}
+        error={simulationContext.error}
+        context={simulationContext.context}
+        onRetry={simulationContext.retry}
+      />
 
       <SimulationExplanations key={item._sim_id} simulationId={item._sim_id} simulationType="sostituzione" />
 

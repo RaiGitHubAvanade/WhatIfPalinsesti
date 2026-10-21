@@ -14,6 +14,7 @@ import {
   TARGET_PROGRAMS_CACHE_TTL_MS,
 } from '../../utils/constants'
 import { fmtDate, toMinutes } from '../../utils/dateUtils'
+import { formatShare } from '../../utils/shareUtils'
 import '../shared/FilterField.css'
 import './StepProgram.css'
 
@@ -167,7 +168,7 @@ export default function StepProgram() {
           {pageItems.map((p) => {
             const sel = prog?.channel === p.channel && prog?.from_time === p.from_time
             const hasShare = typeof p.share_predicted === 'number'
-            const sv = hasShare ? p.share_predicted.toFixed(1) + '%' : '–'
+            const sv = formatShare(p.share_predicted, '–')
             const cc = CH_CLS[p.channel] || ''
             return (
               <div
